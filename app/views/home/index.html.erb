@@ -1,0 +1,70 @@
+<% semifinal_1_rows = [
+  { left: "Grant Marvin / Jordan Blount", games: %w[11-5 7-11 11-4], points: "2-1", left_won: true, right: "Chris Bell / Aabir Malik" },
+  { left: "Matt Hill / Tom Stuart", games: %w[5-11 5-11 3-11], points: "0-4", left_won: false, right: "David Ferragut / Justin Browne" },
+  { left: "Kimberly Blount / Casey Wu", games: %w[8-11 9-11 5-11], points: "0-4", left_won: false, right: "Matt MacConnell / Jon Berry" },
+  { left: "John Banaszak / Patrick Hudson", games: %w[11-7 11-7 11-9], points: "4-0", left_won: true, right: "Brett Isis / Sean O'Brien" },
+] %>
+
+<% semifinal_2_rows = [
+  { left: "Eric Perraud / Mike Crockett", games: ["11-8", "11-13", "7-11"], points: "1-2", left_won: false, right: "Harrison Hudson / Craig Laubacher" },
+  { left: "Kit Mellem / Brooks Masterson", games: ["11-5", "12-10", "11-4"], points: "4-0", left_won: true, right: "Eylan Harris / Bevon Francis" },
+  { left: "Parker Anderson / Chris Bradley", games: ["11-13", "6-11", "12-10"], points: "1-2", left_won: false, right: "Ryan Hazlett / Jonas Lord" },
+  { left: "Joel Douglas / Ryan McClagan", games: ["11-2", "11-8", "11-3"], points: "4-0", left_won: true, right: "Matthew Robinson / Patrick Badolato" },
+] %>
+
+<% final_rows = [
+  { left: "Eric Perraud / Mike Crockett", games: %w[6-11 1-11 9-11], points: "0-4", left_won: false, right: "Chris Bell / Aabir Malik" },
+  { left: "Brooks Masterson / Kit Mellem", games: ["11-9", "11-4", "8-11"], points: "2-1", left_won: true, right: "David Ferragut / Justin Browne" },
+  { left: "Parker Anderson / Chris Bradley", games: ["10-12", "4-11", "5-11"], points: "0-4", left_won: false, right: "Matt MacConnell / Jon Berry" },
+  { left: "Joel Douglas / Ryan McClagan", games: %w[11-3 11-7 11-4], points: "4-0", left_won: true, right: "Brett Isis / Sean O'Brien" },
+] %>
+
+<div class="flex flex-col gap-10">
+  <div class="flex flex-col gap-6 items-center">
+    <%= image_tag "celebration.gif", alt: "Championship celebration", class: "rounded-lg shadow-lg max-w-md w-full" %>
+    <%= image_tag "champs.png", alt: "Dink Pony Club champions", class: "rounded-lg shadow-lg max-w-md w-full" %>
+  </div>
+
+  <div>
+    <h1 class="text-3xl font-extrabold text-dpc-navy mb-1">Dink Pony Club Playoffs</h1>
+    <p class="text-gray-500 mb-6">August 14, 2026</p>
+
+    <div class="grid md:grid-cols-2 gap-6">
+      <%= render "bracket_table",
+            title: "Semifinal 1",
+            left_seed: 1, left_name: "Soft Serves", left_score: 6,
+            right_seed: 4, right_name: "Big Dink Energy", right_score: 9,
+            header_bg: "bg-dpc-navy", winner_color: "text-dpc-navy",
+            rows: semifinal_1_rows,
+            footer_text: "Big Dink Energy advances to the Finals" %>
+
+      <%= render "bracket_table",
+            title: "Semifinal 2",
+            left_seed: 2, left_name: "Net Gainz", left_score: 10,
+            right_seed: 3, right_name: "Old Balls, New Flicks", right_score: 4,
+            header_bg: "bg-dpc-green", winner_color: "text-dpc-green",
+            rows: semifinal_2_rows,
+            footer_text: "Net Gainz advances to the Finals" %>
+    </div>
+  </div>
+
+  <div class="grid md:grid-cols-3 gap-6 items-start">
+    <div class="md:col-span-2">
+      <%= render "bracket_table",
+            title: "Championship Final",
+            left_seed: 2, left_name: "Net Gainz", left_score: 6,
+            right_seed: 4, right_name: "Big Dink Energy", right_score: 9,
+            header_bg: "bg-dpc-green", winner_color: "text-dpc-green",
+            rows: final_rows,
+            footer_text: nil %>
+    </div>
+
+    <div class="border-2 border-black text-center">
+      <div class="bg-black text-white font-bold py-2">Champion</div>
+      <div class="py-6 px-4">
+        <p class="text-xl font-extrabold text-dpc-navy mb-2">#4 Big Dink Energy</p>
+        <span class="text-5xl">🏆</span>
+      </div>
+    </div>
+  </div>
+</div>

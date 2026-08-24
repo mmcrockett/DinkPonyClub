@@ -1,0 +1,39 @@
+<div class="border-2 border-black">
+  <div class="<%= header_bg %> text-white text-center font-bold py-2">
+    <%= title %>
+  </div>
+
+  <div class="grid grid-cols-2 <%= header_bg %> text-white text-center font-bold py-2">
+    <div>#<%= left_seed %> <%= left_name %> <span class="text-2xl ml-2"><%= left_score %></span></div>
+    <div><span class="text-2xl mr-2"><%= right_score %></span> #<%= right_seed %> <%= right_name %></div>
+  </div>
+
+  <table class="w-full text-sm">
+    <thead>
+      <tr class="<%= header_bg %> text-white">
+        <th class="py-1 px-2 text-left"><%= left_name %></th>
+        <th class="px-2">G1</th>
+        <th class="px-2">G2</th>
+        <th class="px-2">G3</th>
+        <th class="px-2">Points</th>
+        <th class="py-1 px-2 text-left"><%= right_name %></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% rows.each_with_index do |row, i| %>
+        <tr class="<%= i.even? ? "bg-white" : "bg-dpc-cream" %>">
+          <td class="py-1 px-2 font-semibold"><%= row[:left] %></td>
+          <% row[:games].each do |g| %>
+            <td class="px-2 text-center"><%= g %></td>
+          <% end %>
+          <td class="px-2 text-center font-bold <%= row[:left_won] ? winner_color : "text-red-600" %>"><%= row[:points] %></td>
+          <td class="py-1 px-2 <%= row[:left_won] ? "" : "font-semibold" %>"><%= row[:right] %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <% if footer_text.present? %>
+    <div class="<%= header_bg %> text-white text-center font-bold py-2"><%= footer_text %></div>
+  <% end %>
+</div>

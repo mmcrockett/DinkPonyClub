@@ -1,0 +1,51 @@
+plugins:
+  - rubocop-capybara
+  - rubocop-minitest
+  - rubocop-performance
+  - rubocop-rails
+
+AllCops:
+  NewCops: enable
+
+Layout/LineLength:
+  Exclude:
+    - "db/**/*"
+Metrics/AbcSize:
+  AllowedMethods:
+    - included
+  Exclude:
+    - "db/**/*"
+Metrics/BlockLength:
+  AllowedMethods:
+    - class_eval
+    - describe
+  Exclude:
+    - "db/**/*"
+    - "config/environments/**/*"
+Metrics/ClassLength:
+  Exclude:
+    - "db/**/*"
+    - "test/**/*"
+Metrics/MethodLength:
+  AllowedMethods:
+    - included
+  Max: 20
+  Exclude:
+    - "db/**/*"
+Metrics/ModuleLength:
+  Exclude:
+    - "test/**/*"
+Minitest/AssertTruthy:
+  Enabled: false
+Minitest/MultipleAssertions:
+  Max: 5
+Minitest/RefuteFalse:
+  Enabled: false
+Style/Documentation:
+  Enabled: false
+Style/FrozenStringLiteralComment:
+  Exclude:
+    - "db/**/*"
+    - "test/**/*"
+Style/YodaCondition:
+  Enabled: false
