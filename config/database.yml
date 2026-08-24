@@ -25,11 +25,7 @@ test:
 # sqlite3 stores on the persistent Docker volume from config/deploy.yml.
 production:
   primary:
-    adapter: mysql2
-    host: mysql.mmcrockett.com
-    username: mysql_dink_pony_club
-    password: <%= Rails.application.credentials.mysql_password %>
-    database: dinkponyclub
+    url: <%= Rails.application.credentials.mysql_url %>
   cache:
     <<: *default
     database: storage/production_cache.sqlite3
