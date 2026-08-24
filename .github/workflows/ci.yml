@@ -13,6 +13,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
+      - name: Install system deps for bundling (mysql2 native extension)
+        uses: awalsh128/cache-apt-pkgs-action@553a35bb8ebd9fcabcb1c9451aa4c98e1b4ca8a9 # v1.6.3
+        with:
+          packages: default-libmysqlclient-dev
+          version: 1.0
+
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
@@ -31,6 +37,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
+      - name: Install system deps for bundling (mysql2 native extension)
+        uses: awalsh128/cache-apt-pkgs-action@553a35bb8ebd9fcabcb1c9451aa4c98e1b4ca8a9 # v1.6.3
+        with:
+          packages: default-libmysqlclient-dev
+          version: 1.0
+
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
@@ -46,6 +58,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+
+      - name: Install system deps for bundling (mysql2 native extension)
+        uses: awalsh128/cache-apt-pkgs-action@553a35bb8ebd9fcabcb1c9451aa4c98e1b4ca8a9 # v1.6.3
+        with:
+          packages: default-libmysqlclient-dev
+          version: 1.0
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
@@ -81,6 +99,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
+      - name: Install system deps for bundling (mysql2 native extension)
+        uses: awalsh128/cache-apt-pkgs-action@553a35bb8ebd9fcabcb1c9451aa4c98e1b4ca8a9 # v1.6.3
+        with:
+          packages: default-libmysqlclient-dev
+          version: 1.0
+
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
@@ -108,6 +132,12 @@ jobs:
 
       - name: Checkout code
         uses: actions/checkout@v6
+
+      - name: Install system deps for bundling (mysql2 native extension)
+        uses: awalsh128/cache-apt-pkgs-action@553a35bb8ebd9fcabcb1c9451aa4c98e1b4ca8a9 # v1.6.3
+        with:
+          packages: default-libmysqlclient-dev
+          version: 1.0
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1

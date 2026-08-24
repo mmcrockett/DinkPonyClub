@@ -176,6 +176,8 @@ GEM
       drb (~> 2.0)
       prism (~> 1.5)
     msgpack (1.8.4)
+    mysql2 (0.5.7)
+      bigdecimal
     net-imap (0.6.6)
       date
       net-protocol
@@ -411,6 +413,7 @@ DEPENDENCIES
   importmap-rails
   jbuilder
   kamal
+  mysql2
   propshaft
   puma (>= 5.0)
   rails (~> 8.1.3)

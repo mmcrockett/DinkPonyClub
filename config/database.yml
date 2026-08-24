@@ -20,12 +20,16 @@ test:
   <<: *default
   database: storage/test.sqlite3
 
-# Store production database in the storage/ directory, which by default
-# is mounted as a persistent Docker volume in config/deploy.yml.
+# Primary app data lives on the shared mysql.mmcrockett.com host (same
+# pattern as mikereader/streakalong). Solid Cache/Queue/Cable keep local
+# sqlite3 stores on the persistent Docker volume from config/deploy.yml.
 production:
   primary:
-    <<: *default
-    database: storage/production.sqlite3
+    adapter: mysql2
+    host: mysql.mmcrockett.com
+    username: mysql_dink_pony_club
+    password: <%= Rails.application.credentials.mysql_password %>
+    database: dinkponyclub
   cache:
     <<: *default
     database: storage/production_cache.sqlite3
