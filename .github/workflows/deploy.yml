@@ -1,0 +1,54 @@
+name: Deploy
+
+# Triggering off that workflow instead of building here too avoids a
+# redundant duplicate build and guarantees the exact image it verified is
+# what gets deployed.
+on:
+  workflow_run:
+    workflows: ["Build and push image"]
+    types: [completed]
+
+concurrency:
+  group: deploy-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  deploy:
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Install system deps for bundling (mysql2 native extension)
+        uses: awalsh128/cache-apt-pkgs-action@553a35bb8ebd9fcabcb1c9451aa4c98e1b4ca8a9 # v1.6.3
+        with:
+          packages: default-libmysqlclient-dev
+          version: 1.0
+
+      - uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
+        with:
+          ruby-version: "3.4.10"
+          bundler-cache: true
+
+      # config/deploy.yml's ssh config intentionally has no explicit `keys:`
+      # file, so kamal relies on whatever agent is running to offer identities.
+      - uses: webfactory/ssh-agent@e83874834305fe9a4a2997156cb26c5de65a8555 # v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_SSH_KEY }}
+
+      - name: Add box to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan 34.71.24.199 >> ~/.ssh/known_hosts
+
+      - name: kamal deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
+        run: bundle exec kamal deploy --skip_push
