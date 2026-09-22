@@ -1,18 +1,41 @@
 version: 2
 updates:
-- package-ecosystem: bundler
-  directory: "/"
-  schedule:
-    interval: weekly
-  open-pull-requests-limit: 10
-  groups:
-    bundler:
-      patterns: ["*"]
-- package-ecosystem: github-actions
-  directory: "/"
-  schedule:
-    interval: weekly
-  open-pull-requests-limit: 10
-  groups:
-    github-actions:
-      patterns: ["*"]
+  - package-ecosystem: bundler
+    directory: "/"
+    cooldown:
+      semver-major-days: 90
+      semver-minor-days: 30
+      semver-patch-days: 14
+    groups:
+      gemfile-production-dependencies:
+        dependency-type: production
+        patterns:
+          - "*"
+      gemfile-development-dependencies:
+        dependency-type: development
+        patterns:
+          - "*"
+      gemfile-security-updates:
+        applies-to: security-updates
+        patterns:
+          - "*"
+    open-pull-requests-limit: 2
+    schedule:
+      interval: weekly
+    versioning-strategy: lockfile-only
+    labels:
+      - "dependencies"
+  - package-ecosystem: github-actions
+    directory: "/"
+    cooldown:
+      default-days: 15
+    groups:
+      gh-actions-dependencies:
+        patterns:
+          - "*"
+      gh-actions-security-updates:
+        applies-to: security-updates
+        patterns:
+          - "*"
+    schedule:
+      interval: monthly
