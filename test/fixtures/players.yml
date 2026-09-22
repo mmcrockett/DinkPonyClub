@@ -1,0 +1,12 @@
+ada:
+  first_name: Ada
+  last_name: Testerson
+  email: ada@example.test
+
+grace:
+  first_name: Grace
+  last_name: Fixture
+
+sam:
+  first_name: Sam
+  last_name: Placeholder

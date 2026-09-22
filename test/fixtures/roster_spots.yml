@@ -1,0 +1,23 @@
+fall_alpha_ada:
+  season: fall
+  team: alpha
+  player: ada
+  captain: true
+
+fall_alpha_grace:
+  season: fall
+  team: alpha
+  player: grace
+  captain: false
+
+fall_bravo_sam:
+  season: fall
+  team: bravo
+  player: sam
+  captain: false
+
+spring_alpha_ada:
+  season: spring
+  team: alpha
+  player: ada
+  captain: true
