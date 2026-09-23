@@ -36,7 +36,8 @@
           </button>
 
           <ul id="nav-menu" data-nav-target="menu" class="hidden ml-auto text-sm font-medium md:flex md:items-center md:gap-5">
-            <% %w[Seasons Teams Schedule Players Standings].each do |item| %>
+            <li><%= link_to 'Seasons', seasons_path, class: 'nav-link hover:underline' %></li>
+            <% %w[Teams Schedule Players Standings].each do |item| %>
               <li class="nav-link text-gray-400 cursor-not-allowed select-none" aria-disabled="true"><%= item %></li>
             <% end %>
           </ul>
