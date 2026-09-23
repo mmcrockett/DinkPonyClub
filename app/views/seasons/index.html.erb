@@ -1,0 +1,17 @@
+<h1 class="text-3xl font-extrabold text-dpc-navy mb-1">Seasons</h1>
+<p class="text-gray-500 mb-6">Pick a season to see standings.</p>
+
+<% if @seasons.any? %>
+  <div class="mx-auto grid max-w-xl gap-4">
+    <% @seasons.each do |season| %>
+      <div class="season-button" aria-disabled="true">
+        <span class="text-2xl font-extrabold"><%= season.name %></span>
+        <span class="text-sm font-medium text-white/70">
+          <%= season.starts_on&.strftime('%b %-d') %> - <%= season.ends_on&.strftime('%b %-d, %Y') %>
+        </span>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <p class="text-gray-500">No seasons yet.</p>
+<% end %>
