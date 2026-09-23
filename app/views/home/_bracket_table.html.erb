@@ -3,12 +3,12 @@
     <%= title %>
   </div>
 
-  <div class="grid grid-cols-2 <%= header_bg %> text-white text-center font-bold py-2">
+  <div class="grid grid-cols-1 md:grid-cols-2 <%= header_bg %> text-white text-center font-bold py-2">
     <div>#<%= left_seed %> <%= left_name %> <span class="text-2xl ml-2"><%= left_score %></span></div>
     <div><span class="text-2xl mr-2"><%= right_score %></span> #<%= right_seed %> <%= right_name %></div>
   </div>
 
-  <table class="w-full text-sm">
+  <table class="hidden md:table w-full text-sm">
     <thead>
       <tr class="<%= header_bg %> text-white">
         <th class="py-1 px-2 text-left"><%= left_name %></th>
@@ -32,6 +32,24 @@
       <% end %>
     </tbody>
   </table>
+
+  <div class="md:hidden divide-y divide-black/10">
+    <% rows.each_with_index do |row, i| %>
+      <div class="<%= i.even? ? "bg-white" : "bg-dpc-cream" %> px-3 py-3">
+        <div class="flex justify-between items-start gap-3">
+          <p class="font-semibold"><%= row[:left] %></p>
+          <p class="font-bold text-lg <%= row[:left_won] ? winner_color : "text-red-600" %>"><%= row[:points] %></p>
+        </div>
+        <p class="<%= row[:left_won] ? "" : "font-semibold" %>"><%= row[:right] %></p>
+
+        <div class="flex gap-4 mt-2 text-xs text-gray-600">
+          <% row[:games].each_with_index do |g, gi| %>
+            <span>G<%= gi + 1 %>: <%= g %></span>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
 
   <% if footer_text.present? %>
     <div class="<%= header_bg %> text-white text-center font-bold py-2"><%= footer_text %></div>

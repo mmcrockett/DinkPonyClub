@@ -10,6 +10,9 @@ gem 'propshaft'
 gem 'sqlite3', '>= 2.1'
 # Production primary database lives on the shared mysql.mmcrockett.com host
 gem 'mysql2'
+# Rails 8.1's ActiveSupport::JSON.decode passes options positionally to
+# JSON.parse, which json 3.0 made keyword-only. Unpin once Rails ships a fix.
+gem 'json', '~> 2.21'
 # Use the Puma web server [https://github.com/puma/puma]
 gem 'puma', '>= 5.0'
 # Use JavaScript with ESM import maps [https://github.com/rails/importmap-rails]
