@@ -29,3 +29,13 @@
 
 en:
   hello: "Hello world"
+  sessions:
+    create:
+      not_on_roster: "That Google account is not on the Dink Pony Club roster."
+      welcome: "Welcome, %{first_name}!"
+    destroy:
+      signed_out: "Signed out."
+    failure:
+      failed: "Google sign-in failed. Please try again."
+  authentication:
+    require_sign_in: "Sign in to view that page."

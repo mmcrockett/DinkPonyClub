@@ -13,6 +13,11 @@ Rails.application.routes.draw do
 
   resources :seasons, only: %i[index]
 
+  get    'auth/google_oauth2/callback', to: 'sessions#create'
+  get    'auth/failure', to: 'sessions#failure'
+  delete 'sign_out', to: 'sessions#destroy', as: :sign_out
+  resource :profile, only: %i[show]
+
   # Defines the root path route ("/")
   root 'home#index'
 end
