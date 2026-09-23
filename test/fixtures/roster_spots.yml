@@ -16,6 +16,12 @@ fall_bravo_sam:
   player: sam
   captain: false
 
+fall_bravo_ben:
+  season: fall
+  team: bravo
+  player: ben
+  captain: false
+
 spring_alpha_ada:
   season: spring
   team: alpha

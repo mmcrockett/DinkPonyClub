@@ -27,8 +27,15 @@ class SeasonTest < ActiveSupport::TestCase
   end
 
   test 'destroying a season destroys its roster spots' do
-    assert_difference('RosterSpot.count', -3) do
+    assert_difference('RosterSpot.count', -4) do
       seasons(:fall).destroy
     end
+  end
+
+  test 'standings orders teams by points then point differential' do
+    standings = seasons(:fall).standings
+
+    assert_equal [teams(:alpha), teams(:bravo)], standings.map(&:team)
+    assert_equal [2, 1], standings.map(&:points)
   end
 end

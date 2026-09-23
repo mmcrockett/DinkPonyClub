@@ -11,3 +11,7 @@ grace:
 sam:
   first_name: Sam
   last_name: Placeholder
+
+ben:
+  first_name: Ben
+  last_name: Stubfield

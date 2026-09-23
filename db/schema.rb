@@ -10,7 +10,49 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_23_013513) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_23_020002) do
+  create_table "games", force: :cascade do |t|
+    t.integer "away_score", null: false
+    t.datetime "created_at", null: false
+    t.integer "home_score", null: false
+    t.integer "lineup_id", null: false
+    t.integer "number", null: false
+    t.datetime "updated_at", null: false
+    t.index ["lineup_id", "number"], name: "index_games_on_lineup_id_and_number", unique: true
+  end
+
+  create_table "lineups", force: :cascade do |t|
+    t.integer "away_player_one_id", null: false
+    t.integer "away_player_two_id", null: false
+    t.datetime "created_at", null: false
+    t.integer "home_player_one_id", null: false
+    t.integer "home_player_two_id", null: false
+    t.integer "match_id", null: false
+    t.integer "position", null: false
+    t.datetime "updated_at", null: false
+    t.index ["away_player_one_id"], name: "index_lineups_on_away_player_one_id"
+    t.index ["away_player_two_id"], name: "index_lineups_on_away_player_two_id"
+    t.index ["home_player_one_id"], name: "index_lineups_on_home_player_one_id"
+    t.index ["home_player_two_id"], name: "index_lineups_on_home_player_two_id"
+    t.index ["match_id", "position"], name: "index_lineups_on_match_id_and_position", unique: true
+  end
+
+  create_table "matches", force: :cascade do |t|
+    t.integer "away_match_points", default: 0, null: false
+    t.integer "away_points_scored", default: 0, null: false
+    t.integer "away_team_id", null: false
+    t.datetime "created_at", null: false
+    t.integer "home_match_points", default: 0, null: false
+    t.integer "home_points_scored", default: 0, null: false
+    t.integer "home_team_id", null: false
+    t.date "played_on"
+    t.integer "season_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["away_team_id"], name: "index_matches_on_away_team_id"
+    t.index ["home_team_id"], name: "index_matches_on_home_team_id"
+    t.index ["season_id", "played_on"], name: "index_matches_on_season_id_and_played_on"
+  end
+
   create_table "players", force: :cascade do |t|
     t.string "avatar_url", limit: 512
     t.datetime "created_at", null: false
@@ -54,6 +96,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_23_013513) do
     t.index ["name"], name: "index_teams_on_name", unique: true
   end
 
+  add_foreign_key "games", "lineups"
+  add_foreign_key "lineups", "matches"
+  add_foreign_key "lineups", "players", column: "away_player_one_id"
+  add_foreign_key "lineups", "players", column: "away_player_two_id"
+  add_foreign_key "lineups", "players", column: "home_player_one_id"
+  add_foreign_key "lineups", "players", column: "home_player_two_id"
+  add_foreign_key "matches", "seasons"
+  add_foreign_key "matches", "teams", column: "away_team_id"
+  add_foreign_key "matches", "teams", column: "home_team_id"
   add_foreign_key "roster_spots", "players"
   add_foreign_key "roster_spots", "seasons"
   add_foreign_key "roster_spots", "teams"

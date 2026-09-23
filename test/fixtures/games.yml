@@ -1,0 +1,17 @@
+fall_alpha_bravo_one_game_one:
+  lineup: fall_alpha_bravo_one
+  number: 1
+  home_score: 11
+  away_score: 4
+
+fall_alpha_bravo_one_game_two:
+  lineup: fall_alpha_bravo_one
+  number: 2
+  home_score: 6
+  away_score: 11
+
+fall_alpha_bravo_one_game_three:
+  lineup: fall_alpha_bravo_one
+  number: 3
+  home_score: 12
+  away_score: 10
