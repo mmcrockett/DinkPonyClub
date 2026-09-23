@@ -1,0 +1,9 @@
+fall_alpha_bravo:
+  season: fall
+  home_team: alpha
+  away_team: bravo
+  played_on: 2026-09-20
+  home_match_points: 2
+  away_match_points: 1
+  home_points_scored: 29
+  away_points_scored: 25

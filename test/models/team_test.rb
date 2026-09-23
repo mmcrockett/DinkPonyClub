@@ -24,7 +24,7 @@ class TeamTest < ActiveSupport::TestCase
   end
 
   test 'destroying a team destroys its roster spots' do
-    assert_difference('RosterSpot.count', -1) do
+    assert_difference('RosterSpot.count', -2) do
       teams(:bravo).destroy
     end
   end

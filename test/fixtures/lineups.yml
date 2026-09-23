@@ -1,0 +1,7 @@
+fall_alpha_bravo_one:
+  match: fall_alpha_bravo
+  position: 1
+  home_player_one: ada
+  home_player_two: grace
+  away_player_one: sam
+  away_player_two: ben
