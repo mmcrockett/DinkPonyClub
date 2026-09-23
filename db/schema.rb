@@ -10,14 +10,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_22_195011) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_23_013513) do
   create_table "players", force: :cascade do |t|
+    t.string "avatar_url", limit: 512
     t.datetime "created_at", null: false
     t.string "email", limit: 255
     t.string "first_name", limit: 100, null: false
+    t.string "google_uid", limit: 255
     t.string "last_name", limit: 100, null: false
+    t.datetime "last_signed_in_at"
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_players_on_email", unique: true
+    t.index ["google_uid"], name: "index_players_on_google_uid", unique: true
   end
 
   create_table "roster_spots", force: :cascade do |t|

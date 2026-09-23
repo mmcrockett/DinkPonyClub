@@ -23,30 +23,19 @@
   </head>
 
   <body class="bg-dpc-cream text-dpc-navy">
-    <nav class="bg-dpc-navy text-white" data-controller="nav">
-      <div class="container mx-auto px-5 py-3">
-        <div class="flex items-center gap-6">
-          <%= link_to root_path, class: "flex items-center gap-3 touch-target" do %>
-            <%= image_tag "logo.png", alt: "Dink Pony Club", class: "h-10 w-10 rounded-full" %>
-            <span class="text-lg font-bold tracking-wide">Dink Pony Club</span>
-          <% end %>
+    <%= render 'layouts/sidebar' %>
 
-          <button type="button" class="btn touch-target ml-auto md:hidden" data-nav-target="button" data-action="click->nav#toggle" aria-label="Menu" aria-expanded="false" aria-controls="nav-menu">
-            <span class="text-2xl leading-none">&#9776;</span>
-          </button>
+    <main class="pl-16">
+      <div class="container mx-auto px-5 py-8">
+        <% if notice %>
+          <p class="mb-4 rounded-md bg-dpc-green px-4 py-3 text-sm font-medium text-white"><%= notice %></p>
+        <% end %>
+        <% if alert %>
+          <p class="mb-4 rounded-md bg-red-600 px-4 py-3 text-sm font-medium text-white"><%= alert %></p>
+        <% end %>
 
-          <ul id="nav-menu" data-nav-target="menu" class="hidden ml-auto text-sm font-medium md:flex md:items-center md:gap-5">
-            <li><%= link_to 'Seasons', seasons_path, class: 'nav-link hover:underline' %></li>
-            <% %w[Teams Schedule Players Standings].each do |item| %>
-              <li class="nav-link text-gray-400 cursor-not-allowed select-none" aria-disabled="true"><%= item %></li>
-            <% end %>
-          </ul>
-        </div>
+        <%= yield %>
       </div>
-    </nav>
-
-    <main class="container mx-auto px-5 py-8">
-      <%= yield %>
     </main>
   </body>
 </html>

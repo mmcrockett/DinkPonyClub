@@ -2,6 +2,7 @@ ada:
   first_name: Ada
   last_name: Testerson
   email: ada@example.test
+  google_uid: '100000000000000000001'
 
 grace:
   first_name: Grace

@@ -1,0 +1,29 @@
+<% if signed_in? %>
+  <%= link_to profile_path, class: "touch-target #{'w-full gap-3 px-4' if expanded}", title: current_player.full_name do %>
+    <% if current_player.avatar_url.present? %>
+      <%= image_tag current_player.avatar_url, alt: '', class: 'h-8 w-8 rounded-full' %>
+    <% else %>
+      <span class="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-sm font-bold">
+        <%= current_player.first_name.first %>
+      </span>
+    <% end %>
+    <% if expanded %>
+      <span class="flex flex-col text-left">
+        <span class="text-sm font-semibold"><%= current_player.full_name %></span>
+        <span class="text-xs text-white/70"><%= current_player.email %></span>
+      </span>
+    <% end %>
+  <% end %>
+
+  <% if expanded %>
+    <%= button_to sign_out_path, method: :delete, class: 'nav-link gap-3 px-4 text-sm font-medium text-white/80 hover:text-white', form: { class: 'w-full' } do %>
+      <%= render 'shared/icon', name: 'sign-out', class: 'h-5 w-5' %>
+      Sign out
+    <% end %>
+  <% end %>
+<% else %>
+  <%= button_to '/auth/google_oauth2', method: :post, class: "btn touch-target #{'w-full justify-start gap-3 px-4' if expanded}", form: { class: 'w-full' }, title: 'Sign in with Google' do %>
+    <%= render 'shared/icon', name: 'user', class: 'h-6 w-6' %>
+    <%= 'Sign in with Google' if expanded %>
+  <% end %>
+<% end %>

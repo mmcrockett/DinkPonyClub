@@ -1,0 +1,67 @@
+<div data-controller="sidebar">
+  <nav class="fixed inset-y-0 left-0 z-40 flex w-16 flex-col items-center gap-1 bg-dpc-navy py-3 text-white" aria-label="Main">
+    <button type="button" class="btn touch-target" aria-label="Expand menu"
+            aria-expanded="false" aria-controls="sidebar-panel"
+            data-sidebar-target="button" data-action="click->sidebar#toggle">
+      <span class="text-2xl leading-none">&#9776;</span>
+    </button>
+
+    <%= link_to root_path, class: 'touch-target justify-center', aria: { label: 'Dink Pony Club' } do %>
+      <%= image_tag 'logo.png', alt: '', class: 'h-9 w-9 rounded-full' %>
+    <% end %>
+
+    <% sidebar_items.each do |item| %>
+      <% if item[:path] %>
+        <%= link_to item[:path], class: 'nav-link touch-target justify-center', title: item[:label] do %>
+          <%= render 'shared/icon', name: item[:icon] %>
+          <span class="sr-only"><%= item[:label] %></span>
+        <% end %>
+      <% else %>
+        <span class="nav-link touch-target justify-center text-gray-400 cursor-not-allowed select-none" aria-disabled="true" title="<%= item[:label] %>">
+          <%= render 'shared/icon', name: item[:icon] %>
+          <span class="sr-only"><%= item[:label] %></span>
+        </span>
+      <% end %>
+    <% end %>
+
+    <div class="mt-auto flex flex-col items-center gap-1">
+      <%= render 'layouts/sidebar_account', expanded: false %>
+    </div>
+  </nav>
+
+  <div class="fixed inset-0 z-40 invisible bg-black/40 opacity-0 transition-opacity"
+       data-sidebar-target="backdrop" data-action="click->sidebar#close"></div>
+
+  <div id="sidebar-panel" role="dialog" aria-modal="true" aria-label="Menu"
+       class="fixed inset-y-0 left-0 z-50 flex w-64 -translate-x-full flex-col invisible
+              bg-dpc-navy py-3 text-white transition-transform duration-200"
+       data-sidebar-target="panel"
+       data-action="keydown.esc->sidebar#close">
+    <div class="flex items-center gap-3 px-4 py-2">
+      <%= image_tag 'logo.png', alt: '', class: 'h-9 w-9 rounded-full' %>
+      <span class="text-lg font-bold tracking-wide">Dink Pony Club</span>
+    </div>
+
+    <ul class="mt-2 flex flex-col gap-1">
+      <% sidebar_items.each do |item| %>
+        <li>
+          <% if item[:path] %>
+            <%= link_to item[:path], class: 'nav-link gap-3 px-4', data: { sidebar_target: 'panel_link' } do %>
+              <%= render 'shared/icon', name: item[:icon] %>
+              <%= item[:label] %>
+            <% end %>
+          <% else %>
+            <span class="nav-link gap-3 px-4 text-gray-400 cursor-not-allowed select-none" aria-disabled="true">
+              <%= render 'shared/icon', name: item[:icon] %>
+              <%= item[:label] %>
+            </span>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+
+    <div class="mt-auto flex flex-col gap-1 border-t border-white/10 pt-2">
+      <%= render 'layouts/sidebar_account', expanded: true %>
+    </div>
+  </div>
+</div>
