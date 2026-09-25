@@ -34,4 +34,30 @@ class PlayerTest < ActiveSupport::TestCase
   test 'full_name joins first and last name' do
     assert_equal 'Ada Testerson', players(:ada).full_name
   end
+
+  test 'authenticate_from_google returns nil for an inactive player' do
+    auth = OmniAuth::AuthHash.new(
+      provider: 'google_oauth2',
+      uid: players(:wade).google_uid,
+      info: { email: players(:wade).email },
+      extra: { raw_info: { email_verified: true } }
+    )
+
+    assert_nil Player.authenticate_from_google(auth)
+  end
+
+  test 'admins scope returns only admin players' do
+    assert_includes Player.admins, players(:zoe)
+    assert_not_includes Player.admins, players(:ada)
+  end
+
+  test 'locate_by_email! finds a player case-insensitively' do
+    assert_equal players(:ada), Player.locate_by_email!(' ADA@Example.TEST ')
+  end
+
+  test 'locate_by_email! raises when no player matches' do
+    assert_raises(ActiveRecord::RecordNotFound) do
+      Player.locate_by_email!('nobody@example.test')
+    end
+  end
 end

@@ -5,7 +5,7 @@ module Authentication
 
   included do
     before_action :set_current_player
-    helper_method :current_player, :signed_in?
+    helper_method :current_player, :signed_in?, :admin?
   end
 
   private
@@ -20,6 +20,10 @@ module Authentication
 
   def signed_in?
     current_player.present?
+  end
+
+  def admin?
+    current_player&.admin?
   end
 
   def sign_in(player)
@@ -37,5 +41,11 @@ module Authentication
     return if signed_in?
 
     redirect_to root_path, alert: t('authentication.require_sign_in')
+  end
+
+  def require_admin
+    return if admin?
+
+    redirect_to root_path, alert: t('authentication.require_admin')
   end
 end

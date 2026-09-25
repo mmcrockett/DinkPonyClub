@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_23_020002) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_25_130950) do
   create_table "games", force: :cascade do |t|
     t.integer "away_score", null: false
     t.datetime "created_at", null: false
@@ -54,6 +54,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_23_020002) do
   end
 
   create_table "players", force: :cascade do |t|
+    t.boolean "admin", default: false, null: false
     t.string "avatar_url", limit: 512
     t.datetime "created_at", null: false
     t.string "email", limit: 255
@@ -61,6 +62,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_23_020002) do
     t.string "google_uid", limit: 255
     t.string "last_name", limit: 100, null: false
     t.datetime "last_signed_in_at"
+    t.string "status", limit: 20, default: "active", null: false
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_players_on_email", unique: true
     t.index ["google_uid"], name: "index_players_on_google_uid", unique: true

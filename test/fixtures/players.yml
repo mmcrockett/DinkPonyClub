@@ -15,3 +15,17 @@ sam:
 ben:
   first_name: Ben
   last_name: Stubfield
+
+zoe:
+  first_name: Zoe
+  last_name: Adminson
+  email: zoe@example.test
+  google_uid: '100000000000000000002'
+  admin: true
+
+wade:
+  first_name: Wade
+  last_name: Inactive
+  email: wade@example.test
+  google_uid: '100000000000000000003'
+  status: inactive
