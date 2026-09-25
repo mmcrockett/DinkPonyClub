@@ -6,6 +6,13 @@
   --color-dpc-cream: #f5f1e6;
 }
 
+@layer base {
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
 @utility touch-target {
   display: inline-flex;
   align-items: center;
