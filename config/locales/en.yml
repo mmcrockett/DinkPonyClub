@@ -37,5 +37,12 @@ en:
       signed_out: "Signed out."
     failure:
       failed: "Google sign-in failed. Please try again."
+  admin:
+    players:
+      create:
+        created: "%{name} was added."
+      update:
+        updated: "%{name} was updated."
   authentication:
     require_sign_in: "Sign in to view that page."
+    require_admin: "You don't have permission to view that page."

@@ -18,6 +18,10 @@ Rails.application.routes.draw do
   delete 'sign_out', to: 'sessions#destroy', as: :sign_out
   resource :profile, only: %i[show]
 
+  namespace :admin do
+    resources :players, only: %i[index new create edit update]
+  end
+
   # Defines the root path route ("/")
   root 'home#index'
 end

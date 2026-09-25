@@ -1,0 +1,38 @@
+<%= form_with model: [:admin, player], class: 'mx-auto flex max-w-md flex-col gap-4' do |form| %>
+  <% if player.errors.any? %>
+    <div class="rounded-md bg-red-50 px-4 py-3 text-sm text-red-700">
+      <ul class="list-disc pl-4">
+        <% player.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="flex flex-col gap-1">
+    <%= form.label :first_name, class: 'text-sm font-semibold text-dpc-navy' %>
+    <%= form.text_field :first_name, class: 'rounded-md border-gray-300 shadow-sm' %>
+  </div>
+
+  <div class="flex flex-col gap-1">
+    <%= form.label :last_name, class: 'text-sm font-semibold text-dpc-navy' %>
+    <%= form.text_field :last_name, class: 'rounded-md border-gray-300 shadow-sm' %>
+  </div>
+
+  <div class="flex flex-col gap-1">
+    <%= form.label :email, class: 'text-sm font-semibold text-dpc-navy' %>
+    <%= form.email_field :email, class: 'rounded-md border-gray-300 shadow-sm' %>
+  </div>
+
+  <div class="flex flex-col gap-1">
+    <%= form.label :avatar_url, class: 'text-sm font-semibold text-dpc-navy' %>
+    <%= form.text_field :avatar_url, class: 'rounded-md border-gray-300 shadow-sm' %>
+  </div>
+
+  <div class="flex flex-col gap-1">
+    <%= form.label :status, class: 'text-sm font-semibold text-dpc-navy' %>
+    <%= form.select :status, Player.statuses.keys, {}, class: 'rounded-md border-gray-300 shadow-sm' %>
+  </div>
+
+  <%= form.submit class: 'btn justify-center' %>
+<% end %>
