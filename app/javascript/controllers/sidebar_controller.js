@@ -16,6 +16,8 @@ export default class extends Controller {
   }
 
   open() {
+    this.cancelPendingHide()
+
     this.panelTarget.classList.remove("invisible", "-translate-x-full")
     this.backdropTarget.classList.remove("invisible", "opacity-0")
     this.backdropTarget.classList.add("opacity-100")
@@ -26,13 +28,19 @@ export default class extends Controller {
   }
 
   close() {
+    this.cancelPendingHide()
+
     this.panelTarget.classList.add("-translate-x-full")
     this.backdropTarget.classList.add("opacity-0")
     this.buttonTarget.setAttribute("aria-expanded", "false")
 
-    setTimeout(() => {
+    this.hideTimeout = setTimeout(() => {
       this.panelTarget.classList.add("invisible")
       this.backdropTarget.classList.add("invisible")
     }, 200)
+  }
+
+  cancelPendingHide() {
+    clearTimeout(this.hideTimeout)
   }
 }
