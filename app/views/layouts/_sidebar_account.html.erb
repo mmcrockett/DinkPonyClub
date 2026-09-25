@@ -22,7 +22,7 @@
     <% end %>
   <% end %>
 <% else %>
-  <%= button_to '/auth/google_oauth2', method: :post, class: "btn touch-target #{'w-full justify-start gap-3 px-4' if expanded}", form: { class: 'w-full' }, title: 'Sign in with Google' do %>
+  <%= button_to '/auth/google_oauth2', method: :post, class: "btn touch-target #{'w-full justify-start gap-3 px-4' if expanded}", form: { class: 'w-full', data: { turbo: false } }, title: 'Sign in with Google' do %>
     <%= render 'shared/icon', name: 'user', class: 'h-6 w-6' %>
     <%= 'Sign in with Google' if expanded %>
   <% end %>
