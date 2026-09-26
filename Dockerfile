@@ -9,6 +9,13 @@
 
 # Make sure RUBY_VERSION matches the Ruby version in .ruby-version
 ARG RUBY_VERSION=3.4.10
+FROM node:22-slim AS clubhouse_build
+WORKDIR /clubhouse
+COPY clubhouse/package*.json ./
+RUN npm ci
+COPY clubhouse/ ./
+RUN npm run typecheck && npm run build
+
 FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
 
 # Rails app lives here
@@ -50,6 +57,7 @@ RUN bundle install && \
 
 # Copy application code
 COPY . .
+COPY --from=clubhouse_build /public/clubhouse-assets ./public/clubhouse-assets
 
 # Precompile bootsnap code for faster boot times.
 # -j 1 disable parallel compilation to avoid a QEMU bug: https://github.com/rails/bootsnap/issues/495

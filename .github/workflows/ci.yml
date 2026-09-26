@@ -6,6 +6,19 @@ on:
     branches: [ main ]
 
 jobs:
+  clubhouse:
+    runs-on: ubuntu-latest
+    container: node:22-bookworm
+    defaults:
+      run:
+        working-directory: clubhouse
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run build
+      - run: npm audit --audit-level=high
+
   scan_ruby:
     runs-on: ubuntu-latest
 

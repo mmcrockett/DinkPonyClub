@@ -1,3 +1,8 @@
+inherit_from: .rubocop_clubhouse.yml
+inherit_mode:
+  merge:
+    - Exclude
+
 plugins:
   - rubocop-capybara
   - rubocop-minitest

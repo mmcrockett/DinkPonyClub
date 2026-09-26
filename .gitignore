@@ -38,3 +38,8 @@
 !/app/assets/builds/.keep
 
 /.claude/worktrees/
+
+# Clubhouse builds and private imports
+/clubhouse/node_modules/
+/public/clubhouse-assets/
+/private-imports/
