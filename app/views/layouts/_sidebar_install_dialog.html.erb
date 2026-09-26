@@ -1,0 +1,19 @@
+<dialog data-install-target="dialog" aria-label="Install Dink Pony Club"
+        class="max-w-sm rounded-lg bg-dpc-cream p-6 text-dpc-navy backdrop:bg-black/40">
+  <div class="flex items-start justify-between gap-4">
+    <h2 class="text-lg font-bold">Install Dink Pony Club</h2>
+    <button type="button" class="btn touch-target -m-2 px-2" aria-label="Close"
+            data-action="install#closeDialog">
+      <%= render 'shared/icon', name: 'x-mark', class: 'h-5 w-5' %>
+    </button>
+  </div>
+
+  <ol class="mt-4 flex flex-col gap-3 text-sm">
+    <li>
+      Tap <%= render 'shared/icon', name: 'arrow-up-on-square', class: 'inline h-5 w-5 align-text-bottom' %>
+      <span data-install-target="shareLocation"></span>
+    </li>
+    <li>Scroll down and tap <strong data-install-target="destination"></strong></li>
+    <li>Tap <strong>Add</strong></li>
+  </ol>
+</dialog>
