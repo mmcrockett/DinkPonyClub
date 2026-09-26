@@ -29,6 +29,7 @@ class AvailabilityTest < ApplicationSystemTestCase
     mock_google_auth(email: players(:ada).email)
     visit root_path
     click_button 'Sign in with Google'
+    visit root_path
   end
 
   def choose_slot_preference(slot_time, preference)
