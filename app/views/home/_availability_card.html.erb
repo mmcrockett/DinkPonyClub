@@ -8,7 +8,7 @@
     <% if @next_match.availability_open? %>
       <%= form_with model: @availability, url: match_availability_path(@next_match), method: :patch,
                     class: "flex flex-col gap-4", data: { controller: "availability" } do |form| %>
-        <label class="inline-flex items-center gap-3 touch-target">
+        <label class="availability-toggle inline-flex items-center gap-3 touch-target">
           <%= form.check_box :playing, { role: "switch", class: "sr-only peer",
                                           checked: @availability.playing != false,
                                           data: { availability_target: "toggle", action: "change->availability#toggled" } },
@@ -29,7 +29,7 @@
               <span class="font-medium"><%= slot.starts_at.strftime("%-l:%M %p") %></span>
               <div class="flex gap-1">
                 <% SlotAvailability.preferences.each_key do |preference| %>
-                  <label class="touch-target rounded">
+                  <label class="touch-target rounded" data-preference="<%= preference %>">
                     <%= radio_button_tag "slot_preferences[#{slot.id}]", preference,
                                           current_preference == preference,
                                           class: "sr-only peer", disabled: @availability.playing == false %>

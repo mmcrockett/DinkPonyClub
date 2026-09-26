@@ -6,12 +6,12 @@ class AvailabilityTest < ApplicationSystemTestCase
 
     assert_text '7:00 PM'
 
-    find('input[type=checkbox][role=switch]', visible: false).click
+    find('label.availability-toggle').click
 
     assert_selector '[data-availability-target="slots"].opacity-40'
     assert_no_selector '[data-availability-target="slots"] input:not(:disabled)'
 
-    find('input[type=checkbox][role=switch]', visible: false).click
+    find('label.availability-toggle').click
 
     assert_no_selector '[data-availability-target="slots"].opacity-40'
 
@@ -36,7 +36,7 @@ class AvailabilityTest < ApplicationSystemTestCase
     row = all('.availability-slot-row').find { |element| element.text.include?(slot_time) }
 
     within(row) do
-      find("input[type=radio][value='#{preference}']", visible: false).choose
+      find("label[data-preference='#{preference}']").click
     end
   end
 end
