@@ -24,10 +24,10 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="bg-dpc-cream text-dpc-navy">
+  <body class="bg-dpc-cream text-dpc-navy" data-sidebar="<%= sidebar_expanded? ? 'expanded' : 'collapsed' %>" data-drawer="closed">
     <%= render 'layouts/sidebar' %>
 
-    <main class="pl-16">
+    <main class="shell-main">
       <div class="container mx-auto px-5 py-8">
         <% if notice %>
           <p class="mb-4 rounded-md bg-dpc-green px-4 py-3 text-sm font-medium text-white"><%= notice %></p>

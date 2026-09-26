@@ -13,4 +13,8 @@ module NavigationHelper
     items << { label: 'Admin', icon: 'cog', path: admin_players_path } if admin?
     items
   end
+
+  def sidebar_expanded?
+    cookies[:sidebar] != 'collapsed'
+  end
 end
