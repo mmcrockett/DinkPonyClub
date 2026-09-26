@@ -29,6 +29,8 @@ class AvailabilityTest < ApplicationSystemTestCase
     mock_google_auth(email: players(:ada).email)
     visit root_path
     click_button 'Sign in with Google'
+
+    assert_text players(:ada).full_name
     visit root_path
   end
 
