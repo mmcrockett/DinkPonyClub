@@ -1,29 +1,25 @@
 <% if signed_in? %>
-  <%= link_to profile_path, class: "touch-target #{'w-full gap-3 px-4' if expanded}", title: current_player.full_name do %>
+  <%= link_to profile_path, class: 'nav-link gap-3 px-4', title: current_player.full_name do %>
     <% if current_player.avatar_url.present? %>
-      <%= image_tag current_player.avatar_url, alt: '', referrerpolicy: 'no-referrer', class: 'h-8 w-8 rounded-full ring-2 ring-white/70' %>
+      <%= image_tag current_player.avatar_url, alt: '', referrerpolicy: 'no-referrer', class: 'h-8 w-8 shrink-0 rounded-full ring-2 ring-white/70' %>
     <% else %>
-      <span class="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-sm font-bold ring-2 ring-white/70">
+      <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/20 text-sm font-bold ring-2 ring-white/70">
         <%= current_player.first_name.first %>
       </span>
     <% end %>
-    <% if expanded %>
-      <span class="flex flex-col text-left">
-        <span class="text-sm font-semibold"><%= current_player.full_name %></span>
-        <span class="text-xs text-white/70"><%= current_player.email %></span>
-      </span>
-    <% end %>
+    <span class="sidebar-label flex flex-col text-left">
+      <span class="text-sm font-semibold"><%= current_player.full_name %></span>
+      <span class="text-xs text-white/70"><%= current_player.email %></span>
+    </span>
   <% end %>
 
-  <% if expanded %>
-    <%= button_to sign_out_path, method: :delete, class: 'nav-link gap-3 px-4 text-sm font-medium text-white/80 hover:text-white', form: { class: 'w-full' } do %>
-      <%= render 'shared/icon', name: 'sign-out', class: 'h-5 w-5' %>
-      Sign out
-    <% end %>
+  <%= button_to sign_out_path, method: :delete, class: 'nav-link gap-3 px-4 text-sm font-medium text-white/80 hover:text-white', form: { class: 'w-full' } do %>
+    <%= render 'shared/icon', name: 'sign-out', class: 'h-5 w-5 shrink-0' %>
+    <span class="sidebar-label">Sign out</span>
   <% end %>
 <% else %>
-  <%= button_to '/auth/google_oauth2', method: :post, class: "btn touch-target flex-col gap-0.5 px-0 #{'w-full flex-row justify-start gap-3 px-4' if expanded}", form: { class: 'w-full', data: { turbo: false } }, title: 'Sign in with Google' do %>
-    <%= render 'shared/icon', name: 'user', class: "#{expanded ? 'h-6 w-6' : 'h-5 w-5'}" %>
-    <span class="<%= expanded ? '' : 'text-[10px] font-semibold leading-none' %>">Sign in<%= ' with Google' if expanded %></span>
+  <%= button_to '/auth/google_oauth2', method: :post, class: 'nav-link gap-3 px-4', form: { class: 'w-full', data: { turbo: false } }, title: 'Sign in with Google' do %>
+    <%= render 'shared/icon', name: 'user', class: 'h-5 w-5 shrink-0' %>
+    <span class="sidebar-label">Sign in with Google</span>
   <% end %>
 <% end %>

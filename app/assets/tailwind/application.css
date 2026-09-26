@@ -46,10 +46,6 @@
     outline: 2px solid white;
     outline-offset: 2px;
   }
-
-  @variant md {
-    width: auto;
-  }
 }
 
 @utility season-button {
@@ -69,5 +65,119 @@
   &:focus-visible {
     outline: 2px solid black;
     outline-offset: 2px;
+  }
+}
+
+/*
+ * Sidebar: an overlay drawer below `lg` (phones, portrait tablets), a
+ * persistent push sidebar at `lg`+ (landscape tablets, desktop). State lives
+ * as data attributes on <body> -- `data-drawer` for the mobile overlay
+ * (always closed on first paint) and `data-sidebar` for the desktop
+ * expand/collapse preference (server-rendered from a cookie, so it's correct
+ * before any JS runs).
+ */
+@layer components {
+  .sidebar {
+    width: 4rem;
+    transition: width 200ms;
+  }
+
+  .sidebar-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+  }
+
+  .shell-main {
+    padding-left: 4rem;
+    transition: padding-left 200ms;
+  }
+
+  .sidebar-backdrop {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 200ms;
+  }
+
+  .sidebar-chevron {
+    transition: transform 200ms;
+  }
+
+  body[data-drawer='open'] .sidebar {
+    width: 16rem;
+  }
+
+  body[data-drawer='open'] .sidebar-label {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    white-space: normal;
+    clip: auto;
+  }
+
+  body[data-drawer='open'] .sidebar-backdrop {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  @variant lg {
+    .sidebar-backdrop {
+      display: none;
+    }
+
+    body[data-drawer] .sidebar {
+      width: 4rem;
+    }
+
+    body[data-drawer] .sidebar-label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      padding: 0;
+      overflow: hidden;
+      white-space: nowrap;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
+    }
+
+    body[data-sidebar='expanded'] .sidebar {
+      width: 16rem;
+    }
+
+    body[data-sidebar='expanded'] .sidebar-label {
+      position: static;
+      width: auto;
+      height: auto;
+      margin: 0;
+      overflow: visible;
+      white-space: normal;
+      clip: auto;
+    }
+
+    body[data-sidebar='expanded'] .shell-main {
+      padding-left: 16rem;
+    }
+
+    body[data-sidebar='collapsed'] .sidebar-chevron {
+      transform: rotate(180deg);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sidebar,
+    .shell-main,
+    .sidebar-backdrop,
+    .sidebar-chevron {
+      transition-duration: 0s;
+    }
   }
 }
