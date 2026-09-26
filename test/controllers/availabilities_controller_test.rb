@@ -7,7 +7,7 @@ class AvailabilitiesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'redirects to root when signed out' do
-    patch match_availability_path(@match), params: { playing: '1' }
+    patch match_availability_path(@match), params: { match_availability: { playing: '1' } }
 
     assert_redirected_to root_path
   end
@@ -16,7 +16,7 @@ class AvailabilitiesControllerTest < ActionDispatch::IntegrationTest
     sign_in_as_ada
 
     patch match_availability_path(@match), params: {
-      playing: '1',
+      match_availability: { playing: '1' },
       slot_preferences: { @slot.id.to_s => 'thumbs_up' }
     }
 
@@ -32,7 +32,7 @@ class AvailabilitiesControllerTest < ActionDispatch::IntegrationTest
     @match.match_availabilities.where(player: players(:ada)).destroy_all
 
     travel_to @match.played_on.in_time_zone.change(hour: 13) do
-      patch match_availability_path(@match), params: { playing: '1' }
+      patch match_availability_path(@match), params: { match_availability: { playing: '1' } }
     end
 
     assert_redirected_to root_path
@@ -44,7 +44,7 @@ class AvailabilitiesControllerTest < ActionDispatch::IntegrationTest
     other_match_slot = MatchSlot.create!(match: matches(:fall_alpha_bravo), position: 1, starts_at: Time.current)
 
     patch match_availability_path(@match), params: {
-      playing: '1',
+      match_availability: { playing: '1' },
       slot_preferences: { other_match_slot.id.to_s => 'thumbs_up' }
     }
 

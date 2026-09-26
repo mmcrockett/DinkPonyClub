@@ -23,7 +23,8 @@ class AvailabilitiesController < ApplicationController
 
   def save_playing!
     availability = @match.match_availabilities.find_or_initialize_by(player: current_player)
-    availability.update!(playing: ActiveModel::Type::Boolean.new.cast(params[:playing]))
+    playing = params.dig(:match_availability, :playing)
+    availability.update!(playing: ActiveModel::Type::Boolean.new.cast(playing))
   end
 
   def save_slot_preferences!
