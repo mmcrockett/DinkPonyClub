@@ -10,7 +10,27 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_25_130950) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_26_000000) do
+  create_table "clubhouse_photos", force: :cascade do |t|
+    t.string "caption", limit: 500, default: "", null: false
+    t.string "content_type", null: false
+    t.datetime "created_at", null: false
+    t.binary "image_data", limit: 8388608, null: false
+    t.integer "player_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["player_id"], name: "index_clubhouse_photos_on_player_id"
+  end
+
+  create_table "clubhouse_seasons", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.boolean "current", default: false, null: false
+    t.integer "lock_version", default: 0, null: false
+    t.json "payload", null: false
+    t.string "slug", null: false
+    t.datetime "updated_at", null: false
+    t.index ["slug"], name: "index_clubhouse_seasons_on_slug", unique: true
+  end
+
   create_table "games", force: :cascade do |t|
     t.integer "away_score", null: false
     t.datetime "created_at", null: false
@@ -98,6 +118,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_25_130950) do
     t.index ["name"], name: "index_teams_on_name", unique: true
   end
 
+  add_foreign_key "clubhouse_photos", "players"
   add_foreign_key "games", "lineups"
   add_foreign_key "lineups", "matches"
   add_foreign_key "lineups", "players", column: "away_player_one_id"

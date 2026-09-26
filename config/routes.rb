@@ -1,6 +1,15 @@
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
+  get '/clubhouse', to: 'clubhouse/pages#show', as: :clubhouse
+  get '/clubhouse/setup', to: 'clubhouse/pages#setup', as: :clubhouse_setup
+  post '/clubhouse/import', to: 'clubhouse/pages#import', as: :clubhouse_import
+  get '/clubhouse/api/league', to: 'clubhouse/league#show'
+  post '/clubhouse/api/league', to: 'clubhouse/league#update'
+  get '/clubhouse/api/photos', to: 'clubhouse/photos#index'
+  post '/clubhouse/api/photos', to: 'clubhouse/photos#create'
+  delete '/clubhouse/api/photos', to: 'clubhouse/photos#destroy'
+
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

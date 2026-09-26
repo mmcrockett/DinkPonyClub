@@ -22,3 +22,7 @@ Things you may want to cover:
 * Deployment instructions
 
 * ...
+
+## League clubhouse
+
+See [setup, permissions, and data migration](docs/clubhouse.md) for the integrated league app at `/clubhouse`.

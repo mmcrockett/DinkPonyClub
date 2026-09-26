@@ -1,0 +1,9 @@
+<main>
+  <h1>Import league seasons</h1>
+  <p>Upload a private JSON season export. Existing season IDs cannot be overwritten. Create player accounts first: roster sign-in emails link to those accounts.</p>
+  <%= form_with url: clubhouse_import_path, multipart: true do |form| %>
+    <p><%= form.label :season_file, 'Season export' %> <%= form.file_field :season_file, accept: '.json,application/json', required: true %></p>
+    <p><%= form.label :current_slug, 'Current season ID' %> <%= form.text_field :current_slug, value: 'fall-2026', required: true %></p>
+    <p><%= form.submit 'Import seasons' %></p>
+  <% end %>
+</main>
