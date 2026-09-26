@@ -60,4 +60,12 @@ class PlayerTest < ActiveSupport::TestCase
       Player.locate_by_email!('nobody@example.test')
     end
   end
+
+  test 'next_match returns the earliest upcoming match for the player team' do
+    assert_equal matches(:fall_future), players(:ada).next_match(seasons(:fall))
+  end
+
+  test 'next_match returns nil without a roster spot in the season' do
+    assert_nil players(:zoe).next_match(seasons(:fall))
+  end
 end

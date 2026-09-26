@@ -7,3 +7,9 @@ fall_alpha_bravo:
   away_match_points: 1
   home_points_scored: 29
   away_points_scored: 25
+
+fall_future:
+  season: fall
+  home_team: alpha
+  away_team: bravo
+  played_on: <%= (Date.current + 3).iso8601 %>

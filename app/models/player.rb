@@ -39,4 +39,11 @@ class Player < ApplicationRecord
   def full_name
     "#{first_name} #{last_name}"
   end
+
+  def next_match(season)
+    team = teams.merge(RosterSpot.where(season: season)).first
+    return nil unless team
+
+    team.matches_in(season).where(played_on: Date.current..).chronological.first
+  end
 end
