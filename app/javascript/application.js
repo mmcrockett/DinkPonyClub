@@ -8,11 +8,8 @@ if ("serviceWorker" in navigator) {
   })
 }
 
-// beforeinstallprompt fires once, early in the page's life, and never again
-// for that load. Captured here (rather than in the Stimulus controller) so it
-// survives every Turbo visit -- the sidebar's install_controller connects and
-// disconnects on each navigation, but application.js runs only once per real
-// page load.
+// Captured here, not in the Stimulus controller, so it survives Turbo
+// tearing the sidebar down and rebuilding it on every navigation.
 window.addEventListener("beforeinstallprompt", (event) => {
   event.preventDefault()
   window.dpcInstallPrompt = event
