@@ -4,7 +4,7 @@ class AvailabilityTest < ApplicationSystemTestCase
   test 'toggling out greys the slot ratings, toggling back in lets you save a preference' do
     sign_in_as_ada
 
-    assert_selector 'label', text: '7:00 PM'
+    assert_text '7:00 PM'
 
     find('input[type=checkbox][role=switch]', visible: false).click
 
@@ -32,7 +32,8 @@ class AvailabilityTest < ApplicationSystemTestCase
   end
 
   def choose_slot_preference(slot_time, preference)
-    row = find('div', text: slot_time)
+    row = all('.availability-slot-row').find { |element| element.text.include?(slot_time) }
+
     within(row) do
       find("input[type=radio][value='#{preference}']", visible: false).choose
     end
