@@ -1,0 +1,9 @@
+fall_future_slot_one_ada:
+  match_slot: fall_future_slot_one
+  player: ada
+  preference: thumbs_up
+
+fall_future_slot_two_ada:
+  match_slot: fall_future_slot_two
+  player: ada
+  preference: meh

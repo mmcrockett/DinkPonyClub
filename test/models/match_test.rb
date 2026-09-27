@@ -41,4 +41,34 @@ class MatchTest < ActiveSupport::TestCase
       match.destroy
     end
   end
+
+  test 'availability is open before noon central on match day' do
+    match = matches(:fall_future)
+
+    travel_to match.played_on.in_time_zone.change(hour: 11, min: 59) do
+      assert_predicate match, :availability_open?
+    end
+  end
+
+  test 'availability closes at noon central on match day' do
+    match = matches(:fall_future)
+
+    travel_to match.played_on.in_time_zone.change(hour: 12, min: 1) do
+      assert_not match.availability_open?
+    end
+  end
+
+  test 'availability is closed the day after the match' do
+    match = matches(:fall_future)
+
+    travel_to match.played_on.in_time_zone.change(hour: 11) + 1.day do
+      assert_not match.availability_open?
+    end
+  end
+
+  test 'availability is closed when there is no played_on date' do
+    match = Match.new(season: seasons(:fall), home_team: teams(:alpha), away_team: teams(:bravo))
+
+    assert_not match.availability_open?
+  end
 end
