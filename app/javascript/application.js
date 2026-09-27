@@ -7,3 +7,11 @@ if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("/service-worker")
   })
 }
+
+// Captured here, not in the Stimulus controller, so it survives Turbo
+// tearing the sidebar down and rebuilding it on every navigation.
+window.addEventListener("beforeinstallprompt", (event) => {
+  event.preventDefault()
+  window.dpcInstallPrompt = event
+  window.dispatchEvent(new Event("dpc:install-available"))
+})

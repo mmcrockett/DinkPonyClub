@@ -1,4 +1,4 @@
-<div data-controller="sidebar">
+<div data-controller="sidebar install">
   <div class="sidebar-backdrop fixed inset-0 z-40 bg-black/40"
        data-sidebar-target="backdrop" data-action="click->sidebar#close"></div>
 
@@ -40,7 +40,10 @@
     </ul>
 
     <div class="mt-auto flex flex-col gap-1 border-t border-white/10 pt-2">
+      <%= render 'layouts/sidebar_install' %>
       <%= render 'layouts/sidebar_account' %>
     </div>
   </aside>
+
+  <%= render 'layouts/sidebar_install_dialog' %>
 </div>
