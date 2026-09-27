@@ -1,0 +1,9 @@
+fall_future_ada:
+  match: fall_future
+  player: ada
+  playing: true
+
+fall_future_grace:
+  match: fall_future
+  player: grace
+  playing: false

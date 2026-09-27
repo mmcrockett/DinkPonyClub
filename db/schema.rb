@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_25_130950) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_26_140002) do
   create_table "games", force: :cascade do |t|
     t.integer "away_score", null: false
     t.datetime "created_at", null: false
@@ -35,6 +35,25 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_25_130950) do
     t.index ["home_player_one_id"], name: "index_lineups_on_home_player_one_id"
     t.index ["home_player_two_id"], name: "index_lineups_on_home_player_two_id"
     t.index ["match_id", "position"], name: "index_lineups_on_match_id_and_position", unique: true
+  end
+
+  create_table "match_availabilities", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "match_id", null: false
+    t.integer "player_id", null: false
+    t.boolean "playing", default: true, null: false
+    t.datetime "updated_at", null: false
+    t.index ["match_id", "player_id"], name: "index_match_availabilities_on_match_and_player", unique: true
+    t.index ["player_id"], name: "index_match_availabilities_on_player_id"
+  end
+
+  create_table "match_slots", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "match_id", null: false
+    t.integer "position", null: false
+    t.datetime "starts_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["match_id", "position"], name: "index_match_slots_on_match_id_and_position", unique: true
   end
 
   create_table "matches", force: :cascade do |t|
@@ -90,6 +109,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_25_130950) do
     t.index ["name"], name: "index_seasons_on_name", unique: true
   end
 
+  create_table "slot_availabilities", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "match_slot_id", null: false
+    t.integer "player_id", null: false
+    t.string "preference", limit: 20, default: "meh", null: false
+    t.datetime "updated_at", null: false
+    t.index ["match_slot_id", "player_id"], name: "index_slot_availabilities_on_slot_and_player", unique: true
+    t.index ["player_id"], name: "index_slot_availabilities_on_player_id"
+  end
+
   create_table "teams", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "name", limit: 100, null: false
@@ -104,10 +133,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_25_130950) do
   add_foreign_key "lineups", "players", column: "away_player_two_id"
   add_foreign_key "lineups", "players", column: "home_player_one_id"
   add_foreign_key "lineups", "players", column: "home_player_two_id"
+  add_foreign_key "match_availabilities", "matches"
+  add_foreign_key "match_availabilities", "players"
+  add_foreign_key "match_slots", "matches"
   add_foreign_key "matches", "seasons"
   add_foreign_key "matches", "teams", column: "away_team_id"
   add_foreign_key "matches", "teams", column: "home_team_id"
   add_foreign_key "roster_spots", "players"
   add_foreign_key "roster_spots", "seasons"
   add_foreign_key "roster_spots", "teams"
+  add_foreign_key "slot_availabilities", "match_slots"
+  add_foreign_key "slot_availabilities", "players"
 end

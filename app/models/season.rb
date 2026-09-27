@@ -9,6 +9,7 @@ class Season < ApplicationRecord
   validates :name, presence: true, uniqueness: true
 
   scope :chronological, -> { order(:starts_on) }
+  scope :current, -> { where(starts_on: ..Date.current).where(ends_on: Date.current..).order(:starts_on) }
 
   Standing = Struct.new(:team, :matches_played, :matches_won, :points, :points_scored, :points_allowed,
                         keyword_init: true) do

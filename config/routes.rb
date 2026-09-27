@@ -13,6 +13,10 @@ Rails.application.routes.draw do
 
   resources :seasons, only: %i[index]
 
+  resources :matches, only: [] do
+    resource :availability, only: %i[update]
+  end
+
   get    'auth/google_oauth2/callback', to: 'sessions#create'
   get    'auth/failure', to: 'sessions#failure'
   delete 'sign_out', to: 'sessions#destroy', as: :sign_out

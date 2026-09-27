@@ -6,11 +6,24 @@ class Match < ApplicationRecord
   belongs_to :away_team, class_name: 'Team'
   has_many :lineups, -> { order(:position) }, dependent: :destroy, inverse_of: :match
   has_many :games, through: :lineups
+  has_many :match_slots, -> { order(:starts_at) }, dependent: :destroy, inverse_of: :match
+  has_many :match_availabilities, dependent: :destroy
+  has_many :slot_availabilities, through: :match_slots
 
   validate :teams_are_different
   validate :teams_rostered_in_season
 
   scope :chronological, -> { order(:played_on) }
+
+  AVAILABILITY_CUTOFF_HOUR = 12
+
+  def availability_cutoff_at
+    played_on&.in_time_zone&.change(hour: AVAILABILITY_CUTOFF_HOUR)
+  end
+
+  def availability_open?
+    played_on.present? && Time.current < availability_cutoff_at
+  end
 
   def recalculate_score!
     # These four columns are a pure derivation of the games below - skipping

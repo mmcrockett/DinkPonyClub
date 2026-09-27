@@ -1,0 +1,68 @@
+<div class="border-2 border-black">
+  <div class="bg-dpc-navy text-white text-center font-bold py-2">
+    Next up: <%= @next_match.home_team.name %> vs <%= @next_match.away_team.name %>
+    &middot; <%= @next_match.played_on.strftime("%A, %B %-d") %>
+  </div>
+
+  <div class="p-4">
+    <% if @next_match.availability_open? %>
+      <%= form_with model: @availability, url: match_availability_path(@next_match), method: :patch,
+                    class: "flex flex-col gap-4", data: { controller: "availability" } do |form| %>
+        <label class="availability-toggle inline-flex items-center gap-3 touch-target">
+          <%= form.check_box :playing, { role: "switch", class: "sr-only peer",
+                                          checked: @availability.playing != false,
+                                          data: { availability_target: "toggle", action: "change->availability#toggled" } },
+                                        "1", "0" %>
+          <span class="relative w-11 h-6 bg-gray-300 rounded-full peer-checked:bg-dpc-green transition-colors">
+            <span class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-5"></span>
+          </span>
+          <span class="font-semibold" data-availability-target="status">
+            <%= @availability.playing != false ? "In" : "Out" %>
+          </span>
+        </label>
+
+        <div class="flex flex-col divide-y divide-black/10 <%= "opacity-40 pointer-events-none" if @availability.playing == false %>"
+             data-availability-target="slots">
+          <% @match_slots.each do |slot| %>
+            <% current_preference = @slot_availabilities[slot.id]&.preference || "meh" %>
+            <div class="availability-slot-row flex items-center justify-between gap-3 py-2">
+              <span class="font-medium"><%= slot.starts_at.strftime("%-l:%M %p") %></span>
+              <div class="flex gap-1">
+                <% SlotAvailability.preferences.each_key do |preference| %>
+                  <label class="touch-target rounded" data-preference="<%= preference %>">
+                    <%= radio_button_tag "slot_preferences[#{slot.id}]", preference,
+                                          current_preference == preference,
+                                          class: "sr-only peer", disabled: @availability.playing == false %>
+                    <span class="flex items-center justify-center rounded px-2 py-1 peer-checked:bg-dpc-navy peer-checked:text-white">
+                      <%= render "shared/icon", name: preference.tr('_', '-'), class: "h-5 w-5" %>
+                    </span>
+                  </label>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+
+        <%= form.button "Save", class: "btn bg-dpc-navy text-white self-start" %>
+      <% end %>
+    <% else %>
+      <p class="font-semibold mb-2">
+        You're <%= @availability.playing != false ? "in" : "out" %>.
+      </p>
+
+      <% if @availability.playing != false %>
+        <div class="flex flex-col divide-y divide-black/10">
+          <% @match_slots.each do |slot| %>
+            <% current_preference = @slot_availabilities[slot.id]&.preference || "meh" %>
+            <div class="availability-slot-row flex items-center justify-between gap-3 py-2">
+              <span class="font-medium"><%= slot.starts_at.strftime("%-l:%M %p") %></span>
+              <%= render "shared/icon", name: current_preference.tr('_', '-'), class: "h-5 w-5" %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+
+      <p class="text-xs italic text-gray-500 mt-2">Contact your captain directly if you need to change.</p>
+    <% end %>
+  </div>
+</div>
