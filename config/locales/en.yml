@@ -52,3 +52,7 @@ en:
       saved: "Thanks! Your availability has been saved."
       closed: "Availability for this match has closed."
       invalid_status: "That availability status wasn't recognized. Please try again."
+  matches:
+    forbidden: "Only captains of the two teams in this match can enter results."
+    update:
+      saved: "Scorecard saved."

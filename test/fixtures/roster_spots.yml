@@ -27,3 +27,35 @@ spring_alpha_ada:
   team: alpha
   player: ada
   captain: true
+
+scorecard_home_captain:
+  season: scorecard
+  team: sc_home
+  player: sc_home_captain
+  captain: true
+
+scorecard_away_captain:
+  season: scorecard
+  team: sc_away
+  player: sc_away_captain
+  captain: true
+
+scorecard_other_captain:
+  season: scorecard
+  team: sc_other
+  player: sc_other_captain
+  captain: true
+
+<% (1..14).each do |n| %>
+scorecard_home_player<%= n %>:
+  season: scorecard
+  team: sc_home
+  player: sc_home_player<%= n %>
+  captain: false
+
+scorecard_away_player<%= n %>:
+  season: scorecard
+  team: sc_away
+  player: sc_away_player<%= n %>
+  captain: false
+<% end %>

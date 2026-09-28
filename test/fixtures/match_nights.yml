@@ -7,3 +7,8 @@ fall_upcoming:
   season: fall
   played_on: <%= (Date.current + 3).iso8601 %>
   label: Week 2
+
+scorecard_week_one:
+  season: scorecard
+  played_on: 2026-01-10
+  label: Week 1

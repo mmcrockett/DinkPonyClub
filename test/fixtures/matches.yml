@@ -9,3 +9,9 @@ fall_future:
   match_night: fall_upcoming
   home_team: alpha
   away_team: bravo
+
+scorecard_match:
+  season: scorecard
+  match_night: scorecard_week_one
+  home_team: sc_home
+  away_team: sc_away
