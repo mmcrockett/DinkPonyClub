@@ -51,3 +51,4 @@ en:
     update:
       saved: "Thanks! Your availability has been saved."
       closed: "Availability for this match has closed."
+      invalid_status: "That availability status wasn't recognized. Please try again."

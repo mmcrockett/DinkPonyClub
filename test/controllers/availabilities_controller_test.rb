@@ -39,6 +39,17 @@ class AvailabilitiesControllerTest < ActionDispatch::IntegrationTest
     assert_nil @match_night.match_availabilities.find_by(player: players(:ada))
   end
 
+  test 'rejects an invalid status without saving or flashing success' do
+    sign_in_as_ada
+    availability = match_availabilities(:fall_future_ada)
+
+    patch match_night_availability_path(@match_night), params: { match_availability: { status: 'nope' } }
+
+    assert_redirected_to root_path
+    assert_equal I18n.t('availabilities.update.invalid_status'), flash[:alert]
+    assert_predicate availability.reload, :in?
+  end
+
   test 'ignores a slot id that belongs to a different match night' do
     sign_in_as_ada
     other_slot = MatchSlot.create!(match_night: match_nights(:fall_week_one), position: 1, starts_at: Time.current)

@@ -48,16 +48,22 @@ class MoveMatchesToMatchNights < ActiveRecord::Migration[8.1]
 
   def backfill_match_nights
     MigrationMatch.reset_column_information
-    MigrationMatch.all.group_by { |match| [match.season_id, match.played_on || Date.current] }.each do |(season_id, played_on), matches|
-      label = "Week #{week_number_for(season_id, played_on)}"
-      night = MigrationMatchNight.create!(season_id: season_id, played_on: played_on, label: label)
-      matches.each { |match| match.update_columns(match_night_id: night.id) }
-    end
+    MigrationMatch.all.group_by(&:season_id).each_value { |matches| backfill_season_nights(matches) }
   end
 
-  def week_number_for(season_id, played_on)
-    distinct_dates = MigrationMatch.where(season_id: season_id).distinct.pluck(:played_on)
-                                   .map { |date| date || Date.current }.uniq.sort
-    distinct_dates.index(played_on) + 1
+  def backfill_season_nights(matches)
+    night_groups(matches).each_with_index { |(played_on, group_matches), index| create_night!(played_on, group_matches, index) }
+  end
+
+  def night_groups(matches)
+    dated, undated = matches.partition(&:played_on)
+    dated.group_by(&:played_on).sort_by { |played_on, _| played_on } +
+      undated.sort_by(&:id).map { |match| [Date.current, [match]] }
+  end
+
+  def create_night!(played_on, group_matches, index)
+    night = MigrationMatchNight.create!(season_id: group_matches.first.season_id, played_on: played_on,
+                                        label: "Week #{index + 1}")
+    group_matches.each { |match| match.update_columns(match_night_id: night.id) }
   end
 end

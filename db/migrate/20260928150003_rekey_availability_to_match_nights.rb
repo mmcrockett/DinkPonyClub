@@ -17,6 +17,10 @@ class RekeyAvailabilityToMatchNights < ActiveRecord::Migration[8.1]
     self.table_name = 'match_slots'
   end
 
+  class MigrationSlotAvailability < ActiveRecord::Base
+    self.table_name = 'slot_availabilities'
+  end
+
   def up
     migrate_match_availabilities
     migrate_match_slots
@@ -32,7 +36,7 @@ class RekeyAvailabilityToMatchNights < ActiveRecord::Migration[8.1]
   def migrate_match_availabilities
     add_reference :match_availabilities, :match_night, null: true, foreign_key: true, index: false
     backfill_match_night_id(MigrationMatchAvailability)
-    dedupe(MigrationMatchAvailability, :player_id)
+    dedupe_match_availabilities
     change_column_null :match_availabilities, :match_night_id, false
 
     remove_index :match_availabilities, name: 'index_match_availabilities_on_match_and_player'
@@ -52,7 +56,7 @@ class RekeyAvailabilityToMatchNights < ActiveRecord::Migration[8.1]
   def migrate_match_slots
     add_reference :match_slots, :match_night, null: true, foreign_key: true, index: false
     backfill_match_night_id(MigrationMatchSlot)
-    dedupe(MigrationMatchSlot, :position)
+    dedupe_match_slots
     change_column_null :match_slots, :match_night_id, false
 
     remove_index :match_slots, name: 'index_match_slots_on_match_id_and_position'
@@ -72,12 +76,23 @@ class RekeyAvailabilityToMatchNights < ActiveRecord::Migration[8.1]
     end
   end
 
-  def dedupe(klass, unique_column)
-    klass.reset_column_information
-    klass.all.group_by { |record| [record.match_night_id, record.public_send(unique_column)] }.each_value do |group|
+  def dedupe_match_availabilities
+    MigrationMatchAvailability.reset_column_information
+    MigrationMatchAvailability.all.group_by { |record| [record.match_night_id, record.player_id] }.each_value do |group|
       next if group.size <= 1
 
-      group.sort_by(&:id).drop(1).each(&:destroy)
+      group.sort_by(&:id)[0...-1].each(&:destroy)
+    end
+  end
+
+  def dedupe_match_slots
+    MigrationMatchSlot.reset_column_information
+    MigrationMatchSlot.all.group_by { |slot| [slot.match_night_id, slot.position] }.each_value do |group|
+      next if group.size <= 1
+
+      losers = group.sort_by(&:id).drop(1)
+      MigrationSlotAvailability.where(match_slot_id: losers.map(&:id)).delete_all
+      losers.each(&:destroy)
     end
   end
 

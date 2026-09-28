@@ -6,6 +6,7 @@ class AvailabilitiesController < ApplicationController
 
   def update
     return redirect_to(root_path, alert: t('.closed')) unless @match_night.availability_open?
+    return redirect_to(root_path, alert: t('.invalid_status')) unless MatchAvailability.statuses.key?(status_param)
 
     ActiveRecord::Base.transaction do
       save_status!
@@ -21,12 +22,13 @@ class AvailabilitiesController < ApplicationController
     @match_night = MatchNight.find(params.expect(:match_night_id))
   end
 
+  def status_param
+    params.dig(:match_availability, :status)
+  end
+
   def save_status!
     availability = @match_night.match_availabilities.find_or_initialize_by(player: current_player)
-    status = params.dig(:match_availability, :status)
-    return unless MatchAvailability.statuses.key?(status)
-
-    availability.update!(status: status)
+    availability.update!(status: status_param)
   end
 
   def save_slot_preferences!
