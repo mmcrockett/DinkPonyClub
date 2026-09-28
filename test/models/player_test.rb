@@ -61,11 +61,19 @@ class PlayerTest < ActiveSupport::TestCase
     end
   end
 
-  test 'next_match returns the earliest upcoming match for the player team' do
-    assert_equal matches(:fall_future), players(:ada).next_match(seasons(:fall))
+  test 'next_match_night returns the earliest upcoming match night for the player team' do
+    assert_equal match_nights(:fall_upcoming), players(:ada).next_match_night(seasons(:fall))
   end
 
-  test 'next_match returns nil without a roster spot in the season' do
-    assert_nil players(:zoe).next_match(seasons(:fall))
+  test 'next_match_night returns nil without a roster spot in the season' do
+    assert_nil players(:zoe).next_match_night(seasons(:fall))
+  end
+
+  test 'captain_in? is true for a captain in that season' do
+    assert players(:ada).captain_in?(seasons(:fall))
+  end
+
+  test 'captain_in? is false for a non-captain in that season' do
+    assert_not players(:grace).captain_in?(seasons(:fall))
   end
 end

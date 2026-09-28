@@ -5,7 +5,7 @@ module Authentication
 
   included do
     before_action :set_current_player
-    helper_method :current_player, :signed_in?, :admin?
+    helper_method :current_player, :signed_in?, :admin?, :captain_or_admin?
   end
 
   private
@@ -24,6 +24,10 @@ module Authentication
 
   def admin?
     current_player&.admin?
+  end
+
+  def captain_or_admin?(season)
+    admin? || current_player&.captain_in?(season)
   end
 
   def sign_in(player)
@@ -47,5 +51,11 @@ module Authentication
     return if admin?
 
     redirect_to root_path, alert: t('authentication.require_admin')
+  end
+
+  def require_captain_or_admin(season)
+    return if captain_or_admin?(season)
+
+    redirect_to root_path, alert: t('authentication.require_captain_or_admin')
   end
 end

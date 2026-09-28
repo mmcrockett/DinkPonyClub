@@ -2,13 +2,13 @@
 
 class AvailabilitiesController < ApplicationController
   before_action :require_sign_in
-  before_action :set_match
+  before_action :set_match_night
 
   def update
-    return redirect_to(root_path, alert: t('.closed')) unless @match.availability_open?
+    return redirect_to(root_path, alert: t('.closed')) unless @match_night.availability_open?
 
     ActiveRecord::Base.transaction do
-      save_playing!
+      save_status!
       save_slot_preferences!
     end
 
@@ -17,19 +17,21 @@ class AvailabilitiesController < ApplicationController
 
   private
 
-  def set_match
-    @match = Match.find(params.expect(:match_id))
+  def set_match_night
+    @match_night = MatchNight.find(params.expect(:match_night_id))
   end
 
-  def save_playing!
-    availability = @match.match_availabilities.find_or_initialize_by(player: current_player)
-    playing = params.dig(:match_availability, :playing)
-    availability.update!(playing: ActiveModel::Type::Boolean.new.cast(playing))
+  def save_status!
+    availability = @match_night.match_availabilities.find_or_initialize_by(player: current_player)
+    status = params.dig(:match_availability, :status)
+    return unless MatchAvailability.statuses.key?(status)
+
+    availability.update!(status: status)
   end
 
   def save_slot_preferences!
     slot_preferences.each do |match_slot_id, preference|
-      slot = @match.match_slots.find_by(id: match_slot_id)
+      slot = @match_night.match_slots.find_by(id: match_slot_id)
       next unless slot && SlotAvailability.preferences.key?(preference)
 
       slot.slot_availabilities.find_or_initialize_by(player: current_player).update!(preference: preference)

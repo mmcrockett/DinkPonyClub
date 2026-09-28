@@ -7,11 +7,12 @@ class HomeController < ApplicationController
     season = Season.current.first || Season.chronological.last
     return unless season
 
-    @next_match = current_player.next_match(season)
-    return unless @next_match
+    @next_match_night = current_player.next_match_night(season)
+    return unless @next_match_night
 
-    @match_slots = @next_match.match_slots
-    @availability = @next_match.match_availabilities.find_or_initialize_by(player: current_player)
-    @slot_availabilities = @next_match.slot_availabilities.where(player: current_player).index_by(&:match_slot_id)
+    @match_slots = @next_match_night.match_slots
+    @availability = @next_match_night.match_availabilities.find_or_initialize_by(player: current_player)
+    @slot_availabilities = @next_match_night.slot_availabilities.where(player: current_player)
+                                            .index_by(&:match_slot_id)
   end
 end
