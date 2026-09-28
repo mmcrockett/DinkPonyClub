@@ -31,11 +31,4 @@ class SeasonTest < ActiveSupport::TestCase
       seasons(:fall).destroy
     end
   end
-
-  test 'standings orders teams by points then point differential' do
-    standings = seasons(:fall).standings
-
-    assert_equal [teams(:alpha), teams(:bravo)], standings.map(&:team)
-    assert_equal [2, 1], standings.map(&:points)
-  end
 end

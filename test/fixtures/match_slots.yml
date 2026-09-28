@@ -1,14 +1,14 @@
 fall_future_slot_one:
-  match: fall_future
+  match_night: fall_upcoming
   position: 1
   starts_at: <%= (Date.current + 3).in_time_zone.change(hour: 19).iso8601 %>
 
 fall_future_slot_two:
-  match: fall_future
+  match_night: fall_upcoming
   position: 2
   starts_at: <%= (Date.current + 3).in_time_zone.change(hour: 20).iso8601 %>
 
 fall_future_slot_three:
-  match: fall_future
+  match_night: fall_upcoming
   position: 3
   starts_at: <%= (Date.current + 3).in_time_zone.change(hour: 20, min: 45).iso8601 %>

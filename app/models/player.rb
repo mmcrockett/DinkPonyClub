@@ -40,10 +40,14 @@ class Player < ApplicationRecord
     "#{first_name} #{last_name}"
   end
 
-  def next_match(season)
+  def next_match_night(season)
     team = teams.merge(RosterSpot.where(season: season)).first
     return nil unless team
 
-    team.matches_in(season).where(played_on: Date.current..).chronological.first
+    MatchNight.where(season: season, id: team.matches_in(season).select(:match_night_id)).upcoming.chronological.first
+  end
+
+  def captain_in?(season)
+    roster_spots.captains.exists?(season: season)
   end
 end

@@ -13,7 +13,7 @@ Rails.application.routes.draw do
 
   resources :seasons, only: %i[index]
 
-  resources :matches, only: [] do
+  resources :match_nights, only: [] do
     resource :availability, only: %i[update]
   end
 

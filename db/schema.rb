@@ -10,77 +10,87 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_26_140002) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_28_150004) do
   create_table "games", force: :cascade do |t|
+    t.integer "away_player_a_id", null: false
+    t.integer "away_player_b_id", null: false
     t.integer "away_score", null: false
     t.datetime "created_at", null: false
+    t.integer "home_player_a_id", null: false
+    t.integer "home_player_b_id", null: false
     t.integer "home_score", null: false
     t.integer "lineup_id", null: false
     t.integer "number", null: false
     t.datetime "updated_at", null: false
+    t.index ["away_player_a_id"], name: "index_games_on_away_player_a_id"
+    t.index ["away_player_b_id"], name: "index_games_on_away_player_b_id"
+    t.index ["home_player_a_id"], name: "index_games_on_home_player_a_id"
+    t.index ["home_player_b_id"], name: "index_games_on_home_player_b_id"
     t.index ["lineup_id", "number"], name: "index_games_on_lineup_id_and_number", unique: true
   end
 
   create_table "lineups", force: :cascade do |t|
-    t.integer "away_player_one_id", null: false
-    t.integer "away_player_two_id", null: false
     t.datetime "created_at", null: false
-    t.integer "home_player_one_id", null: false
-    t.integer "home_player_two_id", null: false
     t.integer "match_id", null: false
     t.integer "position", null: false
     t.datetime "updated_at", null: false
-    t.index ["away_player_one_id"], name: "index_lineups_on_away_player_one_id"
-    t.index ["away_player_two_id"], name: "index_lineups_on_away_player_two_id"
-    t.index ["home_player_one_id"], name: "index_lineups_on_home_player_one_id"
-    t.index ["home_player_two_id"], name: "index_lineups_on_home_player_two_id"
     t.index ["match_id", "position"], name: "index_lineups_on_match_id_and_position", unique: true
   end
 
   create_table "match_availabilities", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.integer "match_id", null: false
+    t.integer "match_night_id", null: false
     t.integer "player_id", null: false
-    t.boolean "playing", default: true, null: false
+    t.string "status", limit: 10, default: "maybe", null: false
     t.datetime "updated_at", null: false
-    t.index ["match_id", "player_id"], name: "index_match_availabilities_on_match_and_player", unique: true
+    t.index ["match_night_id", "player_id"], name: "index_match_availabilities_on_match_night_and_player", unique: true
     t.index ["player_id"], name: "index_match_availabilities_on_player_id"
+  end
+
+  create_table "match_nights", force: :cascade do |t|
+    t.boolean "canceled", default: false, null: false
+    t.datetime "created_at", null: false
+    t.string "label", limit: 60, null: false
+    t.text "notes"
+    t.date "played_on", null: false
+    t.boolean "playoff", default: false, null: false
+    t.integer "season_id", null: false
+    t.datetime "updated_at", null: false
+    t.string "venue", limit: 150
+    t.index ["season_id", "played_on"], name: "index_match_nights_on_season_id_and_played_on"
   end
 
   create_table "match_slots", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.integer "match_id", null: false
+    t.integer "match_night_id", null: false
     t.integer "position", null: false
     t.datetime "starts_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["match_id", "position"], name: "index_match_slots_on_match_id_and_position", unique: true
+    t.index ["match_night_id", "position"], name: "index_match_slots_on_match_night_and_position", unique: true
   end
 
   create_table "matches", force: :cascade do |t|
-    t.integer "away_match_points", default: 0, null: false
-    t.integer "away_points_scored", default: 0, null: false
     t.integer "away_team_id", null: false
     t.datetime "created_at", null: false
-    t.integer "home_match_points", default: 0, null: false
-    t.integer "home_points_scored", default: 0, null: false
     t.integer "home_team_id", null: false
-    t.date "played_on"
+    t.integer "match_night_id", null: false
     t.integer "season_id", null: false
     t.datetime "updated_at", null: false
     t.index ["away_team_id"], name: "index_matches_on_away_team_id"
     t.index ["home_team_id"], name: "index_matches_on_home_team_id"
-    t.index ["season_id", "played_on"], name: "index_matches_on_season_id_and_played_on"
   end
 
   create_table "players", force: :cascade do |t|
     t.boolean "admin", default: false, null: false
     t.string "avatar_url", limit: 512
+    t.string "contact_email", limit: 254
     t.datetime "created_at", null: false
     t.string "email", limit: 255
     t.string "first_name", limit: 100, null: false
     t.string "google_uid", limit: 255
     t.string "last_name", limit: 100, null: false
     t.datetime "last_signed_in_at"
+    t.string "phone", limit: 40
     t.string "status", limit: 20, default: "active", null: false
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_players_on_email", unique: true
@@ -90,6 +100,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_26_140002) do
   create_table "roster_spots", force: :cascade do |t|
     t.boolean "captain", default: false, null: false
     t.datetime "created_at", null: false
+    t.string "draft_rank", limit: 10
     t.integer "player_id", null: false
     t.integer "season_id", null: false
     t.integer "team_id", null: false
@@ -104,7 +115,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_26_140002) do
     t.datetime "created_at", null: false
     t.date "ends_on"
     t.string "name", limit: 100, null: false
+    t.text "rules"
     t.date "starts_on"
+    t.decimal "sweep_bonus", precision: 3, scale: 1, default: "0.5", null: false
     t.datetime "updated_at", null: false
     t.index ["name"], name: "index_seasons_on_name", unique: true
   end
@@ -128,14 +141,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_26_140002) do
   end
 
   add_foreign_key "games", "lineups"
+  add_foreign_key "games", "players", column: "away_player_a_id"
+  add_foreign_key "games", "players", column: "away_player_b_id"
+  add_foreign_key "games", "players", column: "home_player_a_id"
+  add_foreign_key "games", "players", column: "home_player_b_id"
   add_foreign_key "lineups", "matches"
-  add_foreign_key "lineups", "players", column: "away_player_one_id"
-  add_foreign_key "lineups", "players", column: "away_player_two_id"
-  add_foreign_key "lineups", "players", column: "home_player_one_id"
-  add_foreign_key "lineups", "players", column: "home_player_two_id"
-  add_foreign_key "match_availabilities", "matches"
+  add_foreign_key "match_availabilities", "match_nights"
   add_foreign_key "match_availabilities", "players"
-  add_foreign_key "match_slots", "matches"
+  add_foreign_key "match_nights", "seasons"
+  add_foreign_key "match_slots", "match_nights"
+  add_foreign_key "matches", "match_nights"
   add_foreign_key "matches", "seasons"
   add_foreign_key "matches", "teams", column: "away_team_id"
   add_foreign_key "matches", "teams", column: "home_team_id"

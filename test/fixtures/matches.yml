@@ -1,15 +1,11 @@
 fall_alpha_bravo:
   season: fall
+  match_night: fall_week_one
   home_team: alpha
   away_team: bravo
-  played_on: 2026-09-20
-  home_match_points: 2
-  away_match_points: 1
-  home_points_scored: 29
-  away_points_scored: 25
 
 fall_future:
   season: fall
+  match_night: fall_upcoming
   home_team: alpha
   away_team: bravo
-  played_on: <%= (Date.current + 3).iso8601 %>

@@ -5,7 +5,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     get root_path
 
     assert_response :success
-    assert_select "form[action='#{match_availability_path(matches(:fall_future))}']", count: 0
+    assert_select "form[action='#{match_night_availability_path(match_nights(:fall_upcoming))}']", count: 0
   end
 
   test 'renders the availability form before the cutoff' do
@@ -14,18 +14,18 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     get root_path
 
     assert_response :success
-    assert_select "form[action='#{match_availability_path(matches(:fall_future))}']"
+    assert_select "form[action='#{match_night_availability_path(match_nights(:fall_upcoming))}']"
   end
 
   test 'renders a read-only summary after the cutoff' do
     sign_in_as_ada
 
-    travel_to matches(:fall_future).played_on.in_time_zone.change(hour: 13) do
+    travel_to match_nights(:fall_upcoming).played_on.in_time_zone.change(hour: 13) do
       get root_path
     end
 
     assert_response :success
-    assert_select "form[action='#{match_availability_path(matches(:fall_future))}']", count: 0
+    assert_select "form[action='#{match_night_availability_path(match_nights(:fall_upcoming))}']", count: 0
     assert_select 'p', text: 'Contact your captain directly if you need to change.'
   end
 

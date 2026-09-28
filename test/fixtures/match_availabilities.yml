@@ -1,9 +1,9 @@
 fall_future_ada:
-  match: fall_future
+  match_night: fall_upcoming
   player: ada
-  playing: true
+  status: in
 
 fall_future_grace:
-  match: fall_future
+  match_night: fall_upcoming
   player: grace
-  playing: false
+  status: out

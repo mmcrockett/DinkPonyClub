@@ -46,7 +46,9 @@ en:
   authentication:
     require_sign_in: "Sign in to view that page."
     require_admin: "You don't have permission to view that page."
+    require_captain_or_admin: "You don't have permission to view that page."
   availabilities:
     update:
       saved: "Thanks! Your availability has been saved."
       closed: "Availability for this match has closed."
+      invalid_status: "That availability status wasn't recognized. Please try again."
