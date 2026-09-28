@@ -1,0 +1,8 @@
+<% content_for :title, @match_night.label %>
+
+<div class="flex flex-col gap-4">
+  <%= link_to "&larr; #{t('match_nights.schedule.back_to_schedule')}".html_safe, match_nights_path,
+              class: 'text-dpc-navy font-semibold' %>
+
+  <%= render 'match_night', match_night: @match_night %>
+</div>

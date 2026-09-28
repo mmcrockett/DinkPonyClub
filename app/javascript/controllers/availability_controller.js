@@ -4,11 +4,15 @@ export default class extends Controller {
   static targets = ["toggle", "status", "slots"]
 
   connect() {
-    this.applyState()
+    if (this.hasToggleTarget) this.applyState()
   }
 
   toggled() {
     this.applyState()
+  }
+
+  submit() {
+    this.element.requestSubmit()
   }
 
   applyState() {

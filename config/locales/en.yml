@@ -52,7 +52,31 @@ en:
       saved: "Thanks! Your availability has been saved."
       closed: "Availability for this match has closed."
       invalid_status: "That availability status wasn't recognized. Please try again."
+    update_for_player:
+      saved: "%{name}'s availability was saved."
+      invalid_status: "That availability status wasn't recognized. Please try again."
+      not_on_roster: "That player isn't on this season's roster."
   matches:
     forbidden: "Only captains of the two teams in this match can enter results."
     update:
       saved: "Scorecard saved."
+  match_nights:
+    schedule:
+      title: "The season schedule"
+      subtitle: "Set your availability now. Update it whenever plans change."
+      team_availability: "Team availability"
+      show_matchups: "Show matchups"
+      empty: "No match nights are scheduled yet."
+      weeks_completed: "Weeks completed"
+      up_next: "Up next"
+      are_you_playing: "Are you playing?"
+      im_in: "I'm in"
+      maybe: "Maybe"
+      im_out: "I'm out"
+      closed_note: "Contact your captain directly if you need to change."
+      canceled: "Canceled"
+      playoffs: "Playoffs"
+      final: "Final"
+      scheduled: "Scheduled"
+      vs: "vs"
+      back_to_schedule: "Back to schedule"

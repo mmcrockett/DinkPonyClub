@@ -1,0 +1,33 @@
+<% availabilities = match_night.match_availabilities.index_by(&:player_id) %>
+
+<%= turbo_frame_tag dom_id(match_night, :team_availability) do %>
+  <div class="grid gap-6 border-t border-gray-100 p-4 sm:grid-cols-2">
+    <% match_night.season.teams.order(:name).each do |team| %>
+      <% roster = team.roster_for(match_night.season) %>
+      <% in_count = roster.count { |player| (availabilities[player.id]&.status || 'maybe') == 'in' } %>
+      <% maybe_count = roster.count { |player| (availabilities[player.id]&.status || 'maybe') == 'maybe' } %>
+
+      <div>
+        <p class="font-bold text-dpc-navy"><%= team.name %></p>
+        <p class="mb-2 text-xs text-gray-500"><%= in_count %> in &middot; <%= maybe_count %> maybe</p>
+
+        <ul class="flex flex-col gap-2">
+          <% roster.each do |player| %>
+            <li class="flex items-center justify-between gap-3">
+              <span><%= player.full_name %></span>
+
+              <%= form_with url: match_night_player_availability_path(match_night, player, view: 'availability'),
+                             method: :patch, scope: :match_availability,
+                             data: { controller: 'availability' } do |form| %>
+                <%= form.select :status, MatchAvailability.statuses.keys.map { |value| [availability_status_label(value), value] },
+                                 { selected: availabilities[player.id]&.status || 'maybe' },
+                                 class: 'rounded-md border border-gray-300 px-2 py-1 text-sm',
+                                 data: { action: 'change->availability#submit' } %>
+              <% end %>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+  </div>
+<% end %>
