@@ -48,10 +48,10 @@ class Player < ApplicationRecord
   end
 
   def captain_in?(season)
-    roster_spots.captains.exists?(season: season)
+    active? && roster_spots.captains.exists?(season: season)
   end
 
   def captain_of_team?(season, team_id)
-    roster_spots.captains.exists?(season: season, team_id: team_id)
+    active? && roster_spots.captains.exists?(season: season, team_id: team_id)
   end
 end

@@ -93,6 +93,16 @@ class MatchesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to match_path(@match)
   end
 
+  test 'update rejects a captain from a different season' do
+    sign_in_as players(:ada)
+
+    assert_no_difference('Lineup.count') do
+      patch match_path(@match), params: { scorecard: { lines: valid_lines } }
+    end
+
+    assert_redirected_to match_path(@match)
+  end
+
   test 'update renders the edit form again on an invalid scorecard' do
     sign_in_as players(:sc_home_captain)
 

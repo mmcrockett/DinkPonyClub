@@ -76,4 +76,19 @@ class PlayerTest < ActiveSupport::TestCase
   test 'captain_in? is false for a non-captain in that season' do
     assert_not players(:grace).captain_in?(seasons(:fall))
   end
+
+  test 'captain_in? is false once the captain is deactivated' do
+    captain = players(:ada)
+    captain.update!(status: 'inactive')
+
+    assert_not captain.captain_in?(seasons(:fall))
+  end
+
+  test 'captain_of_team? is false once the captain is deactivated' do
+    captain = players(:ada)
+    team = captain.roster_spots.captains.find_by(season: seasons(:fall)).team_id
+    captain.update!(status: 'inactive')
+
+    assert_not captain.captain_of_team?(seasons(:fall), team)
+  end
 end
