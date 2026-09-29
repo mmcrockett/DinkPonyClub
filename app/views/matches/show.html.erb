@@ -1,0 +1,42 @@
+<% result = MatchResult.new(@match) %>
+
+<div class="mx-auto flex max-w-2xl flex-col gap-6">
+  <div>
+    <p class="text-sm font-medium text-gray-500"><%= @match.match_night.label %> &middot; <%= @match.played_on.strftime('%A, %B %-d') %></p>
+    <h1 class="text-2xl font-extrabold text-dpc-navy">
+      <%= @match.home_team.name %> <span class="text-gray-400">vs</span> <%= @match.away_team.name %>
+    </h1>
+    <p class="text-lg font-semibold">
+      <%= result.home_points %> - <%= result.away_points %>
+    </p>
+  </div>
+
+  <div class="flex flex-col gap-4">
+    <% @form.lines.each do |line| %>
+      <div class="rounded-md bg-white px-4 py-3 shadow-sm">
+        <p class="text-sm font-semibold text-dpc-navy mb-2">Line <%= line.position %></p>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <% line.home_player_ids.each do |id| %>
+              <p><%= @players_by_id[id]&.full_name %></p>
+            <% end %>
+          </div>
+          <div>
+            <% line.away_player_ids.each do |id| %>
+              <p><%= @players_by_id[id]&.full_name %></p>
+            <% end %>
+          </div>
+        </div>
+        <div class="mt-2 flex gap-4 text-sm text-gray-600">
+          <% line.scores.each_with_index do |(home_score, away_score), index| %>
+            <span>Game <%= index + 1 %>: <%= home_score.presence || '-' %>-<%= away_score.presence || '-' %></span>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <% if admin? || @match.captained_by?(current_player) %>
+    <%= link_to (@match.lineups.any? ? 'Edit scorecard' : 'Enter results'), edit_match_path(@match), class: 'btn self-start' %>
+  <% end %>
+</div>

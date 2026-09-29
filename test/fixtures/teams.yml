@@ -5,3 +5,15 @@ alpha:
 bravo:
   name: Test Team Bravo
   tagline: Bravo tagline.
+
+sc_home:
+  name: Scorecard Home
+  tagline: Scorecard Home tagline.
+
+sc_away:
+  name: Scorecard Away
+  tagline: Scorecard Away tagline.
+
+sc_other:
+  name: Scorecard Other
+  tagline: Scorecard Other tagline.

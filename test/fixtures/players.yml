@@ -29,3 +29,31 @@ wade:
   email: wade@example.test
   google_uid: '100000000000000000003'
   status: inactive
+
+sc_home_captain:
+  first_name: HomeCaptain
+  last_name: Scorecard
+  email: sc_home_captain@example.test
+  google_uid: '200000000000000000001'
+
+sc_away_captain:
+  first_name: AwayCaptain
+  last_name: Scorecard
+  email: sc_away_captain@example.test
+  google_uid: '200000000000000000002'
+
+sc_other_captain:
+  first_name: OtherCaptain
+  last_name: Scorecard
+  email: sc_other_captain@example.test
+  google_uid: '200000000000000000003'
+
+<% (1..14).each do |n| %>
+sc_home_player<%= n %>:
+  first_name: HomePlayer<%= n %>
+  last_name: Scorecard
+
+sc_away_player<%= n %>:
+  first_name: AwayPlayer<%= n %>
+  last_name: Scorecard
+<% end %>

@@ -12,6 +12,7 @@ Rails.application.routes.draw do
   get 'service-worker' => 'rails/pwa#service_worker', as: :pwa_service_worker
 
   resources :seasons, only: %i[index]
+  resources :matches, only: %i[show edit update]
 
   resources :match_nights, only: [] do
     resource :availability, only: %i[update]

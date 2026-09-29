@@ -1,0 +1,30 @@
+<div class="mx-auto flex max-w-2xl flex-col gap-6">
+  <div>
+    <p class="text-sm font-medium text-gray-500"><%= @match.match_night.label %> &middot; <%= @match.played_on.strftime('%A, %B %-d') %></p>
+    <h1 class="text-2xl font-extrabold text-dpc-navy">
+      <%= @match.home_team.name %> <span class="text-gray-400">vs</span> <%= @match.away_team.name %>
+    </h1>
+  </div>
+
+  <%= form_with url: match_path(@match), method: :patch, class: 'flex flex-col gap-6' do |form| %>
+    <% if @form.errors.any? %>
+      <div class="rounded-md bg-red-50 px-4 py-3 text-sm text-red-700">
+        <ul class="list-disc pl-4">
+          <% @form.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <% @form.lines.each do |line| %>
+      <%= render 'line_fields', line: line %>
+    <% end %>
+
+    <p class="text-xs italic text-gray-500">
+      Three players rotate P1/P2, P1/P3, P2/P3. Two players play all three games.
+    </p>
+
+    <%= form.submit 'Save scorecard', class: 'btn self-start' %>
+  <% end %>
+</div>
