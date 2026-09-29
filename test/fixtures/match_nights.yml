@@ -1,3 +1,5 @@
+<% central = ActiveSupport::TimeZone['Central Time (US & Canada)'] %>
+
 fall_week_one:
   season: fall
   played_on: 2026-09-20
@@ -5,7 +7,7 @@ fall_week_one:
 
 fall_upcoming:
   season: fall
-  played_on: <%= (Date.current + 3).iso8601 %>
+  played_on: <%= (central.today + 3).iso8601 %>
   label: Week 2
 
 scorecard_week_one:
@@ -15,12 +17,12 @@ scorecard_week_one:
 
 fall_canceled:
   season: fall
-  played_on: <%= (Date.current + 10).iso8601 %>
+  played_on: <%= (central.today + 10).iso8601 %>
   label: Week 3
   canceled: true
 
 fall_playoff:
   season: fall
-  played_on: <%= (Date.current + 17).iso8601 %>
+  played_on: <%= (central.today + 17).iso8601 %>
   label: Semifinal
   playoff: true

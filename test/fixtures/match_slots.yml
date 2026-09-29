@@ -1,14 +1,17 @@
+<% central = ActiveSupport::TimeZone['Central Time (US & Canada)'] %>
+<% night = central.today + 3 %>
+
 fall_future_slot_one:
   match_night: fall_upcoming
   position: 1
-  starts_at: <%= (Date.current + 3).in_time_zone.change(hour: 19).iso8601 %>
+  starts_at: <%= central.local(night.year, night.month, night.day, 19).iso8601 %>
 
 fall_future_slot_two:
   match_night: fall_upcoming
   position: 2
-  starts_at: <%= (Date.current + 3).in_time_zone.change(hour: 20).iso8601 %>
+  starts_at: <%= central.local(night.year, night.month, night.day, 20).iso8601 %>
 
 fall_future_slot_three:
   match_night: fall_upcoming
   position: 3
-  starts_at: <%= (Date.current + 3).in_time_zone.change(hour: 20, min: 45).iso8601 %>
+  starts_at: <%= central.local(night.year, night.month, night.day, 20, 45).iso8601 %>
