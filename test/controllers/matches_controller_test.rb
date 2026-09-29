@@ -43,8 +43,16 @@ class MatchesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to match_path(@match)
   end
 
-  test 'edit redirects a captain of an uninvolved team' do
+  test 'edit renders for a captain of an uninvolved team in the same season' do
     sign_in_as players(:sc_other_captain)
+
+    get edit_match_path(@match)
+
+    assert_response :success
+  end
+
+  test 'edit redirects a captain from a different season' do
+    sign_in_as players(:ada)
 
     get edit_match_path(@match)
 
@@ -79,6 +87,16 @@ class MatchesControllerTest < ActionDispatch::IntegrationTest
     sign_in_as players(:sc_home_captain)
 
     assert_difference('Lineup.count', 5) do
+      patch match_path(@match), params: { scorecard: { lines: valid_lines } }
+    end
+
+    assert_redirected_to match_path(@match)
+  end
+
+  test 'update rejects a captain from a different season' do
+    sign_in_as players(:ada)
+
+    assert_no_difference('Lineup.count') do
       patch match_path(@match), params: { scorecard: { lines: valid_lines } }
     end
 
