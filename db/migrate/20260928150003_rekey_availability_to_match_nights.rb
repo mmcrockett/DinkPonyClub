@@ -39,8 +39,8 @@ class RekeyAvailabilityToMatchNights < ActiveRecord::Migration[8.1]
     dedupe_match_availabilities
     change_column_null :match_availabilities, :match_night_id, false
 
-    remove_index :match_availabilities, name: 'index_match_availabilities_on_match_and_player'
     remove_foreign_key :match_availabilities, :matches
+    remove_index :match_availabilities, name: 'index_match_availabilities_on_match_and_player'
     remove_column :match_availabilities, :match_id
 
     add_column :match_availabilities, :status, :string, limit: 10, null: false, default: 'maybe'
@@ -59,8 +59,8 @@ class RekeyAvailabilityToMatchNights < ActiveRecord::Migration[8.1]
     dedupe_match_slots
     change_column_null :match_slots, :match_night_id, false
 
-    remove_index :match_slots, name: 'index_match_slots_on_match_id_and_position'
     remove_foreign_key :match_slots, :matches
+    remove_index :match_slots, name: 'index_match_slots_on_match_id_and_position'
     remove_column :match_slots, :match_id
 
     add_index :match_slots, %i[match_night_id position], unique: true,
@@ -114,8 +114,8 @@ class RekeyAvailabilityToMatchNights < ActiveRecord::Migration[8.1]
     add_index :match_availabilities, %i[match_id player_id], unique: true,
                                                              name: 'index_match_availabilities_on_match_and_player'
 
-    remove_index :match_availabilities, name: 'index_match_availabilities_on_match_night_and_player'
     remove_foreign_key :match_availabilities, :match_nights
+    remove_index :match_availabilities, name: 'index_match_availabilities_on_match_night_and_player'
     remove_column :match_availabilities, :match_night_id
   end
 
@@ -131,8 +131,8 @@ class RekeyAvailabilityToMatchNights < ActiveRecord::Migration[8.1]
     add_index :match_slots, %i[match_id position], unique: true,
                                                    name: 'index_match_slots_on_match_id_and_position'
 
-    remove_index :match_slots, name: 'index_match_slots_on_match_night_and_position'
     remove_foreign_key :match_slots, :match_nights
+    remove_index :match_slots, name: 'index_match_slots_on_match_night_and_position'
     remove_column :match_slots, :match_night_id
   end
 end

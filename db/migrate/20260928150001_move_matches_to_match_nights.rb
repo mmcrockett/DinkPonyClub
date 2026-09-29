@@ -12,18 +12,22 @@ class MoveMatchesToMatchNights < ActiveRecord::Migration[8.1]
     self.table_name = 'match_nights'
   end
 
+  DROPPED_COLUMNS = %i[played_on home_match_points away_match_points
+                       home_points_scored away_points_scored].freeze
+
+  # Each step is guarded so a partially-applied run can be re-run to completion.
+  # MySQL commits DDL immediately, so a failure mid-migration leaves the earlier
+  # steps applied with no schema_migrations row to record them.
   def up
-    add_reference :matches, :match_night, null: true, foreign_key: true, index: false
+    add_reference :matches, :match_night, null: true, foreign_key: true, index: false unless
+      column_exists?(:matches, :match_night_id)
 
     backfill_match_nights
 
     change_column_null :matches, :match_night_id, false
-    remove_index :matches, %i[season_id played_on]
-    remove_column :matches, :played_on
-    remove_column :matches, :home_match_points
-    remove_column :matches, :away_match_points
-    remove_column :matches, :home_points_scored
-    remove_column :matches, :away_points_scored
+
+    swap_season_index
+    DROPPED_COLUMNS.each { |column| remove_column :matches, column if column_exists?(:matches, column) }
   end
 
   def down
@@ -40,11 +44,21 @@ class MoveMatchesToMatchNights < ActiveRecord::Migration[8.1]
     end
 
     add_index :matches, %i[season_id played_on]
+    remove_index :matches, :season_id if index_exists?(:matches, :season_id)
     remove_foreign_key :matches, :match_nights
     remove_column :matches, :match_night_id
   end
 
   private
+
+  # MySQL requires an index covering an FK column, and the composite index is
+  # the only one covering season_id - so the replacement has to exist first.
+  def swap_season_index
+    add_index :matches, :season_id unless index_exists?(:matches, :season_id)
+    return unless index_exists?(:matches, %i[season_id played_on])
+
+    remove_index :matches, %i[season_id played_on]
+  end
 
   def backfill_match_nights
     MigrationMatch.reset_column_information
