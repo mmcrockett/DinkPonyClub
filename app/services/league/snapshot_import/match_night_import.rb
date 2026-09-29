@@ -13,7 +13,7 @@ module League
 
       def import(weeks)
         nights = {}
-        weeks.group_by { |week| week['date'] }.each_value do |grouped|
+        valid_weeks(weeks).group_by { |week| week['date'] }.each_value do |grouped|
           night = build(grouped)
           report.increment_match_nights
           grouped.each { |week| nights[week['id']] = night }
@@ -22,6 +22,17 @@ module League
       end
 
       private
+
+      def valid_weeks(weeks)
+        weeks.select { |week| valid_week?(week) }
+      end
+
+      def valid_week?(week)
+        return true if week['date'].present? && week['label'].present?
+
+        report.warn("Week #{week['id'].inspect}: missing date or label, skipped.")
+        false
+      end
 
       def build(weeks)
         season.match_nights.create!(scheduling_attributes(weeks).merge(content_attributes(weeks)))

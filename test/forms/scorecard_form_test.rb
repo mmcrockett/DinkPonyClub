@@ -86,13 +86,12 @@ class ScorecardFormTest < ActiveSupport::TestCase
     assert_includes form.errors[:base], 'Line 1 and Line 2: a player cannot appear on two lines'
   end
 
-  test 'rejects a player who is not on that side roster for the season' do
+  test 'allows a player with no roster spot this season to play as a sub' do
     lines = valid_lines
     lines['1'][:home_player_ids] = [players(:ada).id.to_s, players(:sc_home_player1).id.to_s]
     form = ScorecardForm.new(match: @match, lines: lines)
 
-    assert_not form.valid?
-    assert_includes form.errors[:base], 'Line 1: home players must be on the home team roster for this season'
+    assert_predicate form, :valid?
   end
 
   test 'rejects a tied score' do

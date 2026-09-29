@@ -12,6 +12,7 @@ module League
       end
 
       def import(people)
+        warn_duplicate_names(people)
         resolver = PlayerResolver.new(report)
         people.to_h do |person|
           player = resolver.resolve(person)
@@ -22,14 +23,28 @@ module League
 
       private
 
+      def warn_duplicate_names(people)
+        people.group_by { |person| person['name'] }.each do |name, entries|
+          next if entries.size < 2
+
+          report.warn("#{entries.size} players are named \"#{name}\" - lines naming them may be misattributed.")
+        end
+      end
+
       def import_roster_spot(person, player)
         if person['team'] == 'SUBS'
           report.warn("#{player.full_name} has no team (SUBS); imported as a player only.")
           return
         end
 
-        team = teams.fetch(person['team']) { raise Error, "Unknown team #{person['team']} for #{player.full_name}." }
+        team = teams[person['team']]
+        return warn_unknown_team(person, player) unless team
+
         save_roster_spot(team, person, player)
+      end
+
+      def warn_unknown_team(person, player)
+        report.warn("#{player.full_name}: unknown team #{person['team'].inspect}; imported as a player only.")
       end
 
       def save_roster_spot(team, person, player)

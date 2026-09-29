@@ -5,8 +5,6 @@ module League
     class Error < StandardError
     end
 
-    STATUS_MAP = { 'yes' => 'in', 'no' => 'out', 'maybe' => 'maybe' }.freeze
-
     attr_reader :data, :force, :report
 
     def initialize(data, force: false)
@@ -31,6 +29,10 @@ module League
       import_availability
     end
 
+    def import_availability
+      AvailabilityImport.new(@match_nights, @players, report).import(data['players'])
+    end
+
     def import_season
       existing = Season.find_by(name: data['name'])
       raise Error, "Season #{data['name']} already exists. Re-run with FORCE=1 to replace it." if existing && !force
@@ -42,9 +44,18 @@ module League
     end
 
     def reset_and_count_season(season)
+      warn_before_reset(season)
       season.match_nights.destroy_all
       season.matches.destroy_all
       report.increment_seasons_matched
+    end
+
+    def warn_before_reset(season)
+      slot_count = MatchSlot.where(match_night: season.match_nights).count
+      return if slot_count.zero?
+
+      report.warn("FORCE re-import is deleting #{slot_count} match slot(s) (and their availability) for " \
+                  "#{season.name} - these are not part of the clubhouse export.")
     end
 
     def apply_season_attributes(season)
@@ -72,10 +83,20 @@ module League
       away_team = resolvable_team(json_match, 'b')
       night = resolvable_night(json_match)
       return unless home_team && away_team && night
+      return unless rostered_teams?(json_match, home_team, away_team)
 
       match = Match.create!(season: @season, match_night: night, home_team: home_team, away_team: away_team)
       report.increment_matches
       MatchImport.new(match, json_match, @players, report).call
+    end
+
+    def rostered_teams?(json_match, home_team, away_team)
+      missing = [home_team, away_team].reject { |team| team.roster_for(@season).exists? }
+      return true if missing.empty?
+
+      report.warn("Match #{json_match['id']}: #{missing.map(&:name).join(', ')} has no roster for this season, " \
+                  'skipped.')
+      false
     end
 
     def resolvable_team(json_match, side)
@@ -96,31 +117,6 @@ module League
 
       report.warn("Match #{json_match['id']}: unknown week #{json_match['week']}, skipped.")
       nil
-    end
-
-    def import_availability
-      data['players'].each { |person| import_player_availability(person) }
-    end
-
-    def import_player_availability(person)
-      player = @players.fetch(person['name'])
-      Array(person['availability']).sort_by { |week_id, _status| week_id.to_i }.each do |week_id, status|
-        import_availability_entry(player, week_id, status)
-      end
-    end
-
-    def import_availability_entry(player, week_id, status)
-      mapped = STATUS_MAP[status]
-      return if status == 'unknown'
-      return report.warn("Unrecognized availability status \"#{status}\" for #{player.full_name}.") unless mapped
-
-      night = @match_nights[week_id.to_i]
-      return unless night
-
-      availability = MatchAvailability.find_or_initialize_by(match_night: night, player: player)
-      availability.status = mapped
-      availability.save!
-      report.increment_availabilities
     end
   end
 end

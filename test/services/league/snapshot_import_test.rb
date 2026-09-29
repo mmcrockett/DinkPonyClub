@@ -158,6 +158,103 @@ module League
       assert_predicate ben_spot.reload, :captain?
     end
 
+    test 'sets email on a newly created player' do
+      @data['players'].find { |person| person['name'] == 'New Rays One' }['email'] = 'newrays1@example.test'
+
+      SnapshotImport.new(@data).call
+
+      created = Player.find_by(first_name: 'New Rays', last_name: 'One')
+
+      assert_equal 'newrays1@example.test', created.email
+    end
+
+    test 'skips a game with a repeated player instead of force-saving it' do
+      @data['matches'].first['lines'].first['a'] = ['Ada Testerson', 'Ada Testerson', 'New Rays One']
+
+      report = SnapshotImport.new(@data).call
+
+      assert_equal 2, rays_lineup(1).games.count
+      assert(report.warnings.any? { |message| message.include?('distinct') })
+    end
+
+    test 'warns instead of silently dropping unresolvable availability' do
+      @data['players'].first['availability']['99'] = 'yes'
+
+      report = SnapshotImport.new(@data).call
+
+      assert(report.warnings.any? { |message| message.include?('unknown week 99') })
+    end
+
+    test 'skips a match with no lines key instead of raising' do
+      @data['matches'] << { 'id' => 'm4', 'week' => 1, 'a' => 'Import Rays', 'b' => 'Import Kings' }
+
+      assert_nothing_raised { SnapshotImport.new(@data).call }
+    end
+
+    test 'skips a week with a missing date instead of aborting the import' do
+      @data['weeks'] << { 'id' => 4, 'label' => 'Makeup', 'date' => nil }
+
+      report = SnapshotImport.new(@data).call
+
+      assert_equal 2, Season.find_by(name: 'Spring 2025').match_nights.count
+      assert(report.warnings.any? { |message| message.include?('missing date or label') })
+    end
+
+    test 'warns on duplicate player names' do
+      @data['players'] << @data['players'].first.merge('id' => 'p99')
+
+      report = SnapshotImport.new(@data).call
+
+      assert(report.warnings.any? { |message| message.include?('Ada Testerson') && message.include?('misattributed') })
+    end
+
+    test 'warns and imports a player when the team is unrecognized instead of aborting' do
+      @data['players'].first['team'] = 'Nonexistent Team'
+
+      report = SnapshotImport.new(@data).call
+
+      season = Season.find_by(name: 'Spring 2025')
+
+      assert_nil RosterSpot.find_by(season: season, player: players(:ada))
+      assert(report.warnings.any? { |message| message.include?('unknown team') })
+    end
+
+    test 'skips a malformed score pair instead of raising' do
+      @data['matches'].first['lines'].first['scores'][0] = %w[eleven five]
+
+      report = SnapshotImport.new(@data).call
+
+      assert_equal 2, rays_lineup(1).games.count
+      assert(report.warnings.any? { |message| message.include?('malformed score') })
+    end
+
+    test 'destroys a lineup left with zero games' do
+      @data['matches'].first['lines'].first['scores'] = [[0, 0], [0, 0], [0, 0]]
+
+      SnapshotImport.new(@data).call
+
+      assert_nil rays_lineup(1)
+    end
+
+    test 'warns before FORCE destroys match slots' do
+      SnapshotImport.new(@data).call
+      night = Season.find_by(name: 'Spring 2025').match_nights.first
+      night.match_slots.create!(position: 1, starts_at: Time.zone.now)
+
+      report = SnapshotImport.new(@data, force: true).call
+
+      assert(report.warnings.any? { |message| message.include?('match slot') })
+    end
+
+    test 'skips a match whose team has no roster this season' do
+      @data['teams'] << 'Empty Team'
+      @data['matches'].first['a'] = 'Empty Team'
+
+      report = SnapshotImport.new(@data).call
+
+      assert(report.warnings.any? { |message| message.include?('no roster for this season') })
+    end
+
     private
 
     def rays_lineup(position)
