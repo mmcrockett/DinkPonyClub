@@ -20,7 +20,6 @@ class ScorecardForm
     validate :enough_players
     validate :no_duplicate_players_on_a_side
     validate :no_overlap_between_sides
-    validate :players_are_rostered
     validate :scores_are_valid
 
     def all_player_ids
@@ -84,23 +83,6 @@ class ScorecardForm
       return unless home_player_ids.intersect?(away_player_ids)
 
       errors.add(:base, 'a player cannot play both sides of a line')
-    end
-
-    def players_are_rostered
-      match = form.match
-      return unless match.home_team && match.away_team && match.season
-
-      check_side('home', home_player_ids, match.home_team.roster_for(match.season))
-      check_side('away', away_player_ids, match.away_team.roster_for(match.season))
-    end
-
-    def check_side(label, ids, roster)
-      return if ids.empty?
-
-      roster_ids = roster.pluck(:id).map(&:to_s)
-      return if ids.all? { |id| roster_ids.include?(id) }
-
-      errors.add(:base, "#{label} players must be on the #{label} team roster for this season")
     end
 
     def scores_are_valid

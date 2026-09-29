@@ -1,0 +1,82 @@
+{
+  "id": "spring-2025",
+  "name": "Spring 2025",
+  "archived": true,
+  "teams": ["Import Rays", "Import Kings"],
+  "rules": "League rules text.",
+  "fee": null,
+  "paymentUrl": "https://venmo.com/u/hudson2508",
+  "canceledDates": [],
+  "announcements": [],
+  "weeks": [
+    { "id": 1, "label": "Week 1", "date": "2025-03-05", "time": "7:00 PM", "venue": "Rec Center" },
+    { "id": 2, "label": "Semifinal", "date": "2025-04-16", "time": "6:30 PM", "venue": "Rec Center" },
+    { "id": 3, "label": "Final", "date": "2025-04-16", "time": "8:00 PM", "venue": "Rec Center" }
+  ],
+  "players": [
+    {
+      "id": "p1", "name": "Ada Testerson", "email": "ADA@example.test", "team": "Import Rays",
+      "rank": "1A", "captain": true, "availability": { "1": "yes", "2": "maybe", "3": "unknown" }
+    },
+    {
+      "id": "p2", "name": "Grace Fixture", "team": "Import Rays",
+      "rank": "1B", "captain": false, "availability": { "1": "no", "2": "yes", "3": "no" }
+    },
+    { "id": "p3", "name": "New Rays One", "team": "Import Rays", "rank": "2A", "captain": false },
+    { "id": "p4", "name": "New Rays Two", "team": "Import Rays", "rank": "2B", "captain": false },
+    { "id": "p5", "name": "New Rays Three", "team": "Import Rays", "rank": "3A", "captain": false },
+    { "id": "p6", "name": "Sam Placeholder", "team": "Import Kings", "rank": "1A", "captain": true },
+    { "id": "p7", "name": "Ben Stubfield", "team": "Import Kings", "rank": "1B", "captain": false },
+    { "id": "p8", "name": "New Kings One", "team": "Import Kings", "rank": "2A", "captain": false },
+    { "id": "p9", "name": "New Kings Two", "team": "Import Kings", "rank": "2B", "captain": false },
+    { "id": "p10", "name": "New Kings Three", "team": "Import Kings", "rank": "3A", "captain": false },
+    { "id": "p11", "name": "sub@example.test", "team": "SUBS", "rank": "", "captain": false }
+  ],
+  "matches": [
+    {
+      "id": "m1", "week": 1, "a": "Import Rays", "b": "Import Kings",
+      "lines": [
+        {
+          "line": 1,
+          "a": ["Ada Testerson", "Grace Fixture", "New Rays One"],
+          "b": ["Sam Placeholder", "Ben Stubfield", "New Kings One"],
+          "scores": [[11, 5], [7, 11], [11, 9]]
+        },
+        {
+          "line": 2,
+          "a": ["New Rays Two", "New Rays Three"],
+          "b": ["New Kings Two", "New Kings Three"],
+          "scores": [[11, 4], [9, 11], [11, 7]]
+        }
+      ]
+    },
+    {
+      "id": "m2", "week": 2, "a": "Import Rays", "b": "Import Kings",
+      "lines": [
+        {
+          "line": 1,
+          "a": ["Ada Testerson", "Grace Fixture"],
+          "b": ["Sam Placeholder", "sub@example.test"],
+          "scores": [[9, 7], [11, 5], [null, null]]
+        }
+      ]
+    },
+    {
+      "id": "m3", "week": 3, "a": "Import Rays", "b": "Import Kings",
+      "lines": [
+        {
+          "line": 1,
+          "a": ["New Rays One"],
+          "b": ["Sam Placeholder", "Ben Stubfield"],
+          "scores": [[11, 5]]
+        },
+        {
+          "line": 2,
+          "a": ["Unknown Player", "New Rays Two"],
+          "b": ["Sam Placeholder", "Ben Stubfield"],
+          "scores": [[11, 5]]
+        }
+      ]
+    }
+  ]
+}

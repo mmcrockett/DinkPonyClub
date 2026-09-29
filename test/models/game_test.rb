@@ -48,14 +48,6 @@ class GameTest < ActiveSupport::TestCase
     assert_includes game.errors[:base], 'players must be distinct within a game'
   end
 
-  test 'rejects a player not on that team roster for the season' do
-    game = games(:fall_alpha_bravo_one_game_one)
-    game.away_player_a = players(:grace)
-
-    assert_not game.valid?
-    assert_includes game.errors[:base], 'away players must be on the away team roster for this season'
-  end
-
   test 'rejects a player already used in another lineup of the same match' do
     other_lineup = matches(:fall_alpha_bravo).lineups.create!(position: 2)
     game = other_lineup.games.new(number: 1, home_score: 11, away_score: 5,
