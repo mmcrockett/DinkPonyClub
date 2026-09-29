@@ -20,12 +20,6 @@ class Match < ApplicationRecord
     lineups.any? && lineups.all?(&:complete?)
   end
 
-  def captained_by?(player)
-    return false if player.blank?
-
-    player.captain_of_team?(season, [home_team_id, away_team_id])
-  end
-
   private
 
   def teams_are_different

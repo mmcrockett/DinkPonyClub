@@ -44,7 +44,7 @@ class MatchesController < ApplicationController
   end
 
   def require_match_captain_or_admin
-    return if admin? || @match.captained_by?(current_player)
+    return if captain_or_admin?(@match.season)
 
     redirect_to match_path(@match), alert: t('matches.forbidden')
   end

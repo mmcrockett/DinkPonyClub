@@ -36,7 +36,7 @@
     <% end %>
   </div>
 
-  <% if admin? || @match.captained_by?(current_player) %>
+  <% if captain_or_admin?(@match.season) %>
     <%= link_to (@match.lineups.any? ? 'Edit scorecard' : 'Enter results'), edit_match_path(@match), class: 'btn btn-primary self-start' %>
   <% end %>
 </div>
