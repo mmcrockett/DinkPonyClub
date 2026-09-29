@@ -158,3 +158,59 @@ jobs:
           name: screenshots
           path: ${{ github.workspace }}/tmp/screenshots
           if-no-files-found: ignore
+
+  # Dev and every other CI job run sqlite; production is MySQL. That gap shipped
+  # three migration bugs CI passed clean and broke production for a day (#36),
+  # because MySQL rejects dropping an index a foreign key needs and its DDL is
+  # not transactional, so a mid-migration failure stays half-applied.
+  migrate-mysql:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: ci
+        ports:
+          - 3306:3306
+        options: --health-cmd "mysqladmin ping" --health-interval 10s --health-timeout 5s --health-retries 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install system deps for bundling (mysql2 native extension)
+        uses: awalsh128/cache-apt-pkgs-action@553a35bb8ebd9fcabcb1c9451aa4c98e1b4ca8a9 # v1.6.3
+        with:
+          packages: default-libmysqlclient-dev
+          version: 1.0
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
+        with:
+          bundler-cache: true
+
+      - name: Point the test env at MySQL
+        # config/database.yml pins url: sqlite3: for test on purpose, so
+        # DATABASE_URL cannot redirect it - this job needs its own config.
+        run: cp .github/ci/database.mysql.yml config/database.yml
+
+      - name: Remove the schema dump so migrations actually run
+        # db:migrate loads db/schema.rb instead of running any migration when
+        # schema_migrations is missing (ActiveRecord::Tasks::DatabaseTasks
+        # #initialize_database), which would defeat the whole job.
+        run: rm db/schema.rb
+
+      - name: Migrate from zero, roll back, migrate again
+        # The down pass is the point of the second command: nothing had ever
+        # executed these down methods, and three of them were broken. It stops
+        # at 20260926140002, the last migration before the match-night set -
+        # the initial-schema migrations below it reverse into the same MySQL
+        # index/FK error and are not worth rewriting for a rollback no deploy
+        # performs.
+        env:
+          RAILS_ENV: test
+        run: |
+          bin/rails db:create db:migrate
+          bin/rails db:migrate VERSION=20260926140002
+          bin/rails db:migrate

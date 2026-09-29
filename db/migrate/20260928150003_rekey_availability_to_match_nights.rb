@@ -103,7 +103,7 @@ class RekeyAvailabilityToMatchNights < ActiveRecord::Migration[8.1]
     MigrationMatchAvailability.where(status: %w[maybe out]).update_all(playing: false)
     remove_column :match_availabilities, :status
 
-    add_column :match_availabilities, :match_id, :integer
+    add_column :match_availabilities, :match_id, :bigint
     MigrationMatchAvailability.reset_column_information
     MigrationMatchAvailability.find_each do |record|
       match = MigrationMatch.find_by(match_night_id: record.match_night_id)
@@ -120,7 +120,7 @@ class RekeyAvailabilityToMatchNights < ActiveRecord::Migration[8.1]
   end
 
   def revert_match_slots
-    add_column :match_slots, :match_id, :integer
+    add_column :match_slots, :match_id, :bigint
     MigrationMatchSlot.reset_column_information
     MigrationMatchSlot.find_each do |record|
       match = MigrationMatch.find_by(match_night_id: record.match_night_id)

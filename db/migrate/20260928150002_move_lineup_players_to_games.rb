@@ -66,6 +66,15 @@ class MoveLineupPlayersToGames < ActiveRecord::Migration[8.1]
     change_column_null :lineups, :away_player_one_id, false
     change_column_null :lineups, :away_player_two_id, false
 
+    remove_foreign_key :games, column: :home_player_a_id
+    remove_foreign_key :games, column: :home_player_b_id
+    remove_foreign_key :games, column: :away_player_a_id
+    remove_foreign_key :games, column: :away_player_b_id
+    remove_index :games, :home_player_a_id
+    remove_index :games, :home_player_b_id
+    remove_index :games, :away_player_a_id
+    remove_index :games, :away_player_b_id
+
     change_table :games, bulk: true do |t|
       t.remove :home_player_a_id, :home_player_b_id, :away_player_a_id, :away_player_b_id
     end
