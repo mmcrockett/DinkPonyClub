@@ -31,7 +31,7 @@
   font-weight: 600;
 
   &:focus-visible {
-    outline: 2px solid white;
+    outline: 2px solid currentColor;
     outline-offset: 2px;
   }
 }
@@ -44,9 +44,11 @@
     filter: brightness(1.15);
   }
 
+  /* Text is white for contrast against the navy fill, but the focus ring needs to
+     read against the page's cream background, so it can't just inherit currentColor
+     like .btn's default does -- pin it explicitly and don't rely on cascade order. */
   &:focus-visible {
-    outline: 2px solid var(--color-dpc-navy);
-    outline-offset: 2px;
+    outline-color: var(--color-dpc-navy) !important;
   }
 }
 
@@ -57,11 +59,6 @@
 
   &:hover {
     background-color: color-mix(in srgb, var(--color-dpc-navy) 8%, transparent);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--color-dpc-navy);
-    outline-offset: 2px;
   }
 }
 
