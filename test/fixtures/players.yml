@@ -7,6 +7,8 @@ ada:
 grace:
   first_name: Grace
   last_name: Fixture
+  email: grace@example.test
+  google_uid: '100000000000000000004'
 
 sam:
   first_name: Sam

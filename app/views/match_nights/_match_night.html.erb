@@ -1,0 +1,50 @@
+<div id="<%= dom_id(match_night) %>" class="rounded-md bg-white shadow-sm">
+  <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 p-4">
+    <div class="flex items-center gap-4">
+      <div class="flex flex-col items-center rounded-md border border-gray-200 px-3 py-1 text-center">
+        <span class="text-xs font-bold uppercase text-gray-500"><%= match_night.played_on.strftime('%b') %></span>
+        <span class="text-lg font-extrabold text-dpc-navy"><%= match_night.played_on.strftime('%d') %></span>
+      </div>
+
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="font-bold text-dpc-navy"><%= match_night.label %></span>
+          <% if match_night == @next_match_night %>
+            <span class="rounded-full bg-dpc-green px-2 py-0.5 text-xs font-bold uppercase text-white">
+              <%= t('match_nights.schedule.up_next') %>
+            </span>
+          <% end %>
+        </div>
+        <p class="text-sm text-gray-500">
+          <% if match_night.match_slots.any? %>
+            <%= match_night.match_slots.first.starts_at.strftime('%-l:%M %p') %> &middot;
+          <% end %>
+          <%= match_night.venue %>
+        </p>
+        <% if match_night.notes.present? %>
+          <p class="text-sm text-gray-500"><%= match_night.notes %></p>
+        <% end %>
+      </div>
+    </div>
+
+    <span class="rounded-full px-3 py-1 text-xs font-bold uppercase <%= match_night_status_classes(match_night) %>">
+      <%= match_night_status_label(match_night) %>
+    </span>
+  </div>
+
+  <div class="flex flex-col divide-y divide-gray-100 px-4">
+    <% match_night.matches.each do |match| %>
+      <div class="flex items-center justify-between gap-3 py-3">
+        <span class="flex-1 text-right font-semibold"><%= match.home_team.name %></span>
+        <span class="w-20 text-center font-bold text-dpc-navy"><%= match_score_label(match) %></span>
+        <span class="flex-1 font-semibold"><%= match.away_team.name %></span>
+      </div>
+    <% end %>
+  </div>
+
+  <% if @team_view %>
+    <%= render 'team_availability', match_night: match_night %>
+  <% end %>
+
+  <%= render 'availability_control', match_night: match_night %>
+</div>

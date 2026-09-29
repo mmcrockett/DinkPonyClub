@@ -36,7 +36,8 @@ class MatchNightTest < ActiveSupport::TestCase
   end
 
   test 'chronological orders match nights by played_on' do
-    assert_equal [match_nights(:fall_week_one), match_nights(:fall_upcoming)],
+    assert_equal [match_nights(:fall_week_one), match_nights(:fall_upcoming),
+                  match_nights(:fall_canceled), match_nights(:fall_playoff)],
                  seasons(:fall).match_nights.chronological.to_a
   end
 
@@ -59,5 +60,24 @@ class MatchNightTest < ActiveSupport::TestCase
     assert_difference('MatchAvailability.count' => -2, 'MatchSlot.count' => -3) do
       night.destroy
     end
+  end
+
+  test 'complete? is true when every match on the night is complete' do
+    assert_predicate match_nights(:fall_week_one), :complete?
+  end
+
+  test 'complete? is false when the night has no matches' do
+    assert_not match_nights(:fall_canceled).complete?
+  end
+
+  test 'complete? is false when a match on the night is unfinished' do
+    assert_not match_nights(:fall_upcoming).complete?
+  end
+
+  test 'complete? is false for a canceled night even if its matches are complete' do
+    night = match_nights(:fall_week_one)
+    night.canceled = true
+
+    assert_not night.complete?
   end
 end

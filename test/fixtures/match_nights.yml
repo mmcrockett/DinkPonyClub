@@ -12,3 +12,15 @@ scorecard_week_one:
   season: scorecard
   played_on: 2026-01-10
   label: Week 1
+
+fall_canceled:
+  season: fall
+  played_on: <%= (Date.current + 10).iso8601 %>
+  label: Week 3
+  canceled: true
+
+fall_playoff:
+  season: fall
+  played_on: <%= (Date.current + 17).iso8601 %>
+  label: Semifinal
+  playoff: true

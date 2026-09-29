@@ -22,4 +22,8 @@ class MatchNight < ApplicationRecord
   def availability_open?
     played_on.present? && Time.current < availability_cutoff_at
   end
+
+  def complete?
+    !canceled? && matches.any? && matches.all?(&:complete?)
+  end
 end

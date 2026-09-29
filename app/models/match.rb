@@ -23,8 +23,7 @@ class Match < ApplicationRecord
   def captained_by?(player)
     return false if player.blank?
 
-    RosterSpot.captains.exists?(season_id: season_id, player_id: player.id,
-                                team_id: [home_team_id, away_team_id])
+    player.captain_of_team?(season, [home_team_id, away_team_id])
   end
 
   private

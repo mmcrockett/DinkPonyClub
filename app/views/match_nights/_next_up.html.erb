@@ -1,0 +1,19 @@
+<% if @next_match_night %>
+  <div class="sticky top-6 rounded-md bg-dpc-navy p-4 text-white">
+    <p class="text-xs font-bold uppercase text-white/70"><%= @next_match_night.label %></p>
+    <h2 class="mb-3 text-xl font-extrabold">
+      <%= @next_match_night.played_on.strftime('%A, %B %-d') %>
+    </h2>
+
+    <p class="mb-1 text-xs font-bold uppercase text-white/70">Matchups</p>
+    <ul class="mb-4 flex flex-col gap-2">
+      <% @next_match_night.matches.each do |match| %>
+        <li><%= match.home_team.name %> <span class="text-white/60">vs</span> <%= match.away_team.name %></li>
+      <% end %>
+    </ul>
+
+    <p class="text-sm">
+      <%= t('match_nights.schedule.weeks_completed') %>: <span class="font-bold"><%= @weeks_completed %></span>
+    </p>
+  </div>
+<% end %>

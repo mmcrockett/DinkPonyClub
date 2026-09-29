@@ -14,8 +14,9 @@ Rails.application.routes.draw do
   resources :seasons, only: %i[index]
   resources :matches, only: %i[show edit update]
 
-  resources :match_nights, only: [] do
+  resources :match_nights, only: %i[index show], path: 'schedule' do
     resource :availability, only: %i[update]
+    patch 'availability/:player_id', to: 'availabilities#update_for_player', as: :player_availability
   end
 
   get    'auth/google_oauth2/callback', to: 'sessions#create'

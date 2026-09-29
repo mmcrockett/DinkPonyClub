@@ -5,7 +5,7 @@
   </div>
 
   <div class="p-4">
-    <% if @next_match_night.availability_open? %>
+    <% if @next_match_night.availability_open? || captain_or_admin?(@next_match_night.season) %>
       <%= form_with model: @availability, url: match_night_availability_path(@next_match_night), method: :patch,
                     class: "flex flex-col gap-4", data: { controller: "availability" } do |form| %>
         <label class="availability-toggle inline-flex items-center gap-3 touch-target">
@@ -64,5 +64,7 @@
 
       <p class="text-xs italic text-gray-500 mt-2">Contact your captain directly if you need to change.</p>
     <% end %>
+
+    <%= link_to 'See the full schedule', match_nights_path, class: 'mt-2 inline-block text-sm font-semibold text-dpc-navy' %>
   </div>
 </div>

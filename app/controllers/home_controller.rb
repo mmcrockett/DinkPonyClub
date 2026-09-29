@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
 class HomeController < ApplicationController
+  include SeasonScoped
+
   def index
     return unless signed_in?
+    return unless current_season
 
-    season = Season.current.first || Season.chronological.last
-    return unless season
-
-    @next_match_night = current_player.next_match_night(season)
+    @next_match_night = current_player.next_match_night(current_season)
     return unless @next_match_night
 
     @match_slots = @next_match_night.match_slots

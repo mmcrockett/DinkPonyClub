@@ -27,16 +27,27 @@ class AvailabilitiesControllerTest < ActionDispatch::IntegrationTest
     assert_equal 'thumbs_up', @slot.slot_availabilities.find_by!(player: players(:ada)).preference
   end
 
-  test 'does not write once availability has closed' do
-    sign_in_as_ada
-    @match_night.match_availabilities.where(player: players(:ada)).destroy_all
+  test 'does not write once availability has closed for a non-captain' do
+    sign_in_as(players(:grace))
+    @match_night.match_availabilities.where(player: players(:grace)).destroy_all
 
     travel_to @match_night.played_on.in_time_zone.change(hour: 13) do
       patch match_night_availability_path(@match_night), params: { match_availability: { status: 'in' } }
     end
 
     assert_redirected_to root_path
-    assert_nil @match_night.match_availabilities.find_by(player: players(:ada))
+    assert_nil @match_night.match_availabilities.find_by(player: players(:grace))
+  end
+
+  test 'a captain can still set their own availability after the cutoff' do
+    sign_in_as_ada
+
+    travel_to @match_night.played_on.in_time_zone.change(hour: 13) do
+      patch match_night_availability_path(@match_night), params: { match_availability: { status: 'out' } }
+    end
+
+    assert_redirected_to root_path
+    assert_predicate @match_night.match_availabilities.find_by!(player: players(:ada)), :out?
   end
 
   test 'rejects an invalid status without saving or flashing success' do
@@ -63,10 +74,67 @@ class AvailabilitiesControllerTest < ActionDispatch::IntegrationTest
     assert_nil other_slot.slot_availabilities.find_by(player: players(:ada))
   end
 
+  test 'a captain can set a teammate after the cutoff' do
+    sign_in_as_ada
+
+    travel_to @match_night.played_on.in_time_zone.change(hour: 13) do
+      patch match_night_player_availability_path(@match_night, players(:grace)),
+            params: { match_availability: { status: 'out' } }
+    end
+
+    assert_redirected_to root_path
+    assert_predicate @match_night.match_availabilities.find_by!(player: players(:grace)), :out?
+  end
+
+  test 'a captain cannot set a player on another team' do
+    sign_in_as_ada
+
+    patch match_night_player_availability_path(@match_night, players(:sam)),
+          params: { match_availability: { status: 'out' } }
+
+    assert_redirected_to root_path
+    assert_equal I18n.t('authentication.require_captain_or_admin'), flash[:alert]
+    assert_nil @match_night.match_availabilities.find_by(player: players(:sam))
+  end
+
+  test 'an admin can set any rostered player' do
+    sign_in_as(players(:zoe))
+
+    patch match_night_player_availability_path(@match_night, players(:sam)),
+          params: { match_availability: { status: 'in' } }
+
+    assert_redirected_to root_path
+    assert_predicate @match_night.match_availabilities.find_by!(player: players(:sam)), :in?
+  end
+
+  test 'a non-captain cannot set another player' do
+    sign_in_as(players(:grace))
+
+    patch match_night_player_availability_path(@match_night, players(:sam)),
+          params: { match_availability: { status: 'in' } }
+
+    assert_redirected_to root_path
+    assert_nil @match_night.match_availabilities.find_by(player: players(:sam))
+  end
+
+  test 'refuses a player with no roster spot in the season' do
+    sign_in_as_ada
+
+    patch match_night_player_availability_path(@match_night, players(:wade)),
+          params: { match_availability: { status: 'in' } }
+
+    assert_redirected_to root_path
+    assert_equal I18n.t('availabilities.update_for_player.not_on_roster'), flash[:alert]
+  end
+
   private
 
   def sign_in_as_ada
-    mock_google_auth(email: players(:ada).email)
+    sign_in_as(players(:ada))
+  end
+
+  def sign_in_as(player)
+    mock_google_auth(email: player.email)
     post '/auth/google_oauth2'
     follow_redirect!
   end
