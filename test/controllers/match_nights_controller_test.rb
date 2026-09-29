@@ -69,6 +69,17 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
     assert_select "##{dom_id(match_nights(:fall_upcoming), :team_availability)}"
   end
 
+  test 'disables the availability select for a team the captain does not control' do
+    sign_in_as_ada
+
+    get match_nights_path(view: 'availability')
+
+    frame = "##{dom_id(match_nights(:fall_upcoming), :team_availability)}"
+
+    assert_select "#{frame} select:not([disabled])", minimum: 1
+    assert_select "#{frame} select[disabled]", minimum: 1
+  end
+
   test 'scopes the list to the requested season' do
     sign_in_as_ada
 

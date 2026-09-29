@@ -5,19 +5,23 @@ class MatchNightsController < ApplicationController
 
   before_action :require_sign_in
 
+  MATCH_NIGHT_INCLUDES = { matches: [:home_team, :away_team, { lineups: :games }], match_availabilities: [] }.freeze
+
   def index
     @season = current_season
     @match_nights = load_match_nights(@season)
     @next_match_night = next_match_night_of(@match_nights)
     @weeks_completed = weeks_completed_in(@match_nights)
     @team_view = params[:view] == 'availability' && captain_or_admin?(@season)
+    @team_rosters = team_rosters_for(@season) if @team_view
     @availabilities = current_player_availabilities(@match_nights)
   end
 
   def show
-    @match_night = MatchNight.find(params.expect(:id))
+    @match_night = MatchNight.includes(MATCH_NIGHT_INCLUDES).find(params.expect(:id))
     @season = @match_night.season
     @team_view = params[:view] == 'availability' && captain_or_admin?(@season)
+    @team_rosters = team_rosters_for(@season) if @team_view
     @availabilities = current_player_availabilities([@match_night])
   end
 
@@ -26,12 +30,18 @@ class MatchNightsController < ApplicationController
   def load_match_nights(season)
     return [] unless season
 
-    season.match_nights.chronological
-          .includes(matches: [:home_team, :away_team, { lineups: :games }], match_availabilities: :player)
+    season.match_nights.chronological.includes(MATCH_NIGHT_INCLUDES)
   end
 
   def current_player_availabilities(match_nights)
-    MatchAvailability.where(match_night: match_nights, player: current_player).index_by(&:match_night_id)
+    match_nights.each_with_object({}) do |night, memo|
+      availability = night.match_availabilities.find { |a| a.player_id == current_player.id }
+      memo[night.id] = availability if availability
+    end
+  end
+
+  def team_rosters_for(season)
+    season.teams.order(:name).map { |team| [team, team.roster_for(season)] }
   end
 
   def next_match_night_of(match_nights)

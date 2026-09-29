@@ -2,8 +2,8 @@
 
 <%= turbo_frame_tag dom_id(match_night, :team_availability) do %>
   <div class="grid gap-6 border-t border-gray-100 p-4 sm:grid-cols-2">
-    <% match_night.season.teams.order(:name).each do |team| %>
-      <% roster = team.roster_for(match_night.season) %>
+    <% @team_rosters.each do |team, roster| %>
+      <% editable = admin? || current_player.captain_of_team?(match_night.season, team.id) %>
       <% in_count = roster.count { |player| (availabilities[player.id]&.status || 'maybe') == 'in' } %>
       <% maybe_count = roster.count { |player| (availabilities[player.id]&.status || 'maybe') == 'maybe' } %>
 
@@ -22,6 +22,7 @@
                 <%= form.select :status, MatchAvailability.statuses.keys.map { |value| [availability_status_label(value), value] },
                                  { selected: availabilities[player.id]&.status || 'maybe' },
                                  class: 'rounded-md border border-gray-300 px-2 py-1 text-sm',
+                                 disabled: !editable,
                                  data: { action: 'change->availability#submit' } %>
               <% end %>
             </li>

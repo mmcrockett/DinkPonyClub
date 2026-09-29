@@ -65,7 +65,7 @@ class AvailabilitiesController < ApplicationController
   end
 
   def captain_for_team?(team_id)
-    current_player.roster_spots.captains.where(season: @match_night.season).exists?(team_id: team_id)
+    current_player.captain_of_team?(@match_night.season, team_id)
   end
 
   def valid_status?(status)

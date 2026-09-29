@@ -17,8 +17,8 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     assert_select "form[action='#{match_night_availability_path(match_nights(:fall_upcoming))}']"
   end
 
-  test 'renders a read-only summary after the cutoff' do
-    sign_in_as_ada
+  test 'renders a read-only summary after the cutoff for a non-captain' do
+    sign_in_as(players(:grace))
 
     travel_to match_nights(:fall_upcoming).played_on.in_time_zone.change(hour: 13) do
       get root_path
@@ -29,10 +29,25 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     assert_select 'p', text: 'Contact your captain directly if you need to change.'
   end
 
+  test 'still renders the availability form for a captain after the cutoff' do
+    sign_in_as_ada
+
+    travel_to match_nights(:fall_upcoming).played_on.in_time_zone.change(hour: 13) do
+      get root_path
+    end
+
+    assert_response :success
+    assert_select "form[action='#{match_night_availability_path(match_nights(:fall_upcoming))}']"
+  end
+
   private
 
   def sign_in_as_ada
-    mock_google_auth(email: players(:ada).email)
+    sign_in_as(players(:ada))
+  end
+
+  def sign_in_as(player)
+    mock_google_auth(email: player.email)
     post '/auth/google_oauth2'
     follow_redirect!
   end

@@ -24,6 +24,6 @@ class MatchNight < ApplicationRecord
   end
 
   def complete?
-    matches.any? && matches.all?(&:complete?)
+    !canceled? && matches.any? && matches.all?(&:complete?)
   end
 end

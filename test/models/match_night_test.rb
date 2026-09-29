@@ -73,4 +73,11 @@ class MatchNightTest < ActiveSupport::TestCase
   test 'complete? is false when a match on the night is unfinished' do
     assert_not match_nights(:fall_upcoming).complete?
   end
+
+  test 'complete? is false for a canceled night even if its matches are complete' do
+    night = match_nights(:fall_week_one)
+    night.canceled = true
+
+    assert_not night.complete?
+  end
 end
