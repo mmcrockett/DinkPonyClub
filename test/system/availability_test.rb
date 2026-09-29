@@ -4,7 +4,7 @@ class AvailabilityTest < ApplicationSystemTestCase
   test 'toggling out greys the slot ratings, toggling back in lets you save a preference' do
     sign_in_as players(:ada)
 
-    assert_text slot_label(:fall_future_slot_one)
+    assert_text '7:00 PM'
 
     find('label.availability-toggle').click
 
