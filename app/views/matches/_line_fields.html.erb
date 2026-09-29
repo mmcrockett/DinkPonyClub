@@ -7,7 +7,7 @@
       <% (0..2).each do |slot| %>
         <%= select_tag "scorecard[lines][#{line.position}][home_player_ids][]",
               options_for_select(@home_roster.map { |player| [player.full_name, player.id] }, line.home_player_ids[slot]),
-              include_blank: true, class: 'rounded-md border-gray-300 shadow-sm' %>
+              include_blank: true, class: 'form-input' %>
       <% end %>
     </div>
     <div class="flex flex-col gap-2">
@@ -15,7 +15,7 @@
       <% (0..2).each do |slot| %>
         <%= select_tag "scorecard[lines][#{line.position}][away_player_ids][]",
               options_for_select(@away_roster.map { |player| [player.full_name, player.id] }, line.away_player_ids[slot]),
-              include_blank: true, class: 'rounded-md border-gray-300 shadow-sm' %>
+              include_blank: true, class: 'form-input' %>
       <% end %>
     </div>
   </div>
@@ -26,10 +26,10 @@
         <span class="text-xs font-semibold text-gray-500">Game <%= number %></span>
         <div class="flex items-center gap-1">
           <%= number_field_tag "scorecard[lines][#{line.position}][home_score#{number}]", line.scores[number - 1][0],
-                class: 'w-16 rounded-md border-gray-300 shadow-sm', min: 0, max: 99 %>
+                class: 'form-input !w-16', min: 0, max: 99 %>
           <span>-</span>
           <%= number_field_tag "scorecard[lines][#{line.position}][away_score#{number}]", line.scores[number - 1][1],
-                class: 'w-16 rounded-md border-gray-300 shadow-sm', min: 0, max: 99 %>
+                class: 'form-input !w-16', min: 0, max: 99 %>
         </div>
       </div>
     <% end %>

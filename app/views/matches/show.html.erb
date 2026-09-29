@@ -37,6 +37,6 @@
   </div>
 
   <% if admin? || @match.captained_by?(current_player) %>
-    <%= link_to (@match.lineups.any? ? 'Edit scorecard' : 'Enter results'), edit_match_path(@match), class: 'btn self-start' %>
+    <%= link_to (@match.lineups.any? ? 'Edit scorecard' : 'Enter results'), edit_match_path(@match), class: 'btn btn-primary self-start' %>
   <% end %>
 </div>
