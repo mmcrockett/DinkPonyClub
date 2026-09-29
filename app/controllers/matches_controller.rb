@@ -1,9 +1,8 @@
 # frozen_string_literal: true
 
 class MatchesController < ApplicationController
-  LINE_KEYS = [:home_score1, :away_score1, :home_score2, :away_score2,
-               :home_score3, :away_score3,
-               { home_player_ids: [], away_player_ids: [] }].freeze
+  LINE_KEYS = ((1..Lineup::GAMES_PER_LINEUP).flat_map { |n| [:"home_score#{n}", :"away_score#{n}"] } +
+               [{ home_player_ids: [], away_player_ids: [] }]).freeze
 
   before_action :require_sign_in
   before_action :set_match

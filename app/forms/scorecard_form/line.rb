@@ -18,6 +18,7 @@ class ScorecardForm
     end
 
     validate :enough_players
+    validate :no_duplicate_players_on_a_side
     validate :no_overlap_between_sides
     validate :players_are_rostered
     validate :scores_are_valid
@@ -68,6 +69,15 @@ class ScorecardForm
     def enough_players
       errors.add(:base, 'home side needs at least two players') if home_player_ids.size < 2
       errors.add(:base, 'away side needs at least two players') if away_player_ids.size < 2
+    end
+
+    def no_duplicate_players_on_a_side
+      errors.add(:base, 'a player cannot appear twice on the home side') if duplicates?(home_player_ids)
+      errors.add(:base, 'a player cannot appear twice on the away side') if duplicates?(away_player_ids)
+    end
+
+    def duplicates?(ids)
+      ids.uniq.size != ids.size
     end
 
     def no_overlap_between_sides

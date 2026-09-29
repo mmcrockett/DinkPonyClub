@@ -58,6 +58,16 @@ class ScorecardFormTest < ActiveSupport::TestCase
     assert_includes form.errors[:base], 'Line 1: home side needs at least two players'
   end
 
+  test 'rejects the same player picked twice on one side of a line' do
+    lines = valid_lines
+    home_id = players(:sc_home_captain).id.to_s
+    lines['1'][:home_player_ids] = [home_id, home_id]
+    form = ScorecardForm.new(match: @match, lines: lines)
+
+    assert_not form.valid?
+    assert_includes form.errors[:base], 'Line 1: a player cannot appear twice on the home side'
+  end
+
   test 'rejects a player appearing on both sides of a line' do
     lines = valid_lines
     lines['1'][:away_player_ids] = [players(:sc_home_captain).id.to_s, players(:sc_away_player1).id.to_s]
