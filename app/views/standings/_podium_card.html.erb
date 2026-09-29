@@ -1,0 +1,20 @@
+<div id="<%= dom_id(row.team, :podium) %>"
+     class="rounded-md p-4 shadow-sm <%= rank == 1 ? 'bg-dpc-navy text-white' : 'bg-white text-dpc-navy' %>">
+  <div class="flex items-start justify-between gap-3">
+    <p class="text-xs font-bold uppercase <%= rank == 1 ? 'text-white/70' : 'text-gray-500' %>">
+      <%= podium_label(rank) %>
+    </p>
+    <p class="text-3xl font-extrabold <%= rank == 1 ? 'text-white/40' : 'text-gray-300' %>">
+      <%= format('%02d', rank) %>
+    </p>
+  </div>
+
+  <h2 class="mt-3 text-lg font-bold"><%= row.team.name %></h2>
+
+  <div class="mt-1 flex flex-wrap items-baseline gap-3">
+    <p class="text-2xl font-extrabold"><%= "#{row.wins}-#{row.losses}" %></p>
+    <p class="text-sm <%= rank == 1 ? 'text-white/70' : 'text-gray-500' %>">
+      <%= t('standings.show.point_differential', diff: standings_diff(row.diff)) %>
+    </p>
+  </div>
+</div>

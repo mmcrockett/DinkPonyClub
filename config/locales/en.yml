@@ -80,3 +80,27 @@ en:
       scheduled: "Scheduled"
       vs: "vs"
       back_to_schedule: "Back to schedule"
+  standings:
+    show:
+      title: "The race for first."
+      subtitle: "Regular season - Ranked by wins, then point differential."
+      empty: "No results have been posted yet."
+      footnote: "Every game win is one point; a three-game line sweep adds %{bonus}."
+      point_differential: "%{diff} point differential"
+      results_posted:
+        one: "1 result posted"
+        other: "%{count} results posted"
+      podium:
+        first: "Leading the pack"
+        second: "In the chase"
+        third: "Still in the mix"
+      table:
+        rank: "Rank"
+        team: "Team"
+        played: "Played"
+        wins: "W"
+        losses: "L"
+        ties: "T"
+        points_for: "Points for"
+        points_against: "Points against"
+        diff: "Diff"

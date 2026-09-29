@@ -14,6 +14,10 @@ class Standings
           .sort_by { |row| [-row.wins, -row.diff] }
   end
 
+  def results_posted
+    regular_season_matches.count { |match| MatchResult.new(match).complete? }
+  end
+
   private
 
   def regular_season_matches

@@ -8,7 +8,7 @@ module NavigationHelper
       { label: 'Teams', icon: 'users' },
       { label: 'Schedule', icon: 'calendar', path: match_nights_path },
       { label: 'Players', icon: 'user' },
-      { label: 'Standings', icon: 'chart' }
+      { label: 'Standings', icon: 'chart', path: standings_path }
     ]
     items << { label: 'Admin', icon: 'cog', path: admin_players_path } if admin?
     items
