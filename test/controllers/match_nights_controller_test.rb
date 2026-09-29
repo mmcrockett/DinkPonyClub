@@ -98,6 +98,15 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
     assert_select "##{dom_id(match_nights(:fall_week_one))}"
   end
 
+  test 'treats a player deactivated mid-session as signed out' do
+    sign_in_as_ada
+    players(:ada).inactive!
+
+    get match_nights_path
+
+    assert_redirected_to root_path
+  end
+
   private
 
   def sign_in_as_ada

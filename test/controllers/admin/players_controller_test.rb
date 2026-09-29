@@ -88,6 +88,15 @@ module Admin
       assert_predicate players(:ada).reload, :inactive?
     end
 
+    test 'treats an admin deactivated mid-session as signed out' do
+      sign_in_as players(:zoe)
+      players(:zoe).inactive!
+
+      get admin_players_path
+
+      assert_redirected_to root_path
+    end
+
     private
 
     def sign_in_as(player)
