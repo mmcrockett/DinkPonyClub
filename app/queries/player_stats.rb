@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class PlayerStats
-  Row = Struct.new(:player, :team, :games, :wins, :losses, :win_pct, keyword_init: true) do
+  Row = Struct.new(:player, :team, :captain, :games, :wins, :losses, :win_pct, keyword_init: true) do
     def substitute?
       team.nil?
     end
@@ -18,8 +18,8 @@ class PlayerStats
   def rows
     roster_spots = season.roster_spots.includes(:player, :team).to_a
 
-    roster_spots.map { |roster_spot| row_for(roster_spot.player, roster_spot.team) } +
-      substitutes(roster_spots).map { |player| row_for(player, nil) }
+    roster_spots.map { |roster_spot| row_for(roster_spot.player, roster_spot.team, roster_spot.captain) } +
+      substitutes(roster_spots).map { |player| row_for(player, nil, false) }
   end
 
   private
@@ -40,12 +40,12 @@ class PlayerStats
         .to_a
   end
 
-  def row_for(player, team)
+  def row_for(player, team, captain)
     games = games_by_player_id.fetch(player.id, [])
     wins = wins_for(player, games)
 
     Row.new(
-      player: player, team: team, games: games.size,
+      player: player, team: team, captain: captain, games: games.size,
       wins: wins, losses: games.size - wins, win_pct: win_pct(wins, games.size)
     )
   end

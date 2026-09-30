@@ -1,0 +1,79 @@
+<% content_for :title, @player.full_name %>
+
+<div class="mx-auto flex max-w-3xl flex-col gap-6">
+  <%= link_to t('players.show.back'), players_path(season: @season&.id), class: 'text-sm font-semibold text-dpc-navy underline' %>
+
+  <div class="flex flex-col gap-4 rounded-md bg-white p-5 shadow-sm">
+    <div class="flex items-center gap-4">
+      <span class="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-dpc-navy text-xl font-bold text-white">
+        <%= @player.initials %>
+      </span>
+      <div class="min-w-0 flex-1">
+        <h1 class="text-2xl font-extrabold text-dpc-navy"><%= @player.full_name %></h1>
+        <p class="text-gray-500">
+          <%= @row ? player_team_label(@row) : t('players.show.not_playing') %>
+          <% if @season %> - <%= @season.name %><% end %>
+        </p>
+      </div>
+      <% if @row&.captain %>
+        <span class="rounded-full bg-dpc-green px-2 py-0.5 text-xs font-bold uppercase text-white">
+          <%= t('players.card.captain') %>
+        </span>
+      <% end %>
+    </div>
+
+    <% if @row %>
+      <dl class="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <% [[t('players.card.games'), @row.games], [t('players.show.wins'), @row.wins],
+            [t('players.show.losses'), @row.losses], [t('players.card.win_rate'), win_rate_label(@row)]].each do |label, value| %>
+          <div>
+            <dt class="text-xs font-semibold uppercase text-gray-500"><%= label %></dt>
+            <dd class="text-lg font-bold text-dpc-navy"><%= value %></dd>
+          </div>
+        <% end %>
+      </dl>
+    <% end %>
+
+    <%= render 'contact', player: @player, show_contacts: @show_contacts %>
+
+    <% if can_edit_player?(@player) %>
+      <div>
+        <%= link_to t('players.card.edit_profile'), edit_player_path(@player), class: 'btn btn-secondary' %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="flex flex-col gap-2">
+    <h2 class="text-lg font-bold text-dpc-navy"><%= t('players.show.lines') %></h2>
+    <% if @line_results.any? %>
+      <ul class="flex flex-col gap-2">
+        <% @line_results.each do |lineup, games| %>
+          <% line = player_line_summary(@player, lineup, games) %>
+          <li id="<%= dom_id(lineup, :result) %>" class="flex flex-wrap items-center justify-between gap-3 rounded-md bg-white px-4 py-3 shadow-sm">
+            <div>
+              <p class="font-semibold text-dpc-navy">
+                <%= l(line.match.played_on, format: :short) %> - <%= line.match.match_night.label %>
+                <span class="text-gray-500">
+                  <%= t('players.show.line_vs', position: lineup.position, opponent: line.opponent.name) %>
+                </span>
+              </p>
+              <% if line.partners.any? %>
+                <p class="text-sm text-gray-500">
+                  <%= t('players.show.partners', names: line.partners.map(&:full_name).to_sentence) %>
+                </p>
+              <% end %>
+            </div>
+            <div class="flex items-center gap-3 text-sm">
+              <span><%= line.scores.map { |own, other| "#{own}-#{other}" }.join(', ') %></span>
+              <span class="rounded-full px-2 py-0.5 text-xs font-bold uppercase <%= line.wins > line.losses ? 'bg-dpc-green text-white' : 'bg-gray-100 text-gray-600' %>">
+                <%= "#{line.wins}-#{line.losses}" %>
+              </span>
+            </div>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p class="text-gray-500"><%= t('players.show.no_lines') %></p>
+    <% end %>
+  </div>
+</div>

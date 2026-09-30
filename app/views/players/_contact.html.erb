@@ -1,0 +1,14 @@
+<div class="text-sm">
+  <% if !show_contacts %>
+    <p class="text-gray-500"><%= t('players.contact_hidden') %></p>
+  <% elsif player.contact_email.blank? && player.phone.blank? %>
+    <p class="text-gray-500"><%= t('players.card.no_contact') %></p>
+  <% else %>
+    <% if player.contact_email.present? %>
+      <p><%= mail_to player.contact_email, class: 'text-dpc-navy underline' %></p>
+    <% end %>
+    <% if player.phone.present? %>
+      <p><%= link_to player.phone, "tel:#{player.phone}", class: 'text-dpc-navy underline' %></p>
+    <% end %>
+  <% end %>
+</div>

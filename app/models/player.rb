@@ -8,9 +8,13 @@ class Player < ApplicationRecord
   enum :status, { active: 'active', inactive: 'inactive' }
 
   normalizes :email, with: ->(email) { email.strip.downcase.presence }
+  normalizes :contact_email, with: ->(email) { email.strip.downcase.presence }
+  normalizes :phone, with: ->(phone) { phone.strip.presence }
 
   validates :first_name, :last_name, presence: true
   validates :email, uniqueness: true, allow_nil: true
+  validates :contact_email, length: { maximum: 254 }, format: { with: URI::MailTo::EMAIL_REGEXP }, allow_nil: true
+  validates :phone, length: { maximum: 40 }, allow_nil: true
 
   scope :by_name, -> { order(:first_name, :last_name) }
   scope :admins, -> { where(admin: true) }
@@ -38,6 +42,10 @@ class Player < ApplicationRecord
 
   def full_name
     "#{first_name} #{last_name}"
+  end
+
+  def initials
+    "#{first_name.first}#{last_name.first}".upcase
   end
 
   def next_match_night(season)

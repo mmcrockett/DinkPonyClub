@@ -82,6 +82,56 @@ en:
       scheduled: "Scheduled"
       vs: "vs"
       back_to_schedule: "Back to schedule"
+  players:
+    forbidden: "You can only edit your own profile."
+    contact_hidden: "Contact details are available to captains."
+    card:
+      captain: "Captain"
+      win_rate: "Win rate"
+      games: "Games"
+      substitute: "Substitute"
+      view_profile: "View profile"
+      edit_profile: "Edit profile"
+      no_contact: "No contact details on file."
+    filters:
+      season: "Season"
+      search: "Search"
+      search_placeholder: "Find a teammate..."
+      team: "Team"
+      all_teams: "All teams"
+      substitutes: "Substitutes"
+      sort: "Sort"
+      sort_name: "Name A-Z"
+      sort_win_pct: "Win rate"
+      sort_team: "Team"
+      hide_substitutes: "Hide substitutes"
+      apply: "Apply"
+    index:
+      title: "Good people. Great games."
+      counts: "%{rostered} rostered players - %{substitutes} substitutes"
+      empty: "No players match those filters."
+    show:
+      back: "Back to players"
+      not_playing: "Not playing this season"
+      wins: "Wins"
+      losses: "Losses"
+      lines: "This season's lines"
+      line_vs: "Line %{position} vs %{opponent}"
+      partners: "With %{names}"
+      no_lines: "No line results this season yet."
+    edit:
+      title: "Edit profile"
+      contact_email: "Contact email"
+      phone: "Phone"
+      visibility_note: "Only captains and admins can see your contact details."
+      sign_in_email_note: "Your sign-in email is managed by an admin."
+      cancel: "Cancel"
+      save: "Save"
+    update:
+      updated: "Profile saved."
+  profiles:
+    show:
+      edit_contact: "Edit contact details"
   standings:
     show:
       title: "The race for first."

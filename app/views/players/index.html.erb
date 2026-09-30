@@ -1,0 +1,24 @@
+<% content_for :title, t('players.index.title') %>
+
+<div class="flex flex-col gap-6">
+  <div>
+    <h1 class="text-2xl font-extrabold text-dpc-navy"><%= t('players.index.title') %></h1>
+    <p class="text-gray-500">
+      <%= t('players.index.counts', rostered: @rostered_count, substitutes: @substitute_count) %>
+    </p>
+  </div>
+
+  <%= render 'filters', season: @season, teams: @teams %>
+
+  <%= turbo_frame_tag 'player_cards', target: '_top' do %>
+    <% if @rows.any? %>
+      <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <% @rows.each do |row| %>
+          <%= render 'player_card', row: row, season: @season, show_contacts: @show_contacts %>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="text-gray-500"><%= t('players.index.empty') %></p>
+    <% end %>
+  <% end %>
+</div>

@@ -1,0 +1,37 @@
+<% player = row.player %>
+<div id="<%= dom_id(player, :card) %>" class="flex flex-col gap-4 rounded-md bg-white p-5 shadow-sm">
+  <div class="flex items-start gap-3">
+    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-dpc-navy text-sm font-bold text-white">
+      <%= player.initials %>
+    </span>
+    <div class="min-w-0 flex-1">
+      <p class="font-bold text-dpc-navy"><%= player.full_name %></p>
+      <p class="text-sm text-gray-500"><%= player_team_label(row) %></p>
+    </div>
+    <% if row.captain %>
+      <span class="rounded-full bg-dpc-green px-2 py-0.5 text-xs font-bold uppercase text-white">
+        <%= t('players.card.captain') %>
+      </span>
+    <% end %>
+  </div>
+
+  <dl class="grid grid-cols-2 gap-2">
+    <div>
+      <dt class="text-xs font-semibold uppercase text-gray-500"><%= t('players.card.win_rate') %></dt>
+      <dd class="text-lg font-bold text-dpc-navy"><%= win_rate_label(row) %></dd>
+    </div>
+    <div>
+      <dt class="text-xs font-semibold uppercase text-gray-500"><%= t('players.card.games') %></dt>
+      <dd class="text-lg font-bold text-dpc-navy"><%= row.games %></dd>
+    </div>
+  </dl>
+
+  <%= render 'contact', player: player, show_contacts: show_contacts %>
+
+  <div class="flex gap-4 text-sm font-semibold">
+    <%= link_to t('players.card.view_profile'), player_path(player, season: season.id), class: 'text-dpc-navy underline' %>
+    <% if can_edit_player?(player) %>
+      <%= link_to t('players.card.edit_profile'), edit_player_path(player), class: 'text-dpc-navy underline' %>
+    <% end %>
+  </div>
+</div>

@@ -36,6 +36,15 @@ class PlayerStatsTest < ActiveSupport::TestCase
     assert_not_predicate row_for(players(:ada)), :substitute?
   end
 
+  test 'rows carry the roster spot captain flag' do
+    substitute = Player.create!(first_name: 'Sub', last_name: 'Stitute')
+    add_lineup(position: 2, home: [players(:ada), substitute], away: [players(:sam), players(:ben)])
+
+    assert row_for(players(:ada)).captain
+    assert_not row_for(players(:grace)).captain
+    assert_not row_for(substitute).captain
+  end
+
   test 'query count does not grow with players or games' do
     baseline = count_queries { PlayerStats.new(seasons(:fall)).rows }
 
