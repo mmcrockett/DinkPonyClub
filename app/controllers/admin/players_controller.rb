@@ -40,7 +40,7 @@ module Admin
     end
 
     def player_params
-      permitted = params.expect(player: %i[first_name last_name email avatar_url status])
+      permitted = params.expect(player: %i[first_name last_name email phone avatar_url status])
       return permitted.except(:status) if @player == current_player
 
       permitted

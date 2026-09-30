@@ -7,51 +7,26 @@ class PlayersController < ApplicationController
                        'games.away_player_a_id = :id OR games.away_player_b_id = :id'
 
   before_action :require_sign_in
-  before_action :set_player, only: %i[show edit update]
-  before_action :require_self_or_admin, only: %i[edit update]
 
   def index
     @season = current_season
-    rows = @season ? PlayerStats.new(@season).rows : []
-    @substitute_count = rows.count(&:substitute?)
-    @rostered_count = rows.size - @substitute_count
-    @rows = directory_rows(rows)
-    @teams = @season ? @season.teams.order(:name) : Team.none
-    @show_contacts = @season.present? && captain_or_admin?(@season)
+    @teams = @season ? @season.teams.order(:name) : []
+    @filter = StatsFilter.new(@season ? PlayerStats.new(@season).rows : [], filter_params)
+    @rows = @filter.rows
   end
 
   def show
+    @player = Player.find(params.expect(:id))
     @season = current_season
     @row = @season && PlayerStats.new(@season).rows.find { |row| row.player == @player }
     @show_contacts = @season.present? && captain_or_admin?(@season)
     @line_results = @season ? line_results : []
   end
 
-  def edit; end
-
-  def update
-    if @player.update(params.expect(player: %i[phone contact_email]))
-      redirect_to player_path(@player), notice: t('.updated')
-    else
-      render :edit, status: :unprocessable_content
-    end
-  end
-
   private
 
-  def set_player
-    @player = Player.find(params.expect(:id))
-  end
-
-  def require_self_or_admin
-    return if @player == current_player || admin?
-
-    redirect_to root_path, alert: t('players.forbidden')
-  end
-
-  def directory_rows(rows)
-    PlayerDirectory.new(rows, query: params[:q], team: params[:team],
-                              hide_substitutes: params[:hide_substitutes] == '1', sort: params[:sort]).rows
+  def filter_params
+    params.permit(:q, :team, :hide_substitutes, :sort, :dir)
   end
 
   def line_results

@@ -1,42 +1,28 @@
-<%= form_with url: players_path, method: :get,
-              data: { turbo_frame: 'player_cards', turbo_action: 'advance' },
-              class: 'flex flex-wrap items-end gap-3 rounded-md bg-white p-4 shadow-sm' do |form| %>
+<%= form_with url: players_path, method: :get, class: 'flex flex-wrap items-center gap-3', data: { controller: 'auto-submit' } do |form| %>
   <% if Season.count > 1 %>
-    <div class="flex flex-col gap-1">
-      <%= form.label :season, t('players.filters.season'), class: 'text-xs font-semibold text-dpc-navy' %>
-      <%= form.select :season, Season.chronological.map { |s| [s.name, s.id] }, { selected: season&.id },
-                      class: 'form-input' %>
-    </div>
+    <%= form.select :season, Season.chronological.map { |s| [s.name, s.id] }, { selected: season&.id },
+                     class: 'rounded-md border border-gray-300 px-3 py-2', aria: { label: t('players.filters.season') },
+                     data: { action: 'change->auto-submit#submit' } %>
   <% elsif season %>
     <%= form.hidden_field :season, value: season.id %>
   <% end %>
 
-  <div class="flex flex-col gap-1">
-    <%= form.label :q, t('players.filters.search'), class: 'text-xs font-semibold text-dpc-navy' %>
-    <%= form.search_field :q, value: params[:q], placeholder: t('players.filters.search_placeholder'),
-                          class: 'form-input' %>
-  </div>
+  <%= form.search_field :q, value: filter.query, placeholder: t('players.filters.search'), autocomplete: 'off',
+                              class: 'rounded-md border border-gray-300 px-3 py-2', aria: { label: t('players.filters.search') },
+                              data: { action: 'input->auto-submit#debouncedSubmit' } %>
 
-  <div class="flex flex-col gap-1">
-    <%= form.label :team, t('players.filters.team'), class: 'text-xs font-semibold text-dpc-navy' %>
-    <%= form.select :team,
-                    [[t('players.filters.all_teams'), '']] + teams.map { |team| [team.name, team.id] } +
-                      [[t('players.filters.substitutes'), PlayerDirectory::SUBSTITUTES]],
-                    { selected: params[:team] }, class: 'form-input' %>
-  </div>
+  <%= form.select :team,
+                  options_for_select([[t('players.filters.all_teams'), '']] + teams.map { |team| [team.name, team.id] } +
+                                     [[t('players.filters.substitutes'), StatsFilter::SUBSTITUTES]], filter.team),
+                  {}, class: 'rounded-md border border-gray-300 px-3 py-2', aria: { label: t('players.filters.team') },
+                      data: { action: 'change->auto-submit#submit' } %>
 
-  <div class="flex flex-col gap-1">
-    <%= form.label :sort, t('players.filters.sort'), class: 'text-xs font-semibold text-dpc-navy' %>
-    <%= form.select :sort,
-                    [[t('players.filters.sort_name'), 'name'], [t('players.filters.sort_win_pct'), 'win_pct'],
-                     [t('players.filters.sort_team'), 'team']],
-                    { selected: params[:sort] }, class: 'form-input' %>
-  </div>
-
-  <label class="flex items-center gap-2 py-2 text-sm text-dpc-navy">
-    <%= form.check_box :hide_substitutes, { checked: params[:hide_substitutes] == '1' }, '1', nil %>
+  <label class="flex items-center gap-2 text-sm text-gray-600">
+    <%= form.check_box :hide_substitutes, { checked: filter.hide_substitutes?, data: { action: 'change->auto-submit#submit' } },
+                       '1', nil %>
     <%= t('players.filters.hide_substitutes') %>
   </label>
 
-  <%= form.submit t('players.filters.apply'), name: nil, class: 'btn btn-primary' %>
+  <%= form.hidden_field :sort, value: filter.sort %>
+  <%= form.hidden_field :dir, value: filter.direction %>
 <% end %>

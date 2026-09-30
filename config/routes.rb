@@ -13,9 +13,9 @@ Rails.application.routes.draw do
 
   resources :seasons, only: %i[index]
   resources :matches, only: %i[show edit update]
-  resources :players, only: %i[index show edit update]
+  resources :players, only: %i[index show]
   get 'standings', to: 'standings#show', as: :standings
-  get 'stats', to: 'stats#show', as: :stats
+  get 'stats', to: redirect(path: '/players')
 
   resources :match_nights, only: %i[index show], path: 'schedule' do
     resource :availability, only: %i[update]

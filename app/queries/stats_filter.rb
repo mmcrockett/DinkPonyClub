@@ -1,10 +1,16 @@
 # frozen_string_literal: true
 
 class StatsFilter
-  SORTS = %w[name win_pct_desc win_pct_asc team].freeze
+  SORTS = %w[name team games wins losses win_pct].freeze
+  DESCENDING_BY_DEFAULT = %w[games wins losses win_pct].freeze
+  DIRECTIONS = %w[asc desc].freeze
   SUBSTITUTES = 'substitutes'
 
-  attr_reader :query, :team, :sort
+  attr_reader :query, :team, :sort, :direction
+
+  def self.default_direction(sort)
+    DESCENDING_BY_DEFAULT.include?(sort) ? 'desc' : 'asc'
+  end
 
   def initialize(rows, params = {})
     @all_rows = rows
@@ -12,10 +18,21 @@ class StatsFilter
     @team = params[:team].presence
     @hide_substitutes = params[:hide_substitutes] == '1'
     @sort = SORTS.include?(params[:sort]) ? params[:sort] : SORTS.first
+    @direction = DIRECTIONS.include?(params[:dir]) ? params[:dir] : self.class.default_direction(@sort)
   end
 
   def hide_substitutes?
     @hide_substitutes
+  end
+
+  def descending?
+    direction == 'desc'
+  end
+
+  def next_direction(column)
+    return self.class.default_direction(column) unless column == sort
+
+    descending? ? 'asc' : 'desc'
   end
 
   def rows
@@ -40,24 +57,22 @@ class StatsFilter
   end
 
   def sorted(rows)
-    rows.sort_by { |row| sort_key(row) }
+    valued, unvalued = rows.partition { |row| sort_value(row) }
+
+    valued.sort { |a, b| compare(a, b) } + unvalued.sort_by { |row| name_key(row) }
   end
 
-  def sort_key(row)
+  def compare(first, second)
+    by_value = sort_value(first) <=> sort_value(second)
+    (descending? ? -by_value : by_value).nonzero? || (name_key(first) <=> name_key(second))
+  end
+
+  def sort_value(row)
     case sort
-    when 'win_pct_desc' then [*win_pct_key(row, -1), name_key(row)]
-    when 'win_pct_asc' then [*win_pct_key(row, 1), name_key(row)]
-    when 'team' then [*team_key(row), name_key(row)]
-    else [name_key(row)]
+    when 'team' then row.team&.name&.downcase
+    when 'games', 'wins', 'losses', 'win_pct' then row.public_send(sort)
+    else name_key(row)
     end
-  end
-
-  def win_pct_key(row, direction)
-    row.win_pct ? [0, direction * row.win_pct] : [1, 0]
-  end
-
-  def team_key(row)
-    row.substitute? ? [1, ''] : [0, row.team.name.downcase]
   end
 
   def name_key(row)

@@ -10,11 +10,23 @@ module PlayersHelper
   end
 
   def player_team_label(row)
-    row.substitute? ? t('players.card.substitute') : row.team.name
+    row.substitute? ? t('players.substitute') : row.team.name
   end
 
-  def can_edit_player?(player)
-    player == current_player || admin?
+  def players_sort_link(filter, column, season:)
+    params = { season: season&.id, q: filter.query.presence, team: filter.team,
+               hide_substitutes: filter.hide_substitutes? ? '1' : nil,
+               sort: column, dir: filter.next_direction(column) }.compact
+
+    link_to players_path(params), class: 'inline-flex items-center gap-1 hover:text-dpc-navy' do
+      safe_join([t("players.index.table.#{column}"), sort_indicator(filter, column)].compact)
+    end
+  end
+
+  def players_aria_sort(filter, column)
+    return 'none' unless filter.sort == column
+
+    filter.descending? ? 'descending' : 'ascending'
   end
 
   def player_line_summary(player, lineup, games)
@@ -29,6 +41,12 @@ module PlayersHelper
   end
 
   private
+
+  def sort_indicator(filter, column)
+    return unless filter.sort == column
+
+    render 'shared/icon', name: filter.descending? ? 'chevron-down' : 'chevron-up', class: 'h-3 w-3'
+  end
 
   def own_side_scores(games, home)
     games.map { |game| home ? [game.home_score, game.away_score] : [game.away_score, game.home_score] }
