@@ -107,3 +107,31 @@ en:
         points_for: "Points for"
         points_against: "Points against"
         diff: "Diff"
+  stats:
+    show:
+      title: "Every game counts."
+      subtitle: "%{season} - Player records, including substitutes."
+      empty: "No players are rostered for this season yet."
+      no_matches: "No players match these filters."
+      substitute: "Substitute"
+      table:
+        player: "Player"
+        team: "Team"
+        games: "Games"
+        wins: "Wins"
+        losses: "Losses"
+        win_pct: "Win %"
+    filters:
+      season: "Season"
+      search: "Find a player..."
+      team: "Team"
+      all_teams: "All teams"
+      substitutes: "Substitutes"
+      hide_substitutes: "Hide substitutes"
+      sort: "Sort"
+      apply: "Apply"
+      sorts:
+        name: "Name A-Z"
+        win_pct_desc: "Win % high to low"
+        win_pct_asc: "Win % low to high"
+        team: "Team"
