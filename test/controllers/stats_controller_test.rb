@@ -34,16 +34,21 @@ class StatsControllerTest < ActionDispatch::IntegrationTest
     assert_select "##{dom_id(@bench, :stats)} td", text: '-'
   end
 
-  test 'shows win pct, sweep bonus and points' do
+  test 'shows win pct' do
     sign_in_as(players(:ada))
 
     get stats_path
 
-    assert_select "##{dom_id(@substitute, :stats)}" do
-      assert_select 'td', text: '100%'
-      assert_select 'td', text: '0.5'
-      assert_select 'td', text: '3.5'
-    end
+    assert_select "##{dom_id(@substitute, :stats)} td", text: '100%'
+  end
+
+  test 'omits per-player sweep bonus and points columns' do
+    sign_in_as(players(:ada))
+
+    get stats_path
+
+    assert_select 'th', text: 'Sweep bonus', count: 0
+    assert_select 'th', text: 'Points', count: 0
   end
 
   test 'searches by name' do

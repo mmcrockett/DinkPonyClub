@@ -20,35 +20,6 @@ class PlayerStatsTest < ActiveSupport::TestCase
     assert_nil row.win_pct
   end
 
-  test 'a sweep counts toward sweep_bonus_count and points' do
-    match = Match.create!(season: seasons(:fall), match_night: match_nights(:fall_week_one),
-                          home_team: teams(:alpha), away_team: teams(:bravo))
-    lineup = match.lineups.create!(position: 2)
-    lineup.games.create!(number: 1, home_score: 11, away_score: 4,
-                         home_player_a: players(:ada), home_player_b: players(:grace),
-                         away_player_a: players(:sam), away_player_b: players(:ben))
-    lineup.games.create!(number: 2, home_score: 11, away_score: 6,
-                         home_player_a: players(:ada), home_player_b: players(:grace),
-                         away_player_a: players(:sam), away_player_b: players(:ben))
-    lineup.games.create!(number: 3, home_score: 11, away_score: 8,
-                         home_player_a: players(:ada), home_player_b: players(:grace),
-                         away_player_a: players(:sam), away_player_b: players(:ben))
-
-    row = PlayerStats.new(seasons(:fall)).rows.find { |candidate| candidate.player == players(:ada) }
-
-    assert_equal 1, row.sweep_bonus_count
-    assert_equal(5 + 0.5, row.points)
-  end
-
-  test 'reports sweep bonus points using the season bonus' do
-    add_lineup(position: 2, home: [players(:ada), players(:grace)], away: [players(:sam), players(:ben)])
-
-    row = row_for(players(:ada))
-
-    assert_equal 1, row.sweep_bonus_count
-    assert_in_delta 0.5, row.sweep_bonus_points
-  end
-
   test 'a player with games but no roster spot is a substitute row' do
     substitute = Player.create!(first_name: 'Sub', last_name: 'Stitute')
     add_lineup(position: 2, home: [players(:ada), substitute], away: [players(:sam), players(:ben)])

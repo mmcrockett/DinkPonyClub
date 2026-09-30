@@ -21,8 +21,6 @@
               <th class="px-4 py-3 text-right"><%= t('stats.show.table.wins') %></th>
               <th class="px-4 py-3 text-right"><%= t('stats.show.table.losses') %></th>
               <th class="px-4 py-3 text-right"><%= t('stats.show.table.win_pct') %></th>
-              <th class="px-4 py-3 text-right"><%= t('stats.show.table.sweep_bonus') %></th>
-              <th class="px-4 py-3 text-right"><%= t('stats.show.table.points') %></th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100">
@@ -34,8 +32,6 @@
                 <td class="px-4 py-3 text-right"><%= row.wins %></td>
                 <td class="px-4 py-3 text-right"><%= row.losses %></td>
                 <td class="px-4 py-3 text-right"><%= stats_win_pct(row) %></td>
-                <td class="px-4 py-3 text-right"><%= format_points(row.sweep_bonus_points) %></td>
-                <td class="px-4 py-3 text-right font-bold"><%= format_points(row.points) %></td>
               </tr>
             <% end %>
           </tbody>

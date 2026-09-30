@@ -121,8 +121,6 @@ en:
         wins: "Wins"
         losses: "Losses"
         win_pct: "Win %"
-        sweep_bonus: "Sweep bonus"
-        points: "Points"
     filters:
       season: "Season"
       search: "Find a player..."
