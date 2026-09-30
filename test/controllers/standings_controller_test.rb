@@ -65,6 +65,26 @@ class StandingsControllerTest < ActionDispatch::IntegrationTest
     assert_select 'span', text: '0 results posted'
   end
 
+  test 'hides the podium until a result is posted' do
+    sign_in_as_ada
+
+    get standings_path(season: seasons(:spring).id)
+
+    assert_select "##{dom_id(teams(:alpha), :podium)}", count: 0
+    assert_select 'p', text: /No results have been posted yet/
+  end
+
+  test 'shows an empty state for a season with no teams' do
+    season = Season.create!(name: 'Winter 2027', starts_on: Date.new(2027, 1, 4))
+    sign_in_as_ada
+
+    get standings_path(season: season.id)
+
+    assert_response :success
+    assert_select 'table', count: 0
+    assert_select 'p', text: 'No teams are rostered for this season yet.'
+  end
+
   private
 
   def complete_playoff_match

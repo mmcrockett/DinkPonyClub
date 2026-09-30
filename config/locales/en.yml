@@ -84,7 +84,8 @@ en:
     show:
       title: "The race for first."
       subtitle: "Regular season - Ranked by wins, then point differential."
-      empty: "No results have been posted yet."
+      empty: "No teams are rostered for this season yet."
+      no_results_yet: "No results have been posted yet. The table fills in as scorecards land."
       footnote: "Every game win is one point; a three-game line sweep adds %{bonus}."
       point_differential: "%{diff} point differential"
       results_posted:
