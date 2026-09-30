@@ -3,6 +3,8 @@
 class Standings
   Row = Struct.new(:team, :played, :wins, :losses, :ties, :points_for, :points_against, :diff, keyword_init: true)
 
+  MATCH_INCLUDES = [:season, :home_team, :away_team, { lineups: :games }].freeze
+
   attr_reader :season
 
   def initialize(season)
@@ -15,20 +17,33 @@ class Standings
   end
 
   def results_posted
-    regular_season_matches.count { |match| MatchResult.new(match).complete? }
+    completed_results.size
   end
 
   private
 
   def regular_season_matches
-    season.matches.joins(:match_night).merge(MatchNight.where(playoff: false))
+    @regular_season_matches ||= season.matches.joins(:match_night)
+                                      .merge(MatchNight.where(playoff: false))
+                                      .includes(MATCH_INCLUDES).to_a
+  end
+
+  def completed_results
+    @completed_results ||= regular_season_matches.map { |match| MatchResult.new(match) }.select(&:complete?)
   end
 
   def results_for(team)
-    home = regular_season_matches.where(home_team: team).map { |match| [MatchResult.new(match), :home] }
-    away = regular_season_matches.where(away_team: team).map { |match| [MatchResult.new(match), :away] }
+    completed_results.filter_map do |result|
+      side = side_for(result, team)
+      [result, side] if side
+    end
+  end
 
-    (home + away).select { |result, _side| result.complete? }
+  def side_for(result, team)
+    return :home if result.match.home_team == team
+    return :away if result.match.away_team == team
+
+    nil
   end
 
   def row_for(team)

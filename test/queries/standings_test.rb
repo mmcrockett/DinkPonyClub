@@ -53,6 +53,16 @@ class StandingsTest < ActiveSupport::TestCase
     assert_equal 1, Standings.new(seasons(:fall)).results_posted
   end
 
+  test 'reuses one eager loaded match set across rows and results_posted' do
+    standings = Standings.new(seasons(:fall))
+    standings.rows
+
+    assert_no_queries do
+      standings.results_posted
+      standings.rows
+    end
+  end
+
   test 'ties count neither as a win nor a loss' do
     charlie = tied_match_for.team
 
