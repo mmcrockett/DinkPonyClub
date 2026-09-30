@@ -23,10 +23,9 @@
     </div>
 
     <% if @row %>
-      <dl class="grid grid-cols-2 gap-2 sm:grid-cols-5">
+      <dl class="grid grid-cols-2 gap-2 sm:grid-cols-4">
         <% [[t('players.card.games'), @row.games], [t('players.show.wins'), @row.wins],
-            [t('players.show.losses'), @row.losses], [t('players.card.win_rate'), win_rate_label(@row)],
-            [t('players.show.points'), format_points(@row.points)]].each do |label, value| %>
+            [t('players.show.losses'), @row.losses], [t('players.card.win_rate'), win_rate_label(@row)]].each do |label, value| %>
           <div>
             <dt class="text-xs font-semibold uppercase text-gray-500"><%= label %></dt>
             <dd class="text-lg font-bold text-dpc-navy"><%= value %></dd>

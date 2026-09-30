@@ -15,6 +15,7 @@ Rails.application.routes.draw do
   resources :matches, only: %i[show edit update]
   resources :players, only: %i[index show edit update]
   get 'standings', to: 'standings#show', as: :standings
+  get 'stats', to: 'stats#show', as: :stats
 
   resources :match_nights, only: %i[index show], path: 'schedule' do
     resource :availability, only: %i[update]
