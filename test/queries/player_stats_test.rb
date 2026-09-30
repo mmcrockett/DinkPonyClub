@@ -39,4 +39,50 @@ class PlayerStatsTest < ActiveSupport::TestCase
     assert_equal 1, row.sweep_bonus_count
     assert_equal(5 + 0.5, row.points)
   end
+
+  test 'a player in a season game without a roster spot is a substitute row' do
+    sub = Player.create!(first_name: 'Sub', last_name: 'Stitute')
+    lineup = matches(:fall_alpha_bravo).lineups.create!(position: 2)
+    lineup.games.create!(number: 1, home_score: 11, away_score: 3,
+                         home_player_a: sub, home_player_b: players(:zoe),
+                         away_player_a: players(:wade), away_player_b: players(:sc_home_player1))
+
+    row = PlayerStats.new(seasons(:fall)).rows.find { |candidate| candidate.player == sub }
+
+    assert_predicate row, :substitute?
+    assert_nil row.team
+    assert_not row.captain
+    assert_equal 1, row.games
+    assert_equal 1, row.wins
+  end
+
+  test 'rows carry the roster spot captain flag' do
+    rows = PlayerStats.new(seasons(:fall)).rows.index_by(&:player)
+
+    assert rows[players(:ada)].captain
+    assert_not rows[players(:grace)].captain
+    assert_not rows[players(:ada)].substitute?
+  end
+
+  test 'query count does not grow with the number of players' do
+    baseline = count_queries { PlayerStats.new(seasons(:fall)).rows }
+
+    extra = Player.create!(first_name: 'Extra', last_name: 'Player')
+    RosterSpot.create!(season: seasons(:fall), team: teams(:alpha), player: extra)
+    lineup = matches(:fall_alpha_bravo).lineups.create!(position: 2)
+    lineup.games.create!(number: 1, home_score: 11, away_score: 3,
+                         home_player_a: extra, home_player_b: players(:zoe),
+                         away_player_a: players(:wade), away_player_b: players(:sc_home_player1))
+
+    assert_equal(baseline, count_queries { PlayerStats.new(seasons(:fall)).rows })
+  end
+
+  private
+
+  def count_queries(&)
+    count = 0
+    counter = ->(*, payload) { count += 1 unless payload[:name] == 'SCHEMA' || payload[:cached] }
+    ActiveSupport::Notifications.subscribed(counter, 'sql.active_record', &)
+    count
+  end
 end

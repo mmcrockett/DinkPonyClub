@@ -13,6 +13,8 @@ grace:
 sam:
   first_name: Sam
   last_name: Placeholder
+  contact_email: sam.contact@example.test
+  phone: 512-555-0101
 
 ben:
   first_name: Ben
