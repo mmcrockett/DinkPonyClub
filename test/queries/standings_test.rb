@@ -38,6 +38,31 @@ class StandingsTest < ActiveSupport::TestCase
     assert_equal [1, 1], rows.map(&:played)
   end
 
+  test 'results_posted counts complete regular season matches only' do
+    standings = Standings.new(seasons(:fall))
+
+    assert_equal 1, standings.results_posted
+
+    playoff_night = MatchNight.create!(season: seasons(:fall), played_on: Date.new(2026, 10, 1),
+                                       label: 'Final', playoff: true)
+    match = Match.create!(season: seasons(:fall), match_night: playoff_night,
+                          home_team: teams(:bravo), away_team: teams(:alpha))
+    build_split_lineup!(match, 1, [11, 4], [11, 6], [11, 8],
+                        players: [players(:sam), players(:ben), players(:ada), players(:grace)])
+
+    assert_equal 1, Standings.new(seasons(:fall)).results_posted
+  end
+
+  test 'reuses one eager loaded match set across rows and results_posted' do
+    standings = Standings.new(seasons(:fall))
+    standings.rows
+
+    assert_no_queries do
+      standings.results_posted
+      standings.rows
+    end
+  end
+
   test 'ties count neither as a win nor a loss' do
     charlie = tied_match_for.team
 

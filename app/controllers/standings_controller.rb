@@ -1,0 +1,14 @@
+# frozen_string_literal: true
+
+class StandingsController < ApplicationController
+  include SeasonScoped
+
+  before_action :require_sign_in
+
+  def show
+    @season = current_season
+    standings = Standings.new(@season) if @season
+    @rows = standings&.rows || []
+    @results_posted = standings&.results_posted || 0
+  end
+end
