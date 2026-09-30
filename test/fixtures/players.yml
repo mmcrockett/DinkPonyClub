@@ -1,26 +1,31 @@
 ada:
+  calendar_token: ada-calendar-token
   first_name: Ada
   last_name: Testerson
   email: ada@example.test
   google_uid: '100000000000000000001'
 
 grace:
+  calendar_token: grace-calendar-token
   first_name: Grace
   last_name: Fixture
   email: grace@example.test
   google_uid: '100000000000000000004'
 
 sam:
+  calendar_token: sam-calendar-token
   first_name: Sam
   last_name: Placeholder
   contact_email: sam.contact@example.test
   phone: 512-555-0101
 
 ben:
+  calendar_token: ben-calendar-token
   first_name: Ben
   last_name: Stubfield
 
 zoe:
+  calendar_token: zoe-calendar-token
   first_name: Zoe
   last_name: Adminson
   email: zoe@example.test
@@ -28,6 +33,7 @@ zoe:
   admin: true
 
 wade:
+  calendar_token: wade-calendar-token
   first_name: Wade
   last_name: Inactive
   email: wade@example.test
@@ -35,18 +41,21 @@ wade:
   status: inactive
 
 sc_home_captain:
+  calendar_token: sc_home_captain-calendar-token
   first_name: HomeCaptain
   last_name: Scorecard
   email: sc_home_captain@example.test
   google_uid: '200000000000000000001'
 
 sc_away_captain:
+  calendar_token: sc_away_captain-calendar-token
   first_name: AwayCaptain
   last_name: Scorecard
   email: sc_away_captain@example.test
   google_uid: '200000000000000000002'
 
 sc_other_captain:
+  calendar_token: sc_other_captain-calendar-token
   first_name: OtherCaptain
   last_name: Scorecard
   email: sc_other_captain@example.test
@@ -54,10 +63,12 @@ sc_other_captain:
 
 <% (1..14).each do |n| %>
 sc_home_player<%= n %>:
+  calendar_token: sc_home_player<%= n %>-calendar-token
   first_name: HomePlayer<%= n %>
   last_name: Scorecard
 
 sc_away_player<%= n %>:
+  calendar_token: sc_away_player<%= n %>-calendar-token
   first_name: AwayPlayer<%= n %>
   last_name: Scorecard
 <% end %>

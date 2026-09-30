@@ -19,6 +19,8 @@ class Player < ApplicationRecord
   scope :by_name, -> { order(:first_name, :last_name) }
   scope :admins, -> { where(admin: true) }
 
+  before_validation :assign_calendar_token, on: :create
+
   def self.authenticate_from_google(auth)
     return nil unless auth.extra.raw_info.email_verified
 
@@ -35,9 +37,17 @@ class Player < ApplicationRecord
     find_by(email: normalized) || raise(ActiveRecord::RecordNotFound, "No player with email #{normalized}.")
   end
 
+  def self.generate_calendar_token
+    SecureRandom.urlsafe_base64(24)
+  end
+
   def record_google_sign_in!(auth, email)
     update!(google_uid: auth.uid, email: self.email || email,
             avatar_url: auth.info.image, last_signed_in_at: Time.current)
+  end
+
+  def regenerate_calendar_token!
+    update!(calendar_token: self.class.generate_calendar_token)
   end
 
   def full_name
@@ -61,5 +71,11 @@ class Player < ApplicationRecord
 
   def captain_of_team?(season, team_id)
     active? && roster_spots.captains.exists?(season: season, team_id: team_id)
+  end
+
+  private
+
+  def assign_calendar_token
+    self.calendar_token ||= self.class.generate_calendar_token
   end
 end

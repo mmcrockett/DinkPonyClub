@@ -129,9 +129,30 @@ en:
       save: "Save"
     update:
       updated: "Profile saved."
+  calendar_tokens:
+    create:
+      regenerated: "Your calendar link was reset. Re-subscribe with the new link; the old one no longer works."
+  calendars:
+    show:
+      calendar_name: "Dink Pony Club - %{name}"
+      canceled_prefix: "[Canceled]"
+      your_availability: "Your availability: %{status}"
+      availability:
+        in: "In"
+        maybe: "Maybe"
+        out: "Out"
+        not_set: "Not set"
   profiles:
     show:
       edit_contact: "Edit contact details"
+      calendar:
+        title: "Calendar feed"
+        description: "Subscribe to see your team's match nights in Google or Apple Calendar. It updates as the schedule changes."
+        warning: "Anyone with this link can see your schedule and availability. Don't share it. If it leaks, reset it."
+        url_label: "Feed URL (paste into Google Calendar's \"From URL\")"
+        subscribe: "Subscribe in calendar app"
+        regenerate: "Reset link"
+        regenerate_confirm: "Reset your calendar link? Existing subscriptions stop updating until you subscribe again."
   standings:
     show:
       title: "The race for first."

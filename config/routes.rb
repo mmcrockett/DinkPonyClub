@@ -17,6 +17,7 @@ Rails.application.routes.draw do
   get 'standings', to: 'standings#show', as: :standings
   get 'stats', to: 'stats#show', as: :stats
 
+  get 'schedule.ics', to: 'calendars#show', as: :schedule_calendar, format: false, defaults: { format: :ics }
   resources :match_nights, only: %i[index show], path: 'schedule' do
     resource :availability, only: %i[update]
     patch 'availability/:player_id', to: 'availabilities#update_for_player', as: :player_availability
@@ -26,7 +27,9 @@ Rails.application.routes.draw do
   get    'auth/failure', to: 'sessions#failure'
   get    'test/sign_in/:player_id', to: 'test_sessions#create', as: :test_sign_in if Rails.env.test?
   delete 'sign_out', to: 'sessions#destroy', as: :sign_out
-  resource :profile, only: %i[show]
+  resource :profile, only: %i[show] do
+    resource :calendar_token, only: %i[create]
+  end
 
   namespace :admin do
     resources :players, only: %i[index new create edit update]
