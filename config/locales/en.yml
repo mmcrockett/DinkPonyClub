@@ -41,6 +41,8 @@ en:
     players:
       create:
         created: "%{name} was added."
+      form:
+        own_status: "%{status} - you can't change your own status."
       update:
         updated: "%{name} was updated."
   authentication:

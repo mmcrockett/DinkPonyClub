@@ -88,6 +88,32 @@ module Admin
       assert_predicate players(:ada).reload, :inactive?
     end
 
+    test 'ignores an attempt to change your own status' do
+      sign_in_as players(:zoe)
+
+      patch admin_player_path(players(:zoe)), params: { player: { status: 'inactive' } }
+
+      assert_predicate players(:zoe).reload, :active?
+    end
+
+    test 'omits the status select when an admin edits their own record' do
+      sign_in_as players(:zoe)
+
+      get edit_admin_player_path(players(:zoe))
+
+      assert_response :success
+      assert_select 'select[name="player[status]"]', count: 0
+    end
+
+    test 'treats an admin deactivated mid-session as signed out' do
+      sign_in_as players(:zoe)
+      players(:zoe).inactive!
+
+      get admin_players_path
+
+      assert_redirected_to root_path
+    end
+
     private
 
     def sign_in_as(player)

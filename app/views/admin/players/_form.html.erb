@@ -32,7 +32,11 @@
 
     <div class="flex flex-col gap-1">
       <%= form.label :status, class: 'text-sm font-semibold text-dpc-navy' %>
-      <%= form.select :status, Player.statuses.keys, {}, class: 'form-input' %>
+      <% if player == current_player %>
+        <p class="text-sm text-dpc-navy/70"><%= t('admin.players.form.own_status', status: player.status) %></p>
+      <% else %>
+        <%= form.select :status, Player.statuses.keys, {}, class: 'form-input' %>
+      <% end %>
     </div>
   </div>
 
