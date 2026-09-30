@@ -107,7 +107,11 @@ class RekeyAvailabilityToMatchNights < ActiveRecord::Migration[8.1]
     MigrationMatchAvailability.reset_column_information
     MigrationMatchAvailability.find_each do |record|
       match = MigrationMatch.find_by(match_night_id: record.match_night_id)
-      record.update_columns(match_id: match&.id)
+      # A night with no matches - availability on a TBD playoff matchup - has
+      # nothing to key to in the old shape, and a NULL fails the NOT NULL below.
+      next record.destroy unless match
+
+      record.update_columns(match_id: match.id)
     end
     change_column_null :match_availabilities, :match_id, false
     add_foreign_key :match_availabilities, :matches
@@ -119,12 +123,19 @@ class RekeyAvailabilityToMatchNights < ActiveRecord::Migration[8.1]
     remove_column :match_availabilities, :match_night_id
   end
 
+  def destroy_slot(slot)
+    MigrationSlotAvailability.where(match_slot_id: slot.id).delete_all
+    slot.destroy
+  end
+
   def revert_match_slots
     add_column :match_slots, :match_id, :bigint
     MigrationMatchSlot.reset_column_information
     MigrationMatchSlot.find_each do |record|
       match = MigrationMatch.find_by(match_night_id: record.match_night_id)
-      record.update_columns(match_id: match&.id)
+      next destroy_slot(record) unless match
+
+      record.update_columns(match_id: match.id)
     end
     change_column_null :match_slots, :match_id, false
     add_foreign_key :match_slots, :matches
