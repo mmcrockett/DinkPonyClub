@@ -12,8 +12,10 @@ class CreateMatchNights < ActiveRecord::Migration[8.1]
       t.boolean :playoff, null: false, default: false
 
       t.timestamps
-    end
 
-    add_index :match_nights, %i[season_id played_on]
+      # Inside create_table, not a trailing add_index: MySQL needs this index
+      # for the season_id FK, so reversing a trailing add_index fails.
+      t.index %i[season_id played_on]
+    end
   end
 end
