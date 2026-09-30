@@ -1,0 +1,30 @@
+<%= form_with url: url, method: :get, class: 'flex flex-wrap items-center gap-3', data: { controller: 'auto-submit' } do |form| %>
+  <% if Season.count > 1 %>
+    <%= form.select :season, Season.chronological.map { |s| [s.name, s.id] }, { selected: season&.id },
+                     class: 'rounded-md border border-gray-300 px-3 py-2', aria: { label: t('stats.filters.season') },
+                     data: { action: 'change->auto-submit#submit' } %>
+  <% elsif season %>
+    <%= form.hidden_field :season, value: season.id %>
+  <% end %>
+
+  <%= form.search_field :q, value: filter.query, placeholder: t('stats.filters.search'),
+                              class: 'rounded-md border border-gray-300 px-3 py-2', aria: { label: t('stats.filters.search') } %>
+
+  <%= form.select :team,
+                  options_for_select([[t('stats.filters.all_teams'), '']] + teams.map { |team| [team.name, team.id] } +
+                                     [[t('stats.filters.substitutes'), StatsFilter::SUBSTITUTES]], filter.team),
+                  {}, class: 'rounded-md border border-gray-300 px-3 py-2', aria: { label: t('stats.filters.team') },
+                      data: { action: 'change->auto-submit#submit' } %>
+
+  <label class="flex items-center gap-2 text-sm text-gray-600">
+    <%= form.check_box :hide_substitutes, { checked: filter.hide_substitutes?, data: { action: 'change->auto-submit#submit' } },
+                       '1', nil %>
+    <%= t('stats.filters.hide_substitutes') %>
+  </label>
+
+  <%= form.select :sort, options_for_select(StatsFilter::SORTS.map { |sort| [t("stats.filters.sorts.#{sort}"), sort] }, filter.sort),
+                  {}, class: 'rounded-md border border-gray-300 px-3 py-2', aria: { label: t('stats.filters.sort') },
+                      data: { action: 'change->auto-submit#submit' } %>
+
+  <%= form.submit t('stats.filters.apply'), class: 'btn bg-dpc-navy text-white', name: nil %>
+<% end %>

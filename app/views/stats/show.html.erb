@@ -1,0 +1,50 @@
+<% content_for :title, t('stats.show.title') %>
+
+<div class="flex flex-col gap-6">
+  <h1 class="text-2xl font-extrabold text-dpc-navy"><%= t('stats.show.title') %></h1>
+
+  <%= turbo_frame_tag 'stats', class: 'flex flex-col gap-6', data: { turbo_action: 'advance' } do %>
+    <% if @season %>
+      <p class="-mt-4 text-gray-500"><%= t('stats.show.subtitle', season: @season.name) %></p>
+    <% end %>
+
+    <%= render 'shared/stats_filters', url: stats_path, season: @season, teams: @teams, filter: @filter %>
+
+    <% if @rows.any? %>
+      <div class="overflow-x-auto rounded-md bg-white shadow-sm">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-gray-100 text-xs font-bold uppercase text-gray-500">
+              <th class="px-4 py-3 text-left"><%= t('stats.show.table.player') %></th>
+              <th class="px-4 py-3 text-left"><%= t('stats.show.table.team') %></th>
+              <th class="px-4 py-3 text-right"><%= t('stats.show.table.games') %></th>
+              <th class="px-4 py-3 text-right"><%= t('stats.show.table.wins') %></th>
+              <th class="px-4 py-3 text-right"><%= t('stats.show.table.losses') %></th>
+              <th class="px-4 py-3 text-right"><%= t('stats.show.table.win_pct') %></th>
+              <th class="px-4 py-3 text-right"><%= t('stats.show.table.sweep_bonus') %></th>
+              <th class="px-4 py-3 text-right"><%= t('stats.show.table.points') %></th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <% @rows.each do |row| %>
+              <tr id="<%= dom_id(row.player, :stats) %>">
+                <td class="px-4 py-3 font-bold text-dpc-navy"><%= row.player.full_name %></td>
+                <td class="px-4 py-3 <%= row.substitute? ? 'text-gray-400' : 'text-gray-600' %>"><%= stats_team_name(row) %></td>
+                <td class="px-4 py-3 text-right"><%= row.games %></td>
+                <td class="px-4 py-3 text-right"><%= row.wins %></td>
+                <td class="px-4 py-3 text-right"><%= row.losses %></td>
+                <td class="px-4 py-3 text-right"><%= stats_win_pct(row) %></td>
+                <td class="px-4 py-3 text-right"><%= format_points(row.sweep_bonus_points) %></td>
+                <td class="px-4 py-3 text-right font-bold"><%= format_points(row.points) %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% elsif @season&.roster_spots&.exists? %>
+      <p class="text-gray-500"><%= t('stats.show.no_matches') %></p>
+    <% else %>
+      <p class="text-gray-500"><%= t('stats.show.empty') %></p>
+    <% end %>
+  <% end %>
+</div>
