@@ -53,7 +53,9 @@ class MoveLineupPlayersToGames < ActiveRecord::Migration[8.1]
     MigrationGame.reset_column_information
     MigrationLineup.find_each do |lineup|
       game = MigrationGame.where(lineup_id: lineup.id).first
-      next unless game
+      # An empty lineup (the importer leaves one behind for an all-blank line)
+      # has no players to restore, and NULLs fail the NOT NULL calls below.
+      next lineup.destroy unless game
 
       lineup.update_columns(
         home_player_one_id: game.home_player_a_id, home_player_two_id: game.home_player_b_id,
@@ -65,6 +67,15 @@ class MoveLineupPlayersToGames < ActiveRecord::Migration[8.1]
     change_column_null :lineups, :home_player_two_id, false
     change_column_null :lineups, :away_player_one_id, false
     change_column_null :lineups, :away_player_two_id, false
+
+    remove_foreign_key :games, column: :home_player_a_id
+    remove_foreign_key :games, column: :home_player_b_id
+    remove_foreign_key :games, column: :away_player_a_id
+    remove_foreign_key :games, column: :away_player_b_id
+    remove_index :games, :home_player_a_id
+    remove_index :games, :home_player_b_id
+    remove_index :games, :away_player_a_id
+    remove_index :games, :away_player_b_id
 
     change_table :games, bulk: true do |t|
       t.remove :home_player_a_id, :home_player_b_id, :away_player_a_id, :away_player_b_id

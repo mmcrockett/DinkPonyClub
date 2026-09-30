@@ -78,6 +78,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_28_150004) do
     t.datetime "updated_at", null: false
     t.index ["away_team_id"], name: "index_matches_on_away_team_id"
     t.index ["home_team_id"], name: "index_matches_on_home_team_id"
+    t.index ["season_id"], name: "index_matches_on_season_id"
   end
 
   create_table "players", force: :cascade do |t|
