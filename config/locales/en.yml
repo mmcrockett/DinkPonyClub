@@ -30,6 +30,12 @@
 en:
   hello: "Hello world"
   sessions:
+    new:
+      title: "Sign in"
+      google: "Sign in with Google"
+      or: "No Google account? We'll email you a sign-in link."
+      email: "Email"
+      send_link: "Email me a link"
     create:
       not_on_roster: "That Google account is not on the Dink Pony Club roster."
       welcome: "Welcome, %{first_name}!"
@@ -37,6 +43,20 @@ en:
       signed_out: "Signed out."
     failure:
       failed: "Google sign-in failed. Please try again."
+  magic_links:
+    create:
+      sent: "Check your email. If that address is on the roster, a sign-in link is on its way."
+      rate_limited: "Too many sign-in requests. Please wait a few minutes and try again."
+    show:
+      title: "Sign in to Dink Pony Club"
+      prompt: "Press the button to finish signing in."
+      sign_in: "Sign in"
+    invalid: "That sign-in link has expired or was already used. Request a new one below."
+    redeem:
+      welcome: "Welcome, %{first_name}!"
+  magic_link_mailer:
+    sign_in:
+      subject: "Your Dink Pony Club sign-in link"
   admin:
     players:
       create:

@@ -26,6 +26,10 @@ Rails.application.routes.draw do
   get    'auth/failure', to: 'sessions#failure'
   get    'test/sign_in/:player_id', to: 'test_sessions#create', as: :test_sign_in if Rails.env.test?
   delete 'sign_out', to: 'sessions#destroy', as: :sign_out
+  get    'sign_in', to: 'sessions#new', as: :sign_in
+  resource :magic_link, only: %i[create show], path: 'sign_in/link' do
+    post :redeem
+  end
   resource :profile, only: %i[show]
 
   namespace :admin do

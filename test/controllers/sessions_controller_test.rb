@@ -1,6 +1,24 @@
 require 'test_helper'
 
 class SessionsControllerTest < ActionDispatch::IntegrationTest
+  test 'sign-in page offers Google and an emailed link' do
+    get sign_in_path
+
+    assert_response :success
+    assert_select "form[action='/auth/google_oauth2']"
+    assert_select "form[action='#{magic_link_path}'] input[type=email][name=email]"
+  end
+
+  test 'sign-in page sends signed-in players to their profile' do
+    mock_google_auth(email: players(:ada).email)
+    post '/auth/google_oauth2'
+    follow_redirect!
+
+    get sign_in_path
+
+    assert_redirected_to profile_path
+  end
+
   test 'signs in a player whose email is on the roster' do
     mock_google_auth(email: players(:ada).email)
 

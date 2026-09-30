@@ -1,0 +1,11 @@
+<% content_for :title, t('.title') %>
+
+<div class="mx-auto flex max-w-md flex-col gap-6">
+  <h1 class="text-2xl font-extrabold text-dpc-navy"><%= t('.title') %></h1>
+
+  <div class="flex flex-col gap-4 rounded-md bg-white p-5 shadow-sm">
+    <p class="text-sm text-dpc-navy/70"><%= t('.prompt') %></p>
+
+    <%= button_to t('.sign_in'), redeem_magic_link_path, params: { token: @token }, method: :post, class: 'btn btn-primary w-full' %>
+  </div>
+</div>
