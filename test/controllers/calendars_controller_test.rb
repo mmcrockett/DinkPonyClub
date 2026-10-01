@@ -125,6 +125,29 @@ class CalendarsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test 'a deleted slot invalidates the ETag' do
+    get schedule_calendar_path(token: players(:ada).calendar_token)
+    etag = response.headers['ETag']
+
+    match_slots(:fall_future_slot_three).destroy!
+    get schedule_calendar_path(token: players(:ada).calendar_token), headers: { 'If-None-Match' => etag }
+
+    assert_response :success
+  end
+
+  test 'a team rename invalidates the ETag' do
+    get schedule_calendar_path(token: players(:ada).calendar_token)
+    etag = response.headers['ETag']
+
+    travel 1.minute do
+      teams(:alpha).update!(name: 'Renamed Alpha')
+    end
+    get schedule_calendar_path(token: players(:ada).calendar_token), headers: { 'If-None-Match' => etag }
+
+    assert_response :success
+    assert_includes event_for(:fall_week_one).summary.to_s, 'Renamed Alpha'
+  end
+
   private
 
   def calendars

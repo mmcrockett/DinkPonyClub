@@ -38,6 +38,24 @@ class PlayerCalendarTest < ActiveSupport::TestCase
     assert_operator build(players(:ada), seasons(:fall)).last_modified, :>, calendar_before
   end
 
+  test 'cache_key changes when a slot is deleted' do
+    before = build(players(:ada), seasons(:fall)).cache_key
+
+    match_slots(:fall_future_slot_three).destroy!
+
+    assert_not_equal before, build(players(:ada), seasons(:fall)).cache_key
+  end
+
+  test 'last_modified follows a team rename' do
+    calendar_before = build(players(:ada), seasons(:fall)).last_modified
+
+    travel 1.minute do
+      teams(:alpha).update!(name: 'Renamed Alpha')
+    end
+
+    assert_operator build(players(:ada), seasons(:fall)).last_modified, :>, calendar_before
+  end
+
   private
 
   def build(player, season)

@@ -22,7 +22,7 @@ class PlayerCalendar
   end
 
   def cache_key
-    [season&.id, team&.id, match_nights.map(&:id), last_modified&.to_i]
+    [season&.id, team&.id, match_nights.map { |n| [n.id, n.match_slots.size, n.matches.size] }, last_modified&.to_i]
   end
 
   def to_ical
@@ -58,8 +58,8 @@ class PlayerCalendar
   end
 
   def updated_at_for(night)
-    [night.updated_at, *night.match_slots.map(&:updated_at), *night.matches.map(&:updated_at),
-     availabilities[night.id]&.updated_at].compact.max
+    teams = night.matches.flat_map { |match| [match.home_team, match.away_team] }
+    [night, *night.match_slots, *night.matches, *teams, availabilities[night.id]].filter_map { |r| r&.updated_at }.max
   end
 
   def event_for(night)
