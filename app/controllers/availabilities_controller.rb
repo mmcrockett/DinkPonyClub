@@ -61,7 +61,7 @@ class AvailabilitiesController < ApplicationController
   end
 
   def can_edit_own_availability?
-    @match_night.availability_open? || captain_or_admin?(@match_night.season)
+    !@match_night.canceled? && (@match_night.availability_open? || captain_or_admin?(@match_night.season))
   end
 
   def captain_for_team?(team_id)

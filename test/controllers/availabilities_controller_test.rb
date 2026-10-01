@@ -39,6 +39,15 @@ class AvailabilitiesControllerTest < ActionDispatch::IntegrationTest
     assert_nil @match_night.match_availabilities.find_by(player: players(:grace))
   end
 
+  test 'does not write for a canceled night even for an admin' do
+    sign_in_as(players(:zoe))
+    night = match_nights(:fall_canceled)
+
+    patch match_night_availability_path(night), params: { match_availability: { status: 'in' } }
+
+    assert_nil night.match_availabilities.find_by(player: players(:zoe))
+  end
+
   test 'a captain can still set their own availability after the cutoff' do
     sign_in_as_ada
 

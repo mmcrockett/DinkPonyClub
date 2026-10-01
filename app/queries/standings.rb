@@ -24,7 +24,7 @@ class Standings
 
   def regular_season_matches
     @regular_season_matches ||= season.matches.joins(:match_night)
-                                      .merge(MatchNight.where(playoff: false))
+                                      .merge(MatchNight.where(playoff: false, canceled: false))
                                       .includes(MATCH_INCLUDES).to_a
   end
 
