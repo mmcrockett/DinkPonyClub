@@ -1,0 +1,22 @@
+<p>Hi <%= @player.first_name %>,</p>
+
+<p>Here's what you owe for <%= @season.name %>:</p>
+
+<table cellpadding="4">
+  <% @charges.each do |charge| %>
+    <tr>
+      <td><%= charge.fee.name %></td>
+      <td align="right"><%= dollars(charge.balance_cents) %></td>
+    </tr>
+  <% end %>
+  <tr>
+    <td><strong>Total</strong></td>
+    <td align="right"><strong><%= dollars(@total_cents) %></strong></td>
+  </tr>
+</table>
+
+<% if @venmo_url %>
+  <p><%= link_to "Pay #{dollars(@total_cents)} with Venmo", @venmo_url %></p>
+<% end %>
+
+<p>If you've already paid, you can ignore this email.</p>
