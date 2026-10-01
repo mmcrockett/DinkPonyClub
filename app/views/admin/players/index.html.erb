@@ -4,6 +4,11 @@
     <div class="flex items-center gap-3">
       <%= link_to t('admin.rosters.show.title'), admin_roster_path, class: 'btn btn-secondary' %>
       <%= link_to t('admin.fees.index.title'), admin_fees_path, class: 'btn btn-secondary' %>
+      <% if current_season %>
+        <%= button_to t('admin.payment_requests.button'), admin_payment_requests_path(season: current_season),
+                      class: 'btn btn-secondary',
+                      form: { data: { turbo_confirm: t('admin.payment_requests.confirm_all', season: current_season.name) } } %>
+      <% end %>
       <%= link_to 'New player', new_admin_player_path, class: 'btn btn-primary' %>
     </div>
   </div>

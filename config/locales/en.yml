@@ -57,6 +57,9 @@ en:
   magic_link_mailer:
     sign_in:
       subject: "Your Dink Pony Club sign-in link"
+  payment_request_mailer:
+    request_payment:
+      subject: "Dink Pony Club - you owe %{total} for %{season}"
   admin:
     players:
       create:
@@ -95,6 +98,16 @@ en:
       update:
         saved: "Fees for %{name} were saved."
         has_payment: "%{fee} has a payment recorded - set paid to $0 before removing it."
+    payment_requests:
+      button: "Request payment"
+      confirm_all: "Email everyone who owes money for %{season}?"
+      create:
+        no_season: "No seasons exist yet."
+        sent:
+          zero: "No payment requests sent."
+          one: "Payment request sent to 1 player."
+          other: "Payment requests sent to %{count} players."
+        no_email: "No email on file for %{names}."
     rosters:
       show:
         title: "Roster & captains"

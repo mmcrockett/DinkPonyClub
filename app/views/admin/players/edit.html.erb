@@ -6,6 +6,10 @@
     <% fees = @season.fees.order(:name) %>
     <% if fees.any? %>
       <%= render 'admin/charges/form', player: @player, season: @season, fees: fees, charges: @charges %>
+      <% if @charges.values.any? { |charge| charge.balance_cents.positive? } %>
+        <%= button_to t('admin.payment_requests.button'), admin_player_payment_request_path(@player, season: @season),
+                      class: 'btn btn-secondary' %>
+      <% end %>
     <% else %>
       <p class="text-sm text-gray-500">
         <%= t('admin.charges.form.no_fees', season: @season.name) %>
