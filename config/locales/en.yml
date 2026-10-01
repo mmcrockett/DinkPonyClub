@@ -90,6 +90,8 @@ en:
       closed_note: "Contact your captain directly if you need to change."
       canceled: "Canceled"
       playoffs: "Playoffs"
+      scorecard: "Scorecard"
+      enter_results: "Enter results"
       final: "Final"
       scheduled: "Scheduled"
       vs: "vs"
