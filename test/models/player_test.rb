@@ -134,4 +134,34 @@ class PlayerTest < ActiveSupport::TestCase
 
     assert_not captain.captain_of_team?(seasons(:fall), team)
   end
+
+  test 'redeem_magic_link signs in the player once' do
+    token = players(:ada).generate_token_for(:magic_link)
+
+    assert_equal players(:ada), Player.redeem_magic_link(token)
+    assert_nil Player.redeem_magic_link(token)
+  end
+
+  test 'redeem_magic_link refuses an inactive player' do
+    assert_nil Player.redeem_magic_link(players(:wade).generate_token_for(:magic_link))
+  end
+
+  test 'redeem_magic_link refuses an expired token' do
+    token = players(:ada).generate_token_for(:magic_link)
+
+    travel 25.hours do
+      assert_nil Player.redeem_magic_link(token)
+    end
+  end
+
+  test 'redeem_magic_link refuses a token issued before an email change' do
+    token = players(:ada).generate_token_for(:magic_link)
+    players(:ada).update!(email: 'ada.new@example.test')
+
+    assert_nil Player.redeem_magic_link(token)
+  end
+
+  test 'redeem_magic_link refuses a garbage token' do
+    assert_nil Player.redeem_magic_link('not-a-token')
+  end
 end

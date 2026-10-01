@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 class ApplicationMailer < ActionMailer::Base
-  default from: 'from@example.com'
+  FALLBACK_FROM = 'noreply@dinkponyclub.org'
+
+  default from: lambda {
+    email_address_with_name(Rails.configuration.x.mail_from.presence || FALLBACK_FROM, 'Dink Pony Club')
+  }
   layout 'mailer'
 end
