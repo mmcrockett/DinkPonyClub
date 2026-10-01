@@ -4,7 +4,8 @@ module League
   class SnapshotImport
     class Report
       COUNTERS = %i[seasons_created seasons_matched teams_created teams_matched players_created players_matched
-                    roster_spots match_nights matches lineups games availabilities].freeze
+                    emails_backfilled roster_spots match_nights matches lineups games availabilities fees charges
+                    charges_paid].freeze
 
       attr_reader :warnings, :roster
 
@@ -16,6 +17,10 @@ module League
 
       COUNTERS.each do |counter|
         define_method("increment_#{counter}") { @counts[counter] += 1 }
+      end
+
+      def add(counter, amount)
+        @counts[counter] += amount
       end
 
       def count(counter)

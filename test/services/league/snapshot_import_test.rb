@@ -261,7 +261,130 @@ module League
       assert(report.warnings.any? { |message| message.include?('no roster for this season') })
     end
 
+    test 'backfills the email of a player matched by name who has none' do
+      @data['players'].find { |person| person['name'] == 'Ben Stubfield' }['email'] = 'Ben@Example.test'
+
+      report = SnapshotImport.new(@data).call
+
+      assert_equal 'ben@example.test', players(:ben).reload.email
+      assert_equal 1, report.count(:emails_backfilled)
+    end
+
+    test 'keeps the existing email of a player matched by name' do
+      @data['players'].find { |person| person['name'] == 'Grace Fixture' }['email'] = 'other@example.test'
+
+      SnapshotImport.new(@data).call
+
+      assert_equal 'grace@example.test', players(:grace).reload.email
+    end
+
+    test 'an export email owned by another player matches that player instead of backfilling' do
+      @data['players'].find { |person| person['name'] == 'Ben Stubfield' }['email'] = 'sam@example.test'
+
+      assert_nothing_raised { SnapshotImport.new(@data).call }
+      assert_nil players(:ben).reload.email
+      assert_equal 'sam@example.test', players(:sam).reload.email
+    end
+
+    test 'warns before FORCE destroys fees and recorded payments' do
+      current_season_with_fees
+      SnapshotImport.new(@data).call
+      charge_for(:grace, 'League fee').update!(paid_cents: 5000)
+
+      report = SnapshotImport.new(@data, force: true).call
+
+      assert(report.warnings.any? do |message|
+        message.include?('3 fee(s) and 13 charge(s) ($165.00 paid)')
+      end)
+    end
+
+    test 'warns when players are marked paid but the export has no league fee' do
+      current_season_with_fees
+      @data['fee'] = nil
+
+      report = SnapshotImport.new(@data).call
+
+      assert(report.warnings.any? { |message| message.include?('2 player(s) marked paid') })
+    end
+
+    test 'creates no fees for an archived season' do
+      @data['fee'] = 50
+      @data['players'].first['paid'] = true
+
+      SnapshotImport.new(@data).call
+
+      assert_empty Season.find_by(name: 'Spring 2025').fees
+    end
+
+    test 'charges every roster spot the league fee and marks paid players paid in full' do
+      current_season_with_fees
+
+      SnapshotImport.new(@data).call
+
+      league_fee = Season.find_by(name: 'Spring 2025').fees.find_by!(name: 'League fee')
+
+      assert_equal [5000, true], [league_fee.amount_cents, league_fee.applies_to_all?]
+      assert_equal 10, league_fee.charges.count
+      assert_equal 5000, charge_for(:ada, 'League fee').paid_cents
+      assert_equal 0, charge_for(:grace, 'League fee').paid_cents
+    end
+
+    test 'reports fee, charge and paid counts' do
+      current_season_with_fees
+
+      report = SnapshotImport.new(@data).call
+
+      assert_equal([3, 13, 3], %i[fees charges charges_paid].map { |counter| report.count(counter) })
+    end
+
+    test 'charges shirts and hats only to players who ordered them' do
+      current_season_with_fees
+
+      SnapshotImport.new(@data).call
+
+      assert_equal [3000, 3000], charge_for(:ada, 'Shirt').values_at(:amount_cents, :paid_cents)
+      assert_equal [3000, 0], charge_for(:grace, 'Shirt').values_at(:amount_cents, :paid_cents)
+      assert_equal [3500, 3500], charge_for(:grace, 'Hat').values_at(:amount_cents, :paid_cents)
+      assert_nil charge_for(:ada, 'Hat')
+      assert_nil charge_for(:sam, 'Shirt')
+    end
+
+    test 'warns about fee data on a sub instead of dropping it silently' do
+      current_season_with_fees
+
+      report = SnapshotImport.new(@data).call
+
+      assert(report.warnings.any? { |message| message.include?('sub@example.test') && message.include?('paid, hat') })
+    end
+
+    test 'a forced re-import replaces fees instead of duplicating them' do
+      current_season_with_fees
+      SnapshotImport.new(@data).call
+
+      SnapshotImport.new(@data, force: true).call
+
+      season = Season.find_by(name: 'Spring 2025')
+
+      assert_equal ['Hat', 'League fee', 'Shirt'], season.fees.order(:name).pluck(:name)
+      assert_equal 13, Charge.joins(:fee).where(fees: { season_id: season.id }).count
+    end
+
     private
+
+    def current_season_with_fees
+      @data['archived'] = false
+      @data['fee'] = 50
+      people = @data['players'].index_by { |person| person['name'] }
+      people['Ada Testerson'].merge!('paid' => true, 'shirt' => true, 'shirtPaid' => true)
+      people['Grace Fixture'].merge!('shirt' => true, 'hat' => true, 'hatPaid' => true)
+      people['sub@example.test'].merge!('paid' => true, 'hat' => true)
+    end
+
+    def charge_for(fixture, fee_name)
+      Charge.joins(:fee, :roster_spot)
+            .find_by(fees: { name: fee_name, season: Season.find_by(name: 'Spring 2025') },
+                     roster_spots: { player_id: players(fixture).id })
+    end
 
     def rays_lineup(position)
       Match.joins(:season).find_by(seasons: { name: 'Spring 2025' }, home_team: Team.find_by(name: 'Import Rays'))
