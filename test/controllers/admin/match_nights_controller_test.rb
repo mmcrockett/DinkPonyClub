@@ -5,7 +5,7 @@ module Admin
     test 'redirects a non-admin and leaves the night unchanged' do
       sign_in_as players(:ada)
 
-      patch admin_match_night_path(match_nights(:fall_upcoming)), params: { match_night: { canceled: true } }
+      patch admin_match_night_path(match_nights(:fall_upcoming))
 
       assert_redirected_to root_path
       assert_not match_nights(:fall_upcoming).reload.canceled?
@@ -14,18 +14,11 @@ module Admin
     test 'cancels a night for an admin' do
       sign_in_as players(:zoe)
 
-      patch admin_match_night_path(match_nights(:fall_upcoming)), params: { match_night: { canceled: true } }
+      patch admin_match_night_path(match_nights(:fall_upcoming))
 
       assert_redirected_to match_nights_path(season: seasons(:fall).id)
+      assert_equal 'Week 2 canceled.', flash[:notice]
       assert_predicate match_nights(:fall_upcoming).reload, :canceled?
-    end
-
-    test 'restores a canceled night for an admin' do
-      sign_in_as players(:zoe)
-
-      patch admin_match_night_path(match_nights(:fall_canceled)), params: { match_night: { canceled: false } }
-
-      assert_not match_nights(:fall_canceled).reload.canceled?
     end
 
     private
