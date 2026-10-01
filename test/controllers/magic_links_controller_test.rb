@@ -25,6 +25,17 @@ class MagicLinksControllerTest < ActionDispatch::IntegrationTest
     assert_equal I18n.t('magic_links.create.sent'), flash[:notice]
   end
 
+  test 'sends nothing for a blank email even when a player has no email' do
+    assert_nil players(:sam).email
+
+    assert_no_enqueued_emails do
+      post magic_link_path, params: { email: '  ' }
+    end
+
+    assert_redirected_to sign_in_path
+    assert_equal I18n.t('magic_links.create.sent'), flash[:notice]
+  end
+
   test 'sends nothing to an inactive player' do
     assert_no_enqueued_emails do
       post magic_link_path, params: { email: players(:wade).email }

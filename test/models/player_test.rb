@@ -140,6 +140,13 @@ class PlayerTest < ActiveSupport::TestCase
     end
   end
 
+  test 'redeem_magic_link refuses a token issued before an email change' do
+    token = players(:ada).generate_token_for(:magic_link)
+    players(:ada).update!(email: 'ada.new@example.test')
+
+    assert_nil Player.redeem_magic_link(token)
+  end
+
   test 'redeem_magic_link refuses a garbage token' do
     assert_nil Player.redeem_magic_link('not-a-token')
   end

@@ -14,7 +14,8 @@ class MagicLinksController < ApplicationController
   end
 
   def create
-    player = Player.active.find_by(email: params[:email].to_s.strip.downcase.presence)
+    email = params[:email].to_s.strip.downcase.presence
+    player = email && Player.active.find_by(email: email)
     MagicLinkMailer.sign_in(player).deliver_later if player
 
     redirect_to sign_in_path, notice: t('.sent')

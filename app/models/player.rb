@@ -20,7 +20,7 @@ class Player < ApplicationRecord
   scope :admins, -> { where(admin: true) }
 
   generates_token_for :magic_link, expires_in: 24.hours do
-    last_signed_in_at
+    [last_signed_in_at, email]
   end
 
   def self.authenticate_from_google(auth)
