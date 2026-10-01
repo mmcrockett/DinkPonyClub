@@ -1,14 +1,24 @@
 require 'test_helper'
 
 class CalendarsControllerTest < ActionDispatch::IntegrationTest
-  test 'returns a text/calendar feed of the player team nights only' do
+  test 'returns a text/calendar feed of the player team nights and nights with no matches yet' do
     get schedule_calendar_path(token: players(:ada).calendar_token)
 
     assert_response :success
     assert_equal 'text/calendar', response.media_type
     uids = events.map { |event| event.uid.to_s }
 
-    assert_equal [uid_for(:fall_week_one), uid_for(:fall_upcoming)], uids
+    assert_equal %i[fall_week_one fall_upcoming fall_canceled fall_playoff].map { |name| uid_for(name) }, uids
+  end
+
+  test 'a night with no matches yet is an all-day event titled with its label' do
+    get schedule_calendar_path(token: players(:ada).calendar_token)
+
+    event = event_for(:fall_playoff)
+
+    assert_equal 'Semifinal', event.summary.to_s
+    assert_equal match_nights(:fall_playoff).played_on, event.dtstart.value
+    assert_equal match_nights(:fall_playoff).played_on + 1, event.dtend.value
   end
 
   test 'serves the feed without a browser user agent or session' do
