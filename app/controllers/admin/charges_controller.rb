@@ -17,7 +17,12 @@ module Admin
     private
 
     def save_charges
-      Charge.transaction { @season.fees.each { |fee| apply(fee, entries[fee.id.to_s]) } }
+      Charge.transaction do
+        @season.fees.each do |fee|
+          entry = entries[fee.id.to_s]
+          apply(fee, entry) if entry
+        end
+      end
     end
 
     def back_to_player
@@ -36,11 +41,19 @@ module Admin
 
     def apply(fee, entry)
       charge = @spot.charges.find_by(fee: fee)
-      return charge&.destroy! unless entry&.dig(:charged) == '1'
+      return remove(charge, fee) unless entry[:charged] == '1'
 
       charge ||= @spot.charges.new(fee: fee, amount_cents: fee.amount_cents)
       charge.paid_cents = paid_cents(charge, entry)
       charge.save!
+    end
+
+    def remove(charge, fee)
+      return unless charge
+      return charge.destroy! if charge.paid_cents.zero?
+
+      charge.errors.add(:base, t('admin.charges.update.has_payment', fee: fee.name))
+      raise ActiveRecord::RecordInvalid, charge
     end
 
     def paid_cents(charge, entry)

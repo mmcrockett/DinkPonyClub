@@ -91,6 +91,7 @@ en:
         manage_fees: "Manage fees"
       update:
         saved: "Fees for %{name} were saved."
+        has_payment: "%{fee} has a payment recorded - set paid to $0 before removing it."
     rosters:
       show:
         title: "Roster & captains"

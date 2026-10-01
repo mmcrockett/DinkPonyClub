@@ -21,6 +21,11 @@ class FeeTest < ActiveSupport::TestCase
     assert_not Fee.new(season: seasons(:fall), name: 'Food', amount: '0').valid?
   end
 
+  test 'rejects a non-finite amount without raising' do
+    assert_not Fee.new(season: seasons(:fall), name: 'Food', amount: 'NaN').valid?
+    assert_not Fee.new(season: seasons(:fall), name: 'Food', amount: 'Infinity').valid?
+  end
+
   test 'an everyone fee charges every rostered player' do
     fee = seasons(:fall).fees.create!(name: 'Food', amount: '10', applies_to_all: true)
 

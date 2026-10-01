@@ -21,6 +21,13 @@ class ChargeTest < ActiveSupport::TestCase
     assert_not charge.valid?
   end
 
+  test 'paid cannot exceed the amount' do
+    charge = charges(:ada_league_fee)
+    charge.paid_cents = charge.amount_cents + 1
+
+    assert_not charge.valid?
+  end
+
   test 'a new roster spot picks up the everyone fees only' do
     spot = RosterSpot.create!(season: seasons(:fall), team: teams(:bravo), player: players(:zoe))
 

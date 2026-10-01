@@ -3,7 +3,7 @@
 module Dollars
   def self.to_cents(value)
     (BigDecimal(value.to_s.delete('$,').strip) * 100).round
-  rescue ArgumentError
+  rescue ArgumentError, FloatDomainError
     nil
   end
 end

@@ -37,12 +37,42 @@ module Admin
 
     test 'opts a player into one fee and out of another' do
       sign_in_as players(:zoe)
+      charges(:ada_league_fee).update!(paid_cents: 0)
       league_charge_id = charges(:ada_league_fee).id
 
-      update_charges(players(:ada), fees(:fall_hat) => { charged: '1', paid: '5' })
+      update_charges(players(:ada),
+                     fees(:fall_league_fee) => { paid: '0' },
+                     fees(:fall_hat) => { charged: '1', paid: '5' })
 
       assert_not Charge.exists?(league_charge_id)
       assert_equal 500, Charge.find_by!(fee: fees(:fall_hat)).paid_cents
+    end
+
+    test 'blocks unchecking a fee that has a payment' do
+      sign_in_as players(:zoe)
+
+      update_charges(players(:ada), fees(:fall_league_fee) => { paid: '20' })
+
+      assert_equal 2000, charges(:ada_league_fee).reload.paid_cents
+      assert_match(/payment recorded/, flash[:alert])
+    end
+
+    test 'leaves a fee alone when the form did not include it' do
+      sign_in_as players(:zoe)
+      fee = seasons(:fall).fees.create!(name: 'Food', amount: '10', applies_to_all: true)
+
+      update_charges(players(:ada), fees(:fall_league_fee) => { charged: '1', paid: '20' })
+
+      assert Charge.exists?(fee: fee, roster_spot: roster_spots(:fall_alpha_ada))
+    end
+
+    test 'rejects a payment larger than the amount' do
+      sign_in_as players(:zoe)
+
+      update_charges(players(:ada), fees(:fall_league_fee) => { charged: '1', paid: '999' })
+
+      assert_equal 2000, charges(:ada_league_fee).reload.paid_cents
+      assert_predicate flash[:alert], :present?
     end
 
     test 'rejects an unparseable payment and changes nothing' do
