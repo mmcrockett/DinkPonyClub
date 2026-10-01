@@ -12,7 +12,8 @@ class MatchNightsController < ApplicationController
     @match_nights = load_match_nights(@season)
     @next_match_night = next_match_night_of(@match_nights)
     @weeks_completed = weeks_completed_in(@match_nights)
-    @team_view = params[:view] == 'availability' && captain_or_admin?(@season)
+    @can_enter_results = captain_or_admin?(@season)
+    @team_view = params[:view] == 'availability' && @can_enter_results
     @team_rosters = team_rosters_for(@season) if @team_view
     @availabilities = current_player_availabilities(@match_nights)
   end
@@ -20,7 +21,8 @@ class MatchNightsController < ApplicationController
   def show
     @match_night = MatchNight.includes(MATCH_NIGHT_INCLUDES).find(params.expect(:id))
     @season = @match_night.season
-    @team_view = params[:view] == 'availability' && captain_or_admin?(@season)
+    @can_enter_results = captain_or_admin?(@season)
+    @team_view = params[:view] == 'availability' && @can_enter_results
     @team_rosters = team_rosters_for(@season) if @team_view
     @availabilities = current_player_availabilities([@match_night])
   end
