@@ -46,6 +46,12 @@ module League
       assert_not RosterSpot.find_by(season: season, player: players(:grace)).captain?
     end
 
+    test 'the report points the operator at the admin roster screen for captains' do
+      report = SnapshotImport.new(@data).call
+
+      assert_includes report.to_s, '/admin/roster'
+    end
+
     test 'imports the SUBS entry as a player with no roster spot and a warning' do
       report = SnapshotImport.new(@data).call
 

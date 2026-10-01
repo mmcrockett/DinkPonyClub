@@ -23,6 +23,7 @@ module Admin
 
       assert_response :success
       assert_select 'li', text: /#{players(:ada).full_name}/
+      assert_select "a[href='#{admin_roster_path}']"
     end
 
     test 'renders the new player form for an admin' do
