@@ -61,6 +61,22 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
     assert_select "##{dom_id(match_nights(:fall_upcoming), :team_availability)}"
   end
 
+  test 'team view drops the personal availability buttons so each player is set in one place' do
+    sign_in_as_ada
+
+    get match_nights_path(view: 'availability')
+
+    assert_select "##{dom_id(match_nights(:fall_upcoming), :my_availability)}", count: 0
+  end
+
+  test 'matchups view keeps the personal availability buttons' do
+    sign_in_as_ada
+
+    get match_nights_path
+
+    assert_select "##{dom_id(match_nights(:fall_upcoming), :my_availability)}"
+  end
+
   test 'shows team availability for an admin' do
     sign_in_as(players(:zoe))
 

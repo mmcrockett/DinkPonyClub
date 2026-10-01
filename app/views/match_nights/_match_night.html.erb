@@ -53,7 +53,7 @@
 
   <% if @team_view %>
     <%= render 'team_availability', match_night: match_night %>
+  <% else %>
+    <%= render 'availability_control', match_night: match_night %>
   <% end %>
-
-  <%= render 'availability_control', match_night: match_night %>
 </div>

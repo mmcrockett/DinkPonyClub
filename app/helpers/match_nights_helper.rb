@@ -28,9 +28,27 @@ module MatchNightsHelper
     number_with_precision(points, precision: 1, strip_insignificant_zeros: true)
   end
 
-  AVAILABILITY_STATUS_KEYS = { 'in' => 'im_in', 'maybe' => 'maybe', 'out' => 'im_out' }.freeze
+  AVAILABILITY_CHECKED_CLASSES = {
+    'in' => 'has-checked:border-dpc-green has-checked:bg-dpc-green has-checked:text-white',
+    'maybe' => 'has-checked:border-amber-400 has-checked:bg-amber-400 has-checked:text-dpc-navy',
+    'out' => 'has-checked:border-red-700 has-checked:bg-red-700 has-checked:text-white'
+  }.freeze
+
+  AVAILABILITY_SELECTED_CLASSES = {
+    'in' => 'border-dpc-green bg-dpc-green text-white',
+    'maybe' => 'border-amber-400 bg-amber-400 text-dpc-navy',
+    'out' => 'border-red-700 bg-red-700 text-white'
+  }.freeze
 
   def availability_status_label(status)
-    t("match_nights.schedule.#{AVAILABILITY_STATUS_KEYS.fetch(status)}")
+    t("match_nights.schedule.availability.#{status}")
+  end
+
+  def availability_checked_classes(status)
+    AVAILABILITY_CHECKED_CLASSES.fetch(status)
+  end
+
+  def availability_selected_classes(status)
+    AVAILABILITY_SELECTED_CLASSES.fetch(status)
   end
 end

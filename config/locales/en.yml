@@ -131,9 +131,10 @@ en:
       weeks_completed: "Weeks completed"
       up_next: "Up next"
       are_you_playing: "Are you playing?"
-      im_in: "I'm in"
-      maybe: "Maybe"
-      im_out: "I'm out"
+      availability:
+        in: "In"
+        maybe: "Maybe"
+        out: "Out"
       closed_note: "Contact your captain directly if you need to change."
       canceled: "Canceled"
       playoffs: "Playoffs"
