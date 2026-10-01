@@ -65,6 +65,10 @@ en:
         own_status: "%{status} - you can't change your own status."
       update:
         updated: "%{name} was updated."
+    match_nights:
+      update:
+        canceled: "%{label} canceled."
+        restored: "%{label} restored."
     fees:
       no_season: "No seasons exist yet."
       index:
@@ -139,6 +143,9 @@ en:
       team_counts_html: "%{in} in &middot; %{maybe} maybe &middot; %{unanswered} ???"
       closed_note: "Contact your captain directly if you need to change."
       canceled: "Canceled"
+      cancel_night: "Cancel night"
+      restore_night: "Restore night"
+      confirm_cancel: "Cancel this match night? Players will see it as canceled."
       playoffs: "Playoffs"
       scorecard: "Scorecard"
       enter_results: "Enter results"

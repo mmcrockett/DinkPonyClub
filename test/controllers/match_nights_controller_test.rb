@@ -194,6 +194,23 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
     assert_select "#{frame} a[href=?]", edit_match_path(matches(:fall_alpha_bravo)), count: 0
   end
 
+  test 'shows cancel and restore buttons to an admin' do
+    sign_in_as(players(:zoe))
+
+    get match_nights_path
+
+    assert_select "##{dom_id(match_nights(:fall_upcoming))} button", text: 'Cancel night'
+    assert_select "##{dom_id(match_nights(:fall_canceled))} button", text: 'Restore night'
+  end
+
+  test 'hides cancel buttons from a captain' do
+    sign_in_as_ada
+
+    get match_nights_path
+
+    assert_select 'button', text: /Cancel night|Restore night/, count: 0
+  end
+
   test 'treats a player deactivated mid-session as signed out' do
     sign_in_as_ada
     players(:ada).inactive!
