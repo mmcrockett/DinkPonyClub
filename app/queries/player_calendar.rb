@@ -45,8 +45,8 @@ class PlayerCalendar
   def load_match_nights
     return [] unless team
 
-    season.match_nights
-          .where(id: team.matches_in(season).select(:match_night_id))
+    season.match_nights.where(id: team.matches_in(season).select(:match_night_id))
+          .or(season.match_nights.without_matches)
           .chronological
           .includes(NIGHT_INCLUDES)
           .to_a

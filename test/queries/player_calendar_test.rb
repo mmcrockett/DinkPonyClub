@@ -1,10 +1,19 @@
 require 'test_helper'
 
 class PlayerCalendarTest < ActiveSupport::TestCase
-  test 'lists only the nights where the player team plays, in order' do
+  test 'lists the nights where the player team plays and nights with no matches yet, in order' do
     calendar = build(players(:ada), seasons(:fall))
 
-    assert_equal [match_nights(:fall_week_one), match_nights(:fall_upcoming)], calendar.match_nights
+    assert_equal %i[fall_week_one fall_upcoming fall_canceled fall_playoff].map { |name| match_nights(name) },
+                 calendar.match_nights
+  end
+
+  test 'leaves out a night where only other teams play' do
+    RosterSpot.create!(season: seasons(:fall), team: teams(:sc_other), player: players(:zoe))
+    Match.create!(season: seasons(:fall), match_night: match_nights(:fall_playoff),
+                  home_team: teams(:bravo), away_team: teams(:sc_other))
+
+    assert_not_includes build(players(:ada), seasons(:fall)).match_nights, match_nights(:fall_playoff)
   end
 
   test 'has no nights and no last_modified without a roster spot' do
