@@ -205,6 +205,13 @@ en:
         subscribe: "Subscribe in calendar app"
         regenerate: "Reset link"
         regenerate_confirm: "Reset your calendar link? Existing subscriptions stop updating until you subscribe again."
+  home:
+    index:
+      standings: "%{season} standings"
+      full_standings: "Full standings"
+      welcome: "Dink Pony Club"
+      sign_in_prompt: "Sign in to see the schedule, standings and your availability."
+      sign_in: "Sign in"
   standings:
     show:
       title: "The race for first."
