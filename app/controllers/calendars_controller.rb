@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
 # Calendar clients fetch with no cookies and non-browser user agents, so this
-# skips ApplicationController's session auth and allow_browser gate; the token
-# in the URL is the credential.
-class CalendarsController < ActionController::Base # rubocop:disable Rails/ApplicationController
+# skips session auth and the allow_browser gate; the token in the URL is the
+# credential.
+class CalendarsController < ApplicationController
   include SeasonScoped
+
+  skip_before_action :set_current_player
 
   def show
     player = Player.active.find_by(calendar_token: params[:token].to_s)
@@ -14,5 +16,11 @@ class CalendarsController < ActionController::Base # rubocop:disable Rails/Appli
     return unless stale?(etag: calendar.cache_key, last_modified: calendar.last_modified, public: false)
 
     render plain: calendar.to_ical, content_type: 'text/calendar'
+  end
+
+  private
+
+  def skip_browser_gate?
+    true
   end
 end
