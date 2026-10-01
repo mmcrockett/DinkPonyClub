@@ -9,7 +9,7 @@
       <div>
         <p class="font-bold text-dpc-navy"><%= team.name %></p>
         <p class="mb-2 text-xs text-gray-500">
-          <%= t('match_nights.schedule.team_counts', in: counts['in'].to_i, maybe: counts['maybe'].to_i,
+          <%= t('match_nights.schedule.team_counts_html', in: counts['in'].to_i, maybe: counts['maybe'].to_i,
                                                     unanswered: counts[nil].to_i) %>
         </p>
 

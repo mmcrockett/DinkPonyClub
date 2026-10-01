@@ -136,7 +136,7 @@ en:
         maybe: "Maybe"
         out: "Out"
         unanswered: "???"
-      team_counts: "%{in} in · %{maybe} maybe · %{unanswered} ???"
+      team_counts_html: "%{in} in &middot; %{maybe} maybe &middot; %{unanswered} ???"
       closed_note: "Contact your captain directly if you need to change."
       canceled: "Canceled"
       playoffs: "Playoffs"
