@@ -77,6 +77,28 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
     assert_select "##{dom_id(match_nights(:fall_upcoming), :my_availability)}"
   end
 
+  test 'leaves every personal button unselected on a night the player has not answered' do
+    sign_in_as_ada
+
+    get match_nights_path
+
+    frame = "##{dom_id(match_nights(:fall_playoff), :my_availability)}"
+
+    assert_select "#{frame} input[type=radio]", minimum: 3
+    assert_select "#{frame} input[type=radio][checked]", count: 0
+  end
+
+  test 'team view shows ??? for players who have not answered and counts them separately' do
+    sign_in_as_ada
+
+    get match_nights_path(view: 'availability')
+
+    frame = "##{dom_id(match_nights(:fall_upcoming), :team_availability)}"
+
+    assert_select "#{frame} option[selected][disabled][value='']", text: '???', minimum: 1
+    assert_select "#{frame} p", text: /\d+ in · \d+ maybe · [1-9]\d* \?\?\?/
+  end
+
   test 'shows team availability for an admin' do
     sign_in_as(players(:zoe))
 

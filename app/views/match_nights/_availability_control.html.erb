@@ -1,5 +1,5 @@
 <% availability = @availabilities[match_night.id] %>
-<% status = availability&.status || 'maybe' %>
+<% status = availability&.status %>
 <% editable = match_night.availability_open? || captain_or_admin?(match_night.season) %>
 
 <%= turbo_frame_tag dom_id(match_night, :my_availability) do %>

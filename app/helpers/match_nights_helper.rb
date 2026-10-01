@@ -44,6 +44,11 @@ module MatchNightsHelper
     t("match_nights.schedule.availability.#{status}")
   end
 
+  def availability_select_options(status)
+    options = MatchAvailability.statuses.keys.map { |value| [availability_status_label(value), value] }
+    status ? options : [[t('match_nights.schedule.availability.unanswered'), ''], *options]
+  end
+
   def availability_checked_classes(status)
     AVAILABILITY_CHECKED_CLASSES.fetch(status)
   end
