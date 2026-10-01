@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 class SessionsController < ApplicationController
+  def new
+    redirect_to profile_path if signed_in?
+  end
+
   def create
     player = Player.authenticate_from_google(request.env['omniauth.auth'])
 

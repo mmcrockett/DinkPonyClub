@@ -60,16 +60,26 @@ Rails.application.configure do
   # config.action_mailer.raise_delivery_errors = false
 
   # Set host to be used by links generated in mailer templates.
-  config.action_mailer.default_url_options = { host: 'example.com' }
+  config.action_mailer.default_url_options = { host: 'dinkponyclub.org', protocol: 'https' }
 
-  # Specify outgoing SMTP server. Remember to add smtp/* credentials via bin/rails credentials:edit.
-  # config.action_mailer.smtp_settings = {
-  #   user_name: Rails.application.credentials.dig(:smtp, :user_name),
-  #   password: Rails.application.credentials.dig(:smtp, :password),
-  #   address: "smtp.example.com",
-  #   port: 587,
-  #   authentication: :plain
-  # }
+  # DreamHost SMTP. Nil-safe like config/initializers/omniauth.rb so the app boots before the
+  # mailbox exists; delivery just fails until smtp.user_name/password are set.
+  smtp_credential = lambda do |key|
+    ENV["SMTP_#{key.to_s.upcase}"].presence || Rails.application.credentials.dig(:smtp, key)
+  rescue ActiveSupport::MessageEncryptor::InvalidMessage
+    nil
+  end
+
+  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.smtp_settings = {
+    address: smtp_credential.call(:address) || 'smtp.dreamhost.com',
+    port: (smtp_credential.call(:port) || 587).to_i,
+    user_name: smtp_credential.call(:user_name),
+    password: smtp_credential.call(:password),
+    authentication: :plain,
+    enable_starttls_auto: true
+  }
+  config.x.mail_from = smtp_credential.call(:from) || smtp_credential.call(:user_name)
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
   # the I18n.default_locale when a translation cannot be found).

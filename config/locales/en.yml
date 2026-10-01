@@ -30,6 +30,12 @@
 en:
   hello: "Hello world"
   sessions:
+    new:
+      title: "Sign in"
+      google: "Sign in with Google"
+      or: "No Google account? We'll email you a sign-in link."
+      email: "Email"
+      send_link: "Email me a link"
     create:
       not_on_roster: "That Google account is not on the Dink Pony Club roster."
       welcome: "Welcome, %{first_name}!"
@@ -37,6 +43,20 @@ en:
       signed_out: "Signed out."
     failure:
       failed: "Google sign-in failed. Please try again."
+  magic_links:
+    create:
+      sent: "Check your email. If that address is on the roster, a sign-in link is on its way."
+      rate_limited: "Too many sign-in requests. Please wait a few minutes and try again."
+    show:
+      title: "Sign in to Dink Pony Club"
+      prompt: "Press the button to finish signing in."
+      sign_in: "Sign in"
+    invalid: "That sign-in link has expired or was already used. Request a new one below."
+    redeem:
+      welcome: "Welcome, %{first_name}!"
+  magic_link_mailer:
+    sign_in:
+      subject: "Your Dink Pony Club sign-in link"
   admin:
     players:
       create:
@@ -45,6 +65,18 @@ en:
         own_status: "%{status} - you can't change your own status."
       update:
         updated: "%{name} was updated."
+    rosters:
+      show:
+        title: "Roster & captains"
+        subtitle: "Tick every captain on each team - co-captains are fine."
+        scope_note: "Captains can enter or edit any scorecard and see team availability for the whole season, but can only change availability for players on their own team."
+        captain: "Captain"
+        draft_rank: "Draft rank %{rank}"
+        save: "Save captains"
+        empty: "No players are rostered for this season yet."
+        no_season: "No seasons exist yet."
+      update:
+        saved: "Captains for %{season} were saved."
   authentication:
     require_sign_in: "Sign in to view that page."
     require_admin: "You don't have permission to view that page."
@@ -78,6 +110,8 @@ en:
       closed_note: "Contact your captain directly if you need to change."
       canceled: "Canceled"
       playoffs: "Playoffs"
+      scorecard: "Scorecard"
+      enter_results: "Enter results"
       final: "Final"
       scheduled: "Scheduled"
       vs: "vs"

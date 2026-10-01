@@ -19,6 +19,10 @@ class Player < ApplicationRecord
   scope :by_name, -> { order(:first_name, :last_name) }
   scope :admins, -> { where(admin: true) }
 
+  generates_token_for :magic_link, expires_in: 24.hours do
+    [last_signed_in_at, email]
+  end
+
   def self.authenticate_from_google(auth)
     return nil unless auth.extra.raw_info.email_verified
 
@@ -33,6 +37,14 @@ class Player < ApplicationRecord
   def self.locate_by_email!(email)
     normalized = email.to_s.strip.downcase
     find_by(email: normalized) || raise(ActiveRecord::RecordNotFound, "No player with email #{normalized}.")
+  end
+
+  def self.redeem_magic_link(token)
+    player = find_by_token_for(:magic_link, token)
+    return nil unless player&.active?
+
+    player.update!(last_signed_in_at: Time.current)
+    player
   end
 
   def record_google_sign_in!(auth, email)

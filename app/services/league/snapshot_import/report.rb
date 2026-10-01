@@ -47,8 +47,7 @@ module League
       end
 
       def captain_note
-        'Set any remaining captains via Admin > Players or ' \
-          '`RosterSpot.find_by(...).update!(captain: true)`.'
+        'Set any remaining captains via Admin > Players > Roster & captains (/admin/roster).'
       end
 
       def warnings_block

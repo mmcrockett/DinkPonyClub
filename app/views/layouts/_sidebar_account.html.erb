@@ -22,4 +22,9 @@
     <%= render 'shared/icon', name: 'user', class: 'h-5 w-5 shrink-0' %>
     <span class="sidebar-label">Sign in with Google</span>
   <% end %>
+
+  <%= link_to sign_in_path, class: 'nav-link gap-3 px-4 text-sm font-medium text-white/80 hover:text-white', title: 'Sign in with email' do %>
+    <%= render 'shared/icon', name: 'envelope', class: 'h-5 w-5 shrink-0' %>
+    <span class="sidebar-label">Sign in with email</span>
+  <% end %>
 <% end %>

@@ -98,6 +98,52 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
     assert_select "##{dom_id(match_nights(:fall_week_one))}"
   end
 
+  test 'links a completed match to its scorecard for a plain player' do
+    sign_in_as(players(:grace))
+
+    get match_nights_path
+
+    assert_select "##{dom_id(match_nights(:fall_week_one))} a[href=?]", match_path(matches(:fall_alpha_bravo)),
+                  text: 'Scorecard'
+  end
+
+  test 'shows an enter results link on an unplayed match for a captain' do
+    sign_in_as_ada
+
+    get match_nights_path
+
+    assert_select "##{dom_id(match_nights(:fall_upcoming))} a[href=?]", edit_match_path(matches(:fall_future)),
+                  text: 'Enter results'
+  end
+
+  test 'shows an enter results link on an unplayed match for an admin' do
+    sign_in_as(players(:zoe))
+
+    get match_nights_path
+
+    assert_select "##{dom_id(match_nights(:fall_upcoming))} a[href=?]", edit_match_path(matches(:fall_future))
+  end
+
+  test 'hides the enter results link from a plain player' do
+    sign_in_as(players(:grace))
+
+    get match_nights_path
+
+    assert_select "##{dom_id(match_nights(:fall_upcoming))} a[href=?]", edit_match_path(matches(:fall_future)),
+                  count: 0
+  end
+
+  test 'links a completed match to its scorecard rather than the edit form for a captain' do
+    sign_in_as_ada
+
+    get match_nights_path
+
+    frame = "##{dom_id(match_nights(:fall_week_one))}"
+
+    assert_select "#{frame} a[href=?]", match_path(matches(:fall_alpha_bravo))
+    assert_select "#{frame} a[href=?]", edit_match_path(matches(:fall_alpha_bravo)), count: 0
+  end
+
   test 'treats a player deactivated mid-session as signed out' do
     sign_in_as_ada
     players(:ada).inactive!

@@ -1,0 +1,60 @@
+<% content_for :title, t('.title') %>
+
+<div class="mx-auto flex max-w-2xl flex-col gap-6">
+  <div class="flex flex-wrap items-start justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-extrabold text-dpc-navy"><%= t('.title') %></h1>
+      <p class="text-gray-500"><%= t('.subtitle') %></p>
+    </div>
+
+    <% if Season.count > 1 %>
+      <%= form_with url: admin_roster_path, method: :get, class: 'flex items-center gap-2' do |form| %>
+        <%= form.select :season, Season.chronological.map { |s| [s.name, s.id] }, { selected: @season&.id },
+                         class: 'rounded-md border border-gray-300 px-3 py-2' %>
+        <%= form.submit 'Go', name: nil, class: 'btn bg-dpc-navy text-white' %>
+      <% end %>
+    <% end %>
+  </div>
+
+  <% if @season.nil? %>
+    <p class="text-gray-500"><%= t('.no_season') %></p>
+  <% elsif @spots_by_team.empty? %>
+    <p class="text-gray-500"><%= t('.empty') %></p>
+  <% else %>
+    <p class="rounded-md bg-white px-4 py-3 text-sm text-dpc-navy/70 shadow-sm"><%= t('.scope_note') %></p>
+
+    <%= form_with url: admin_roster_path, method: :patch, class: 'flex flex-col gap-4' do |form| %>
+      <%= hidden_field_tag :season, @season.id %>
+      <%= hidden_field_tag 'captain_ids[]', '', id: nil %>
+
+      <% @spots_by_team.each do |team, spots| %>
+        <section id="<%= dom_id(team, :roster) %>" class="flex flex-col gap-2 rounded-md bg-white p-5 shadow-sm">
+          <h2 class="text-lg font-bold text-dpc-navy"><%= team.name %></h2>
+
+          <ul class="flex flex-col divide-y divide-gray-100">
+            <% spots.each do |spot| %>
+              <li id="<%= dom_id(spot) %>" class="flex min-h-11 items-center justify-between gap-4 py-2">
+                <div>
+                  <span class="font-semibold"><%= spot.player.full_name %></span>
+                  <% if spot.draft_rank.present? %>
+                    <span class="ml-2 text-xs text-gray-500"><%= t('.draft_rank', rank: spot.draft_rank) %></span>
+                  <% end %>
+                </div>
+                <label class="flex items-center gap-2 text-sm font-semibold text-dpc-navy">
+                  <%= check_box_tag 'captain_ids[]', spot.id, spot.captain?, id: dom_id(spot, :captain),
+                                    class: 'size-5 accent-dpc-navy' %>
+                  <%= t('.captain') %>
+                </label>
+              </li>
+            <% end %>
+          </ul>
+        </section>
+      <% end %>
+
+      <div class="flex items-center justify-end gap-3">
+        <%= link_to 'Cancel', admin_players_path, class: 'btn btn-secondary' %>
+        <%= form.submit t('.save'), class: 'btn btn-primary' %>
+      </div>
+    <% end %>
+  <% end %>
+</div>
