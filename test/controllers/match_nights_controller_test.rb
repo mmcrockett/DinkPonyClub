@@ -77,6 +77,18 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
     assert_select "##{dom_id(match_nights(:fall_upcoming), :my_availability)}"
   end
 
+  test 'highlights only the saved answer when availability is closed for a non-captain' do
+    sign_in_as(players(:grace))
+
+    travel_to(match_nights(:fall_upcoming).availability_cutoff_at + 1.minute) { get match_nights_path }
+
+    frame = "##{dom_id(match_nights(:fall_upcoming), :my_availability)}"
+
+    assert_select "#{frame} input[type=radio]", count: 0
+    assert_select "#{frame} span.bg-red-700", text: 'Out'
+    assert_select "#{frame} span.bg-dpc-green, #{frame} span.bg-amber-400", count: 0
+  end
+
   test 'leaves every personal button unselected on a night the player has not answered' do
     sign_in_as_ada
 
@@ -96,7 +108,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
     frame = "##{dom_id(match_nights(:fall_upcoming), :team_availability)}"
 
     assert_select "#{frame} option[selected][disabled][value='']", text: '???', minimum: 1
-    assert_select "#{frame} p", text: /\d+ in · \d+ maybe · [1-9]\d* \?\?\?/
+    assert_select "#{frame} p", text: /\d+ in \u00b7 \d+ maybe \u00b7 [1-9]\d* \?\?\?/
   end
 
   test 'shows team availability for an admin' do
