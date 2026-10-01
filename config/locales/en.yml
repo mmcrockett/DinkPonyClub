@@ -65,6 +65,18 @@ en:
         own_status: "%{status} - you can't change your own status."
       update:
         updated: "%{name} was updated."
+    rosters:
+      show:
+        title: "Roster & captains"
+        subtitle: "Tick every captain on each team - co-captains are fine."
+        scope_note: "Captains can enter or edit any scorecard and see team availability for the whole season, but can only change availability for players on their own team."
+        captain: "Captain"
+        draft_rank: "Draft rank %{rank}"
+        save: "Save captains"
+        empty: "No players are rostered for this season yet."
+        no_season: "No seasons exist yet."
+      update:
+        saved: "Captains for %{season} were saved."
   authentication:
     require_sign_in: "Sign in to view that page."
     require_admin: "You don't have permission to view that page."
@@ -98,6 +110,8 @@ en:
       closed_note: "Contact your captain directly if you need to change."
       canceled: "Canceled"
       playoffs: "Playoffs"
+      scorecard: "Scorecard"
+      enter_results: "Enter results"
       final: "Final"
       scheduled: "Scheduled"
       vs: "vs"

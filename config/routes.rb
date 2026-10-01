@@ -34,6 +34,7 @@ Rails.application.routes.draw do
 
   namespace :admin do
     resources :players, only: %i[index new create edit update]
+    resource :roster, only: %i[show update]
   end
 
   # Defines the root path route ("/")
