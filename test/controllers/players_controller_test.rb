@@ -13,11 +13,11 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'signed out visitors are redirected' do
-    get players_path
+    get season_players_path(seasons(:fall))
 
     assert_redirected_to root_path
 
-    get player_path(players(:sam))
+    get season_player_path(seasons(:fall), players(:sam))
 
     assert_redirected_to root_path
   end
@@ -25,7 +25,7 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
   test 'lists rostered players and substitutes' do
     sign_in_as(players(:ada))
 
-    get players_path
+    get season_players_path(seasons(:fall))
 
     assert_response :success
     %i[ada grace sam ben].each { |name| assert_select "##{dom_id(players(name), :stats)}" }
@@ -35,7 +35,7 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
   test 'admins see who owes money' do
     sign_in_as(players(:zoe))
 
-    get players_path
+    get season_players_path(seasons(:fall))
 
     assert_select "##{dom_id(players(:ada), :stats)} .owes-chip"
     assert_select "##{dom_id(players(:grace), :stats)} .owes-chip", count: 0
@@ -44,7 +44,7 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
   test 'captains see who owes money' do
     sign_in_as(players(:ada))
 
-    get players_path
+    get season_players_path(seasons(:fall))
 
     assert_select "##{dom_id(players(:ada), :stats)} .owes-chip"
   end
@@ -52,7 +52,7 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
   test 'regular players do not see who owes money' do
     sign_in_as(players(:grace))
 
-    get players_path
+    get season_players_path(seasons(:fall))
 
     assert_select '.owes-chip', count: 0
   end
@@ -60,9 +60,9 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
   test 'links each name to the player profile' do
     sign_in_as(players(:ada))
 
-    get players_path
+    get season_players_path(seasons(:fall))
 
-    profile = player_path(players(:grace), season: seasons(:fall).id)
+    profile = season_player_path(seasons(:fall), players(:grace))
 
     assert_select "##{dom_id(players(:grace), :stats)} a[href='#{profile}']", text: players(:grace).full_name
   end
@@ -70,7 +70,7 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
   test 'shows a dash for a player with no games' do
     sign_in_as(players(:ada))
 
-    get players_path
+    get season_players_path(seasons(:fall))
 
     assert_select "##{dom_id(@bench, :stats)} td", text: '-'
   end
@@ -78,7 +78,7 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
   test 'shows win pct' do
     sign_in_as(players(:ada))
 
-    get players_path
+    get season_players_path(seasons(:fall))
 
     assert_select "##{dom_id(@substitute, :stats)} td", text: '100%'
   end
@@ -86,7 +86,7 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
   test 'omits per-player sweep bonus and points columns' do
     sign_in_as(players(:ada))
 
-    get players_path
+    get season_players_path(seasons(:fall))
 
     assert_select 'th', text: 'Sweep bonus', count: 0
     assert_select 'th', text: 'Points', count: 0
@@ -95,7 +95,7 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
   test 'filters submit on change with no apply button' do
     sign_in_as(players(:ada))
 
-    get players_path
+    get season_players_path(seasons(:fall))
 
     assert_select 'form[data-controller="auto-submit"] input[type=submit]', count: 0
     assert_select 'input[name=q][data-action="input->auto-submit#debouncedSubmit"]'
@@ -105,7 +105,7 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
   test 'shows the C chip only for captains' do
     sign_in_as(players(:ada))
 
-    get players_path
+    get season_players_path(seasons(:fall))
 
     assert_select "##{dom_id(players(:ada), :stats)} .captain-chip", text: 'C'
     assert_select "##{dom_id(players(:grace), :stats)} .captain-chip", count: 0
@@ -115,7 +115,7 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
   test 'searches by name' do
     sign_in_as(players(:ada))
 
-    get players_path(q: 'grace')
+    get season_players_path(seasons(:fall), q: 'grace')
 
     assert_select 'tbody tr', count: 1
     assert_select "##{dom_id(players(:grace), :stats)}"
@@ -124,7 +124,7 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
   test 'filters by team' do
     sign_in_as(players(:ada))
 
-    get players_path(team: teams(:bravo).id)
+    get season_players_path(seasons(:fall), team: teams(:bravo).id)
 
     assert_equal ids(players(:ben), @bench, players(:sam)).sort, row_ids.sort
   end
@@ -132,7 +132,7 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
   test 'filters to substitutes' do
     sign_in_as(players(:ada))
 
-    get players_path(team: 'substitutes')
+    get season_players_path(seasons(:fall), team: 'substitutes')
 
     assert_equal ids(@substitute), row_ids
   end
@@ -140,7 +140,7 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
   test 'hides substitutes' do
     sign_in_as(players(:ada))
 
-    get players_path(hide_substitutes: '1')
+    get season_players_path(seasons(:fall), hide_substitutes: '1')
 
     assert_select "##{dom_id(@substitute, :stats)}", count: 0
     assert_select "##{dom_id(players(:ada), :stats)}"
@@ -149,7 +149,7 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
   test 'shows a message when filters match nobody' do
     sign_in_as(players(:ada))
 
-    get players_path(q: 'nobody')
+    get season_players_path(seasons(:fall), q: 'nobody')
 
     assert_select 'table', count: 0
     assert_select 'p', text: 'No players match these filters.'
@@ -158,7 +158,7 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
   test 'sorts by name by default' do
     sign_in_as(players(:ada))
 
-    get players_path
+    get season_players_path(seasons(:fall))
 
     assert_equal ids(players(:ada), players(:ben), @bench, players(:grace), players(:sam), @substitute), row_ids
   end
@@ -166,7 +166,7 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
   test 'sorts by name descending' do
     sign_in_as(players(:ada))
 
-    get players_path(sort: 'name', dir: 'desc')
+    get season_players_path(seasons(:fall), sort: 'name', dir: 'desc')
 
     assert_equal ids(@substitute, players(:sam), players(:grace), @bench, players(:ben), players(:ada)), row_ids
   end
@@ -174,7 +174,7 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
   test 'sorts by win pct descending with zero-game players last' do
     sign_in_as(players(:ada))
 
-    get players_path(sort: 'win_pct', dir: 'desc')
+    get season_players_path(seasons(:fall), sort: 'win_pct', dir: 'desc')
 
     assert_equal ids(@substitute, players(:ben), players(:ada), players(:grace), players(:sam), @bench), row_ids
   end
@@ -182,7 +182,7 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
   test 'sorts by win pct ascending with zero-game players last' do
     sign_in_as(players(:ada))
 
-    get players_path(sort: 'win_pct', dir: 'asc')
+    get season_players_path(seasons(:fall), sort: 'win_pct', dir: 'asc')
 
     assert_equal ids(players(:ada), players(:grace), players(:sam), players(:ben), @substitute, @bench), row_ids
   end
@@ -190,7 +190,7 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
   test 'sorts by team with substitutes last' do
     sign_in_as(players(:ada))
 
-    get players_path(sort: 'team')
+    get season_players_path(seasons(:fall), sort: 'team')
 
     assert_equal ids(players(:ada), players(:grace), players(:ben), @bench, players(:sam), @substitute), row_ids
   end
@@ -198,7 +198,7 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
   test 'sorts by games with most games first by default' do
     sign_in_as(players(:ada))
 
-    get players_path(sort: 'games')
+    get season_players_path(seasons(:fall), sort: 'games')
 
     assert_equal ids(players(:ada), players(:ben), players(:grace), players(:sam), @substitute, @bench), row_ids
   end
@@ -206,19 +206,18 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
   test 'header links sort by that column and reverse the active one' do
     sign_in_as(players(:ada))
 
-    get players_path(q: 'a', sort: 'win_pct', dir: 'desc')
+    fall = seasons(:fall)
+    get season_players_path(fall, q: 'a', sort: 'win_pct', dir: 'desc')
 
-    kept = { season: seasons(:fall).id, q: 'a' }
-
-    assert_select "th[aria-sort=descending] a[href='#{players_path(**kept, sort: 'win_pct', dir: 'asc')}']"
-    assert_select "th[aria-sort=none] a[href='#{players_path(**kept, sort: 'wins', dir: 'desc')}']"
-    assert_select "th[aria-sort=none] a[href='#{players_path(**kept, sort: 'name', dir: 'asc')}']"
+    assert_select "th[aria-sort=descending] a[href='#{season_players_path(fall, q: 'a', sort: 'win_pct', dir: 'asc')}']"
+    assert_select "th[aria-sort=none] a[href='#{season_players_path(fall, q: 'a', sort: 'wins', dir: 'desc')}']"
+    assert_select "th[aria-sort=none] a[href='#{season_players_path(fall, q: 'a', sort: 'name', dir: 'asc')}']"
   end
 
   test 'filters keep the current sort' do
     sign_in_as(players(:ada))
 
-    get players_path(sort: 'wins', dir: 'asc')
+    get season_players_path(seasons(:fall), sort: 'wins', dir: 'asc')
 
     assert_select 'input[type=hidden][name=sort][value=wins]'
     assert_select 'input[type=hidden][name=dir][value=asc]'
@@ -227,7 +226,7 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
   test 'scopes to the requested season' do
     sign_in_as(players(:ada))
 
-    get players_path(season: seasons(:spring).id)
+    get season_players_path(seasons(:spring))
 
     assert_equal ids(players(:ada)), row_ids
   end
@@ -236,7 +235,7 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
     season = Season.create!(name: 'Winter 2027', starts_on: Date.new(2027, 1, 4))
     sign_in_as(players(:ada))
 
-    get players_path(season: season.id)
+    get season_players_path(season)
 
     assert_response :success
     assert_select 'p', text: 'No players are rostered for this season yet.'
@@ -245,9 +244,9 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
   test 'sidebar has one Players entry and no Stats entry' do
     sign_in_as(players(:ada))
 
-    get players_path
+    get season_players_path(seasons(:fall))
 
-    assert_select "aside a[href='#{players_path}']", text: /Players/, count: 1
+    assert_select "aside a[href='#{season_players_path(seasons(:fall))}']", text: /Players/, count: 1
     assert_select 'aside a', text: /Stats/, count: 0
   end
 
@@ -267,7 +266,7 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
   test 'profile shows this season line results' do
     sign_in_as(players(:grace))
 
-    get player_path(players(:ada))
+    get season_player_path(seasons(:fall), players(:ada))
 
     assert_response :success
     assert_select 'h1', text: players(:ada).full_name
@@ -279,7 +278,7 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
   test 'profile never exposes the calendar feed token, even on your own page' do
     sign_in_as(players(:ada))
 
-    get player_path(players(:ada))
+    get season_player_path(seasons(:fall), players(:ada))
 
     assert_response :success
     assert_not_includes response.body, players(:ada).calendar_token
@@ -288,7 +287,7 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
   test 'profile shows scores from the away side for an away player' do
     sign_in_as(players(:grace))
 
-    get player_path(players(:sam))
+    get season_player_path(seasons(:fall), players(:sam))
 
     assert_select "##{dom_id(lineups(:fall_alpha_bravo_one), :result)}", text: /4-11, 11-6, 10-12/
   end
@@ -296,7 +295,7 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
   test 'profile has no edit link' do
     sign_in_as(players(:grace))
 
-    get player_path(players(:grace))
+    get season_player_path(seasons(:fall), players(:grace))
 
     assert_select 'a', text: 'Edit profile', count: 0
   end
@@ -304,7 +303,7 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
   test 'a plain player sees the captains-only message instead of contact details' do
     sign_in_as(players(:grace))
 
-    get player_path(players(:sam))
+    get season_player_path(seasons(:fall), players(:sam))
 
     assert_select 'p', text: CONTACT_HIDDEN
     assert_not_includes response.body, 'sam@example.test'
@@ -314,7 +313,7 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
   test 'a captain sees the sign-in email and phone on the profile' do
     sign_in_as(players(:ada))
 
-    get player_path(players(:sam))
+    get season_player_path(seasons(:fall), players(:sam))
 
     assert_select "a[href='mailto:sam@example.test']"
     assert_select "a[href='tel:512-555-0101']"
@@ -323,7 +322,7 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
   test 'an admin sees the sign-in email and phone on the profile' do
     sign_in_as(players(:zoe))
 
-    get player_path(players(:sam))
+    get season_player_path(seasons(:fall), players(:sam))
 
     assert_select "a[href='mailto:sam@example.test']"
     assert_select "a[href='tel:512-555-0101']"
@@ -333,7 +332,7 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
     players(:sam).update!(contact_email: 'legacy@example.test')
     sign_in_as(players(:ada))
 
-    get player_path(players(:sam))
+    get season_player_path(seasons(:fall), players(:sam))
 
     assert_not_includes response.body, 'legacy@example.test'
   end
@@ -341,7 +340,7 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
   test 'contact visibility follows the viewed season' do
     sign_in_as(players(:sc_home_captain))
 
-    get player_path(players(:sam), season: seasons(:fall).id)
+    get season_player_path(seasons(:fall), players(:sam))
 
     assert_not_includes response.body, 'sam@example.test'
   end

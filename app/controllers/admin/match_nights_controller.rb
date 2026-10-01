@@ -8,7 +8,7 @@ module Admin
       match_night = MatchNight.find(params.expect(:id))
       match_night.update!(canceled: true)
 
-      redirect_back_or_to match_nights_path(season: match_night.season_id),
+      redirect_back_or_to season_match_nights_path(match_night.season),
                           notice: t('.canceled', label: match_night.label)
     end
   end

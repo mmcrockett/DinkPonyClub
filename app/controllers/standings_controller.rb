@@ -4,6 +4,7 @@ class StandingsController < ApplicationController
   include SeasonScoped
 
   before_action :require_sign_in
+  before_action :redirect_to_season_scope
 
   def show
     @season = current_season

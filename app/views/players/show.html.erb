@@ -1,7 +1,9 @@
 <% content_for :title, @player.full_name %>
 
 <div class="mx-auto flex max-w-3xl flex-col gap-6">
-  <%= link_to t('players.show.back'), players_path(season: @season&.id), class: 'text-sm font-semibold text-dpc-navy underline' %>
+  <%= render 'shared/season_breadcrumb', season: @season %>
+
+  <%= link_to t('players.show.back'), @season ? season_players_path(@season) : players_path, class: 'text-sm font-semibold text-dpc-navy underline' %>
 
   <div class="flex flex-col gap-4 rounded-md bg-white p-5 shadow-sm">
     <div class="flex items-center gap-4">

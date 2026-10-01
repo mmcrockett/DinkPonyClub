@@ -12,4 +12,12 @@ class Season < ApplicationRecord
 
   scope :chronological, -> { order(:starts_on) }
   scope :current, -> { where(starts_on: ..Date.current).where(ends_on: Date.current..).order(:starts_on) }
+
+  def self.default
+    current.first || chronological.last
+  end
+
+  def to_param
+    "#{id}-#{name.parameterize}"
+  end
 end

@@ -1,6 +1,8 @@
 <% content_for :title, t('match_nights.schedule.title') %>
 
 <div class="flex flex-col gap-6">
+  <%= render 'shared/season_breadcrumb', season: @season %>
+
   <div class="flex flex-wrap items-start justify-between gap-4">
     <div>
       <h1 class="text-2xl font-extrabold text-dpc-navy"><%= t('match_nights.schedule.title') %></h1>
@@ -8,17 +10,9 @@
     </div>
 
     <div class="flex items-center gap-3">
-      <% if Season.count > 1 %>
-        <%= form_with url: match_nights_path, method: :get, class: 'flex items-center gap-2' do |form| %>
-          <%= form.select :season, Season.chronological.map { |s| [s.name, s.id] }, { selected: @season&.id },
-                           class: 'rounded-md border border-gray-300 px-3 py-2' %>
-          <%= form.submit 'Go', class: 'btn bg-dpc-navy text-white' %>
-        <% end %>
-      <% end %>
-
       <% if captain_or_admin?(@season) %>
         <%= link_to(@team_view ? t('match_nights.schedule.show_matchups') : t('match_nights.schedule.team_availability'),
-                     match_nights_path(season: @season&.id, view: @team_view ? nil : 'availability'),
+                     url_for(view: @team_view ? nil : 'availability'),
                      class: 'btn border border-dpc-navy text-dpc-navy') %>
       <% end %>
     </div>

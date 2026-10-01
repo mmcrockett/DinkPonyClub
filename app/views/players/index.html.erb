@@ -1,6 +1,8 @@
 <% content_for :title, t('players.index.title') %>
 
 <div class="flex flex-col gap-6">
+  <%= render 'shared/season_breadcrumb', season: @season %>
+
   <h1 class="text-2xl font-extrabold text-dpc-navy"><%= t('players.index.title') %></h1>
 
   <%= turbo_frame_tag 'players', class: 'flex flex-col gap-6', data: { turbo_action: 'advance' } do %>
@@ -27,7 +29,7 @@
             <% @rows.each do |row| %>
               <tr id="<%= dom_id(row.player, :stats) %>">
                 <td class="px-4 py-3 font-bold text-dpc-navy">
-                  <%= link_to row.player.full_name, player_path(row.player, season: @season.id),
+                  <%= link_to row.player.full_name, season_player_path(@season, row.player),
                               class: 'hover:underline', data: { turbo_frame: '_top' } %>
                   <% if @owing_ids.include?(row.player.id) %>
                     <span class="owes-chip ml-1 inline-block align-middle text-amber-600"

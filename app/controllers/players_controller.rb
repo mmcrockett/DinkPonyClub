@@ -7,6 +7,7 @@ class PlayersController < ApplicationController
                        'games.away_player_a_id = :id OR games.away_player_b_id = :id'
 
   before_action :require_sign_in
+  before_action :redirect_to_season_scope
 
   def index
     @season = current_season

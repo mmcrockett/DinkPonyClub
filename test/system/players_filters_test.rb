@@ -4,7 +4,7 @@ class PlayersFiltersTest < ApplicationSystemTestCase
   include ActionView::RecordIdentifier
 
   test 'typing in the search filters the table and keeps focus in the field' do
-    sign_in_as players(:ada), return_to: players_path
+    sign_in_as players(:ada), return_to: season_players_path(seasons(:fall))
 
     assert_selector "##{dom_id(players(:sam), :stats)}"
 
@@ -20,7 +20,7 @@ class PlayersFiltersTest < ApplicationSystemTestCase
   end
 
   test 'a trailing space in the search keeps the typed text without resubmitting forever' do
-    sign_in_as players(:ada), return_to: players_path
+    sign_in_as players(:ada), return_to: season_players_path(seasons(:fall))
 
     fill_in 'q', with: 'gra '
 
@@ -35,7 +35,7 @@ class PlayersFiltersTest < ApplicationSystemTestCase
   end
 
   test 'clicking a column header sorts, and clicking again reverses' do
-    sign_in_as players(:ada), return_to: players_path
+    sign_in_as players(:ada), return_to: season_players_path(seasons(:fall))
 
     click_link 'Player'
 
