@@ -7,7 +7,7 @@ class ScheduleAvailabilityTest < ApplicationSystemTestCase
     sign_in_as players(:ada), return_to: match_nights_path
 
     within("##{dom_id(match_nights(:fall_upcoming))}") do
-      assert_selector 'label', text: "I'm in"
+      assert_selector 'label', exact_text: 'In'
 
       find('label', text: 'Maybe').click
     end

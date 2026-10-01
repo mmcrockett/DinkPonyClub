@@ -1,5 +1,5 @@
 <% availability = @availabilities[match_night.id] %>
-<% status = availability&.status || 'maybe' %>
+<% status = availability&.status %>
 <% editable = match_night.availability_open? || captain_or_admin?(match_night.season) %>
 
 <%= turbo_frame_tag dom_id(match_night, :my_availability) do %>
@@ -10,12 +10,12 @@
       <%= form_with url: match_night_availability_path(match_night), method: :patch, scope: :match_availability,
                      data: { controller: 'availability' }, class: 'flex gap-1' do |form| %>
         <% MatchAvailability.statuses.each_key do |value| %>
-          <label class="touch-target rounded-md px-3 border border-gray-300">
+          <label class="touch-target cursor-pointer rounded-md border border-gray-300 px-3 font-medium
+                        has-checked:font-bold has-focus-visible:ring-2 has-focus-visible:ring-dpc-navy
+                        <%= availability_checked_classes(value) %>">
             <%= form.radio_button :status, value, checked: status == value,
-                                   class: 'sr-only peer', data: { action: 'change->availability#submit' } %>
-            <span class="flex items-center peer-checked:font-bold peer-checked:text-dpc-navy">
-              <%= availability_status_label(value) %>
-            </span>
+                                   class: 'sr-only', data: { action: 'change->availability#submit' } %>
+            <%= availability_status_label(value) %>
           </label>
         <% end %>
         <%= form.submit 'Save', class: 'sr-only' %>
@@ -24,8 +24,8 @@
       <div class="flex flex-col items-end gap-1">
         <div class="flex gap-1">
           <% MatchAvailability.statuses.each_key do |value| %>
-            <span class="touch-target rounded-md px-3 border border-gray-200 text-gray-400
-                          <%= 'font-bold text-dpc-navy border-dpc-navy' if status == value %>">
+            <span class="touch-target rounded-md border px-3
+                          <%= status == value ? "font-bold #{availability_selected_classes(value)}" : 'border-gray-200 text-gray-400' %>">
               <%= availability_status_label(value) %>
             </span>
           <% end %>
