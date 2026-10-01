@@ -22,6 +22,7 @@ Metrics/BlockLength:
   Exclude:
     - "db/**/*"
     - "config/environments/**/*"
+    - "config/routes.rb"
 Metrics/ClassLength:
   Exclude:
     - "db/**/*"
