@@ -14,6 +14,14 @@ module NavigationHelper
     items
   end
 
+  def app_version
+    ENV['APP_VERSION'].presence
+  end
+
+  def app_revision
+    ENV['KAMAL_VERSION'].to_s.first(7).presence
+  end
+
   def sidebar_expanded?
     cookies[:sidebar] != 'collapsed'
   end
