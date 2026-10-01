@@ -73,6 +73,36 @@ module Admin
       assert_equal 'Updated', players(:ada).reload.first_name
     end
 
+    test 'the edit form has a phone field' do
+      sign_in_as players(:zoe)
+
+      get edit_admin_player_path(players(:sam))
+
+      assert_select 'input[type=tel][name="player[phone]"][value="512-555-0101"]'
+    end
+
+    test 'sets a player phone' do
+      sign_in_as players(:zoe)
+
+      patch admin_player_path(players(:ada)), params: { player: { phone: '512-555-0142' } }
+
+      assert_redirected_to admin_players_path
+      assert_equal '512-555-0142', players(:ada).reload.phone
+    end
+
+    test 'a non-admin cannot reach the edit form or set a phone' do
+      sign_in_as players(:ada)
+
+      get edit_admin_player_path(players(:sam))
+
+      assert_redirected_to root_path
+
+      patch admin_player_path(players(:sam)), params: { player: { phone: '999' } }
+
+      assert_redirected_to root_path
+      assert_equal '512-555-0101', players(:sam).reload.phone
+    end
+
     test 'ignores an admin param on update' do
       sign_in_as players(:zoe)
 
