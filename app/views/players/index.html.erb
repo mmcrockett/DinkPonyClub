@@ -29,6 +29,12 @@
                 <td class="px-4 py-3 font-bold text-dpc-navy">
                   <%= link_to row.player.full_name, player_path(row.player, season: @season.id),
                               class: 'hover:underline', data: { turbo_frame: '_top' } %>
+                  <% if @owing_ids.include?(row.player.id) %>
+                    <span class="owes-chip ml-1 inline-block align-middle text-amber-600"
+                          title="<%= t('players.owes') %>" aria-label="<%= t('players.owes') %>">
+                      <%= render 'shared/icon', name: 'currency-dollar', class: 'h-4 w-4' %>
+                    </span>
+                  <% end %>
                   <% if row.captain %>
                     <span class="captain-chip ml-1 rounded-full bg-dpc-green px-1.5 py-0.5 text-xs font-bold text-white"
                           title="<%= t('players.captain') %>" aria-label="<%= t('players.captain') %>">C</span>

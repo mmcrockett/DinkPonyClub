@@ -2,6 +2,8 @@
 
 module Admin
   class PlayersController < ApplicationController
+    include SeasonScoped
+
     before_action :require_admin
     before_action :set_player, only: %i[edit update]
 
@@ -13,7 +15,11 @@ module Admin
       @player = Player.new
     end
 
-    def edit; end
+    def edit
+      @season = current_season
+      @spot = @season && @player.roster_spots.find_by(season: @season)
+      @charges = @spot ? @spot.charges.index_by(&:fee_id) : {}
+    end
 
     def create
       @player = Player.new(player_params)

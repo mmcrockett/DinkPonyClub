@@ -16,7 +16,8 @@ Run `bin/rubocop` and `bin/rails test` before declaring work done; CI fails on e
 
 ## Layout
 
-- `app/models` - ActiveRecord models (Season, Team, Player, RosterSpot, MatchNight, Match, MatchSlot, Lineup, Game, availability models).
+- `app/models` - ActiveRecord models (Season, Team, Player, RosterSpot, MatchNight, Match, MatchSlot, Lineup, Game, availability models, `Fee` and `Charge`).
+  - Money is stored as integer cents; parse user-entered dollars with `Dollars.to_cents`. A `Fee` is a season's catalog entry (`applies_to_all` charges every rostered player, otherwise opt-in); a `Charge` is one player's amount owed and `paid_cents` for a fee.
 - `app/queries` - read-side objects (standings, player stats, match results). Put computed league numbers here, not in views or controllers.
 - `app/services/league` - multi-step operations such as `SnapshotImport`.
 - `app/forms` - form objects, e.g. `ScorecardForm`.

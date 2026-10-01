@@ -1,4 +1,16 @@
 <div class="mx-auto flex max-w-md flex-col gap-6">
   <h1 class="text-2xl font-extrabold text-dpc-navy">Edit <%= @player.full_name %></h1>
   <%= render 'form', player: @player %>
+
+  <% if @spot %>
+    <% fees = @season.fees.order(:name) %>
+    <% if fees.any? %>
+      <%= render 'admin/charges/form', player: @player, season: @season, fees: fees, charges: @charges %>
+    <% else %>
+      <p class="text-sm text-gray-500">
+        <%= t('admin.charges.form.no_fees', season: @season.name) %>
+        <%= link_to t('admin.charges.form.manage_fees'), admin_fees_path(season: @season), class: 'underline' %>
+      </p>
+    <% end %>
+  <% end %>
 </div>
