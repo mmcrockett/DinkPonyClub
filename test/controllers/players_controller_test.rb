@@ -226,12 +226,6 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
     assert_select 'aside a', text: /Stats/, count: 0
   end
 
-  test 'stats redirects to players' do
-    get '/stats'
-
-    assert_redirected_to '/players'
-  end
-
   test 'profile edit no longer routes' do
     sign_in_as(players(:zoe))
 

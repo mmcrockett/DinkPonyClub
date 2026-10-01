@@ -14,11 +14,11 @@ module PlayersHelper
   end
 
   def players_sort_link(filter, column, season:)
-    params = { season: season&.id, q: filter.query.presence, team: filter.team,
-               hide_substitutes: filter.hide_substitutes? ? '1' : nil,
-               sort: column, dir: filter.next_direction(column) }.compact
+    query_params = { season: season&.id, q: filter.query.presence, team: filter.team,
+                     hide_substitutes: filter.hide_substitutes? ? '1' : nil,
+                     sort: column, dir: filter.next_direction(column) }.compact
 
-    link_to players_path(params), class: 'inline-flex items-center gap-1 hover:text-dpc-navy' do
+    link_to players_path(query_params), class: 'inline-flex items-center gap-1 hover:text-dpc-navy' do
       safe_join([t("players.index.table.#{column}"), sort_indicator(filter, column)].compact)
     end
   end
