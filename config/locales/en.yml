@@ -117,52 +117,40 @@ en:
       vs: "vs"
       back_to_schedule: "Back to schedule"
   players:
-    forbidden: "You can only edit your own profile."
+    captain: "Captain"
+    substitute: "Substitute"
     contact_hidden: "Contact details are available to captains."
-    card:
-      captain: "Captain"
-      win_rate: "Win rate"
-      games: "Games"
-      substitute: "Substitute"
-      view_profile: "View profile"
-      edit_profile: "Edit profile"
-      no_contact: "No contact details on file."
+    no_contact: "No contact details on file."
     filters:
       season: "Season"
-      search: "Search"
-      search_placeholder: "Find a teammate..."
+      search: "Find a player..."
       team: "Team"
       all_teams: "All teams"
       substitutes: "Substitutes"
-      sort: "Sort"
-      sort_name: "Name A-Z"
-      sort_win_pct: "Win rate"
-      sort_team: "Team"
       hide_substitutes: "Hide substitutes"
-      apply: "Apply"
     index:
       title: "Good people. Great games."
-      counts: "%{rostered} rostered players - %{substitutes} substitutes"
-      empty: "No players match those filters."
+      subtitle: "%{season} - Player records, including substitutes."
+      empty: "No players are rostered for this season yet."
+      no_matches: "No players match these filters."
+      table:
+        name: "Player"
+        team: "Team"
+        games: "Games"
+        wins: "Wins"
+        losses: "Losses"
+        win_pct: "Win %"
     show:
       back: "Back to players"
       not_playing: "Not playing this season"
+      games: "Games"
       wins: "Wins"
       losses: "Losses"
+      win_rate: "Win rate"
       lines: "This season's lines"
       line_vs: "Line %{position} vs %{opponent}"
       partners: "With %{names}"
       no_lines: "No line results this season yet."
-    edit:
-      title: "Edit profile"
-      contact_email: "Contact email"
-      phone: "Phone"
-      visibility_note: "Only captains and admins can see your contact details."
-      sign_in_email_note: "Your sign-in email is managed by an admin."
-      cancel: "Cancel"
-      save: "Save"
-    update:
-      updated: "Profile saved."
   calendar_tokens:
     create:
       regenerated: "Your calendar link was reset. Re-subscribe with the new link; the old one no longer works."
@@ -178,7 +166,6 @@ en:
         not_set: "Not set"
   profiles:
     show:
-      edit_contact: "Edit contact details"
       calendar:
         title: "Calendar feed"
         description: "Subscribe to see your team's match nights in Google or Apple Calendar. It updates as the schedule changes."
@@ -212,31 +199,3 @@ en:
         points_for: "Points for"
         points_against: "Points against"
         diff: "Diff"
-  stats:
-    show:
-      title: "Every game counts."
-      subtitle: "%{season} - Player records, including substitutes."
-      empty: "No players are rostered for this season yet."
-      no_matches: "No players match these filters."
-      substitute: "Substitute"
-      table:
-        player: "Player"
-        team: "Team"
-        games: "Games"
-        wins: "Wins"
-        losses: "Losses"
-        win_pct: "Win %"
-    filters:
-      season: "Season"
-      search: "Find a player..."
-      team: "Team"
-      all_teams: "All teams"
-      substitutes: "Substitutes"
-      hide_substitutes: "Hide substitutes"
-      sort: "Sort"
-      apply: "Apply"
-      sorts:
-        name: "Name A-Z"
-        win_pct_desc: "Win % high to low"
-        win_pct_asc: "Win % low to high"
-        team: "Team"

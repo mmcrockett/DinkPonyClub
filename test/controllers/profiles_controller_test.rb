@@ -16,7 +16,7 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select 'h1', text: players(:ada).full_name
-    assert_select "a[href='#{edit_player_path(players(:ada))}']", text: 'Edit contact details'
+    assert_select 'a', text: 'Edit contact details', count: 0
   end
 
   test 'shows the private calendar feed links and reset button' do

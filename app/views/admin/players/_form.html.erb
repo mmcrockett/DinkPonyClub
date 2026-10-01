@@ -26,6 +26,11 @@
     </div>
 
     <div class="flex flex-col gap-1">
+      <%= form.label :phone, class: 'text-sm font-semibold text-dpc-navy' %>
+      <%= form.telephone_field :phone, class: 'form-input', aria: { invalid: player.errors[:phone].any? } %>
+    </div>
+
+    <div class="flex flex-col gap-1">
       <%= form.label :avatar_url, class: 'text-sm font-semibold text-dpc-navy' %>
       <%= form.text_field :avatar_url, class: 'form-input', aria: { invalid: player.errors[:avatar_url].any? } %>
     </div>

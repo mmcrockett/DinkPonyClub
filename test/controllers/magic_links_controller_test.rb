@@ -26,7 +26,7 @@ class MagicLinksControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'sends nothing for a blank email even when a player has no email' do
-    assert_nil players(:sam).email
+    assert_nil players(:ben).email
 
     assert_no_enqueued_emails do
       post magic_link_path, params: { email: '  ' }

@@ -1,22 +1,51 @@
 <% content_for :title, t('players.index.title') %>
 
 <div class="flex flex-col gap-6">
-  <div>
-    <h1 class="text-2xl font-extrabold text-dpc-navy"><%= t('players.index.title') %></h1>
-    <p class="text-gray-500">
-      <%= t('players.index.counts', rostered: @rostered_count, substitutes: @substitute_count) %>
-    </p>
-  </div>
+  <h1 class="text-2xl font-extrabold text-dpc-navy"><%= t('players.index.title') %></h1>
 
-  <%= render 'filters', season: @season, teams: @teams %>
+  <%= turbo_frame_tag 'players', class: 'flex flex-col gap-6', data: { turbo_action: 'advance' } do %>
+    <% if @season %>
+      <p class="-mt-4 text-gray-500"><%= t('players.index.subtitle', season: @season.name) %></p>
+    <% end %>
 
-  <%= turbo_frame_tag 'player_cards', target: '_top' do %>
+    <%= render 'filters', season: @season, teams: @teams, filter: @filter %>
+
     <% if @rows.any? %>
-      <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        <% @rows.each do |row| %>
-          <%= render 'player_card', row: row, season: @season, show_contacts: @show_contacts %>
-        <% end %>
+      <div class="overflow-x-auto rounded-md bg-white shadow-sm">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-gray-100 text-xs font-bold uppercase text-gray-500">
+              <% StatsFilter::SORTS.each do |column| %>
+                <th class="px-4 py-3 <%= %w[name team].include?(column) ? 'text-left' : 'text-right' %>"
+                    aria-sort="<%= players_aria_sort(@filter, column) %>">
+                  <%= players_sort_link(@filter, column, season: @season) %>
+                </th>
+              <% end %>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <% @rows.each do |row| %>
+              <tr id="<%= dom_id(row.player, :stats) %>">
+                <td class="px-4 py-3 font-bold text-dpc-navy">
+                  <%= link_to row.player.full_name, player_path(row.player, season: @season.id),
+                              class: 'hover:underline', data: { turbo_frame: '_top' } %>
+                  <% if row.captain %>
+                    <span class="captain-chip ml-1 rounded-full bg-dpc-green px-1.5 py-0.5 text-xs font-bold text-white"
+                          title="<%= t('players.captain') %>" aria-label="<%= t('players.captain') %>">C</span>
+                  <% end %>
+                </td>
+                <td class="px-4 py-3 <%= row.substitute? ? 'text-gray-400' : 'text-gray-600' %>"><%= player_team_label(row) %></td>
+                <td class="px-4 py-3 text-right"><%= row.games %></td>
+                <td class="px-4 py-3 text-right"><%= row.wins %></td>
+                <td class="px-4 py-3 text-right"><%= row.losses %></td>
+                <td class="px-4 py-3 text-right"><%= win_rate_label(row) %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
       </div>
+    <% elsif @season&.roster_spots&.exists? %>
+      <p class="text-gray-500"><%= t('players.index.no_matches') %></p>
     <% else %>
       <p class="text-gray-500"><%= t('players.index.empty') %></p>
     <% end %>

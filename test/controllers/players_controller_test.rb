@@ -4,7 +4,13 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
   include ActionView::RecordIdentifier
 
   CONTACT_HIDDEN = 'Contact details are available to captains.'.freeze
-  CONTACT_HIDDEN_PATTERN = /#{Regexp.escape(CONTACT_HIDDEN)}/
+
+  setup do
+    @substitute = Player.create!(first_name: 'Sub', last_name: 'Stitute')
+    @bench = Player.create!(first_name: 'Bench', last_name: 'Warmer')
+    RosterSpot.create!(season: seasons(:fall), team: teams(:bravo), player: @bench)
+    add_sub_line
+  end
 
   test 'signed out visitors are redirected' do
     get players_path
@@ -14,133 +20,223 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
     get player_path(players(:sam))
 
     assert_redirected_to root_path
-
-    get edit_player_path(players(:sam))
-
-    assert_redirected_to root_path
-
-    patch player_path(players(:sam)), params: { player: { phone: '1' } }
-
-    assert_redirected_to root_path
-    assert_equal '512-555-0101', players(:sam).reload.phone
   end
 
-  test 'index lists the season roster as cards' do
-    sign_in_as(players(:grace))
-
-    get players_path
-
-    assert_response :success
-    %i[ada grace sam ben].each { |name| assert_select "##{dom_id(players(name), :card)}" }
-    assert_select "##{dom_id(players(:ada), :card)}", text: /Captain/
-    assert_select "##{dom_id(players(:ada), :card)}", text: /67%/
-  end
-
-  test 'a captain sees contact details on the directory' do
+  test 'lists rostered players and substitutes' do
     sign_in_as(players(:ada))
 
     get players_path
 
-    assert_select "##{dom_id(players(:sam), :card)}", text: /sam.contact@example.test/
-    assert_select "##{dom_id(players(:sam), :card)}", text: /512-555-0101/
+    assert_response :success
+    %i[ada grace sam ben].each { |name| assert_select "##{dom_id(players(name), :stats)}" }
+    assert_select "##{dom_id(@substitute, :stats)}", text: /Substitute/
   end
 
-  test 'an admin sees contact details on the directory' do
-    sign_in_as(players(:zoe))
+  test 'links each name to the player profile' do
+    sign_in_as(players(:ada))
 
     get players_path
 
-    assert_select "##{dom_id(players(:sam), :card)}", text: /sam.contact@example.test/
+    profile = player_path(players(:grace), season: seasons(:fall).id)
+
+    assert_select "##{dom_id(players(:grace), :stats)} a[href='#{profile}']", text: players(:grace).full_name
   end
 
-  test 'a plain player sees the captains-only message instead of contact details' do
-    sign_in_as(players(:grace))
+  test 'shows a dash for a player with no games' do
+    sign_in_as(players(:ada))
 
     get players_path
 
-    assert_select "##{dom_id(players(:sam), :card)}", text: CONTACT_HIDDEN_PATTERN
-    assert_not_includes response.body, 'sam.contact@example.test'
-    assert_not_includes response.body, '512-555-0101'
+    assert_select "##{dom_id(@bench, :stats)} td", text: '-'
   end
 
-  test 'contact visibility follows the viewed season' do
-    sign_in_as(players(:sc_home_captain))
+  test 'shows win pct' do
+    sign_in_as(players(:ada))
 
-    get players_path(season: seasons(:fall).id)
+    get players_path
 
-    assert_not_includes response.body, 'sam.contact@example.test'
+    assert_select "##{dom_id(@substitute, :stats)} td", text: '100%'
   end
 
-  test 'search filters by name' do
-    sign_in_as(players(:grace))
+  test 'omits per-player sweep bonus and points columns' do
+    sign_in_as(players(:ada))
 
-    get players_path(q: 'sAm')
+    get players_path
 
-    assert_select "##{dom_id(players(:sam), :card)}"
-    assert_select "##{dom_id(players(:ada), :card)}", count: 0
+    assert_select 'th', text: 'Sweep bonus', count: 0
+    assert_select 'th', text: 'Points', count: 0
   end
 
-  test 'team filter limits to one team' do
-    sign_in_as(players(:grace))
+  test 'filters submit on change with no apply button' do
+    sign_in_as(players(:ada))
+
+    get players_path
+
+    assert_select 'form[data-controller="auto-submit"] input[type=submit]', count: 0
+    assert_select 'input[name=q][data-action="input->auto-submit#debouncedSubmit"]'
+    assert_select 'select[name=sort]', count: 0
+  end
+
+  test 'shows the C chip only for captains' do
+    sign_in_as(players(:ada))
+
+    get players_path
+
+    assert_select "##{dom_id(players(:ada), :stats)} .captain-chip", text: 'C'
+    assert_select "##{dom_id(players(:grace), :stats)} .captain-chip", count: 0
+    assert_select '.captain-chip', count: RosterSpot.where(season: seasons(:fall), captain: true).count
+  end
+
+  test 'searches by name' do
+    sign_in_as(players(:ada))
+
+    get players_path(q: 'grace')
+
+    assert_select 'tbody tr', count: 1
+    assert_select "##{dom_id(players(:grace), :stats)}"
+  end
+
+  test 'filters by team' do
+    sign_in_as(players(:ada))
 
     get players_path(team: teams(:bravo).id)
 
-    assert_select "##{dom_id(players(:sam), :card)}"
-    assert_select "##{dom_id(players(:ada), :card)}", count: 0
+    assert_equal ids(players(:ben), @bench, players(:sam)).sort, row_ids.sort
   end
 
-  test 'substitutes can be isolated or hidden' do
-    sub = add_substitute
-    sign_in_as(players(:grace))
+  test 'filters to substitutes' do
+    sign_in_as(players(:ada))
 
     get players_path(team: 'substitutes')
 
-    assert_select "##{dom_id(sub, :card)}", text: /Substitute/
-    assert_select "##{dom_id(players(:ada), :card)}", count: 0
+    assert_equal ids(@substitute), row_ids
+  end
+
+  test 'hides substitutes' do
+    sign_in_as(players(:ada))
 
     get players_path(hide_substitutes: '1')
 
-    assert_select "##{dom_id(sub, :card)}", count: 0
-    assert_select "##{dom_id(players(:ada), :card)}"
+    assert_select "##{dom_id(@substitute, :stats)}", count: 0
+    assert_select "##{dom_id(players(:ada), :stats)}"
   end
 
-  test 'win rate sort puts the best first and players without games last' do
-    bench = Player.create!(first_name: 'Aaron', last_name: 'Bench')
-    RosterSpot.create!(season: seasons(:fall), team: teams(:alpha), player: bench)
-    sign_in_as(players(:grace))
+  test 'shows a message when filters match nobody' do
+    sign_in_as(players(:ada))
 
-    get players_path(sort: 'win_pct')
+    get players_path(q: 'nobody')
 
-    assert_operator card_index(players(:ada)), :<, card_index(players(:sam))
-    assert_operator card_index(players(:sam)), :<, card_index(bench)
+    assert_select 'table', count: 0
+    assert_select 'p', text: 'No players match these filters.'
   end
 
-  test 'team sort groups by team name with substitutes last' do
-    sub = add_substitute
-    sign_in_as(players(:grace))
-
-    get players_path(sort: 'team')
-
-    assert_operator card_index(players(:grace)), :<, card_index(players(:ben))
-    assert_operator card_index(players(:ben)), :<, card_index(sub)
-  end
-
-  test 'name sort is the default' do
-    sign_in_as(players(:grace))
+  test 'sorts by name by default' do
+    sign_in_as(players(:ada))
 
     get players_path
 
-    assert_operator card_index(players(:ada)), :<, card_index(players(:ben))
-    assert_operator card_index(players(:ben)), :<, card_index(players(:grace))
+    assert_equal ids(players(:ada), players(:ben), @bench, players(:grace), players(:sam), @substitute), row_ids
   end
 
-  test 'scopes the directory to the requested season' do
-    sign_in_as(players(:grace))
+  test 'sorts by name descending' do
+    sign_in_as(players(:ada))
+
+    get players_path(sort: 'name', dir: 'desc')
+
+    assert_equal ids(@substitute, players(:sam), players(:grace), @bench, players(:ben), players(:ada)), row_ids
+  end
+
+  test 'sorts by win pct descending with zero-game players last' do
+    sign_in_as(players(:ada))
+
+    get players_path(sort: 'win_pct', dir: 'desc')
+
+    assert_equal ids(@substitute, players(:ben), players(:ada), players(:grace), players(:sam), @bench), row_ids
+  end
+
+  test 'sorts by win pct ascending with zero-game players last' do
+    sign_in_as(players(:ada))
+
+    get players_path(sort: 'win_pct', dir: 'asc')
+
+    assert_equal ids(players(:ada), players(:grace), players(:sam), players(:ben), @substitute, @bench), row_ids
+  end
+
+  test 'sorts by team with substitutes last' do
+    sign_in_as(players(:ada))
+
+    get players_path(sort: 'team')
+
+    assert_equal ids(players(:ada), players(:grace), players(:ben), @bench, players(:sam), @substitute), row_ids
+  end
+
+  test 'sorts by games with most games first by default' do
+    sign_in_as(players(:ada))
+
+    get players_path(sort: 'games')
+
+    assert_equal ids(players(:ada), players(:ben), players(:grace), players(:sam), @substitute, @bench), row_ids
+  end
+
+  test 'header links sort by that column and reverse the active one' do
+    sign_in_as(players(:ada))
+
+    get players_path(q: 'a', sort: 'win_pct', dir: 'desc')
+
+    kept = { season: seasons(:fall).id, q: 'a' }
+
+    assert_select "th[aria-sort=descending] a[href='#{players_path(**kept, sort: 'win_pct', dir: 'asc')}']"
+    assert_select "th[aria-sort=none] a[href='#{players_path(**kept, sort: 'wins', dir: 'desc')}']"
+    assert_select "th[aria-sort=none] a[href='#{players_path(**kept, sort: 'name', dir: 'asc')}']"
+  end
+
+  test 'filters keep the current sort' do
+    sign_in_as(players(:ada))
+
+    get players_path(sort: 'wins', dir: 'asc')
+
+    assert_select 'input[type=hidden][name=sort][value=wins]'
+    assert_select 'input[type=hidden][name=dir][value=asc]'
+  end
+
+  test 'scopes to the requested season' do
+    sign_in_as(players(:ada))
 
     get players_path(season: seasons(:spring).id)
 
-    assert_select "##{dom_id(players(:ada), :card)}"
-    assert_select "##{dom_id(players(:sam), :card)}", count: 0
+    assert_equal ids(players(:ada)), row_ids
+  end
+
+  test 'shows an empty state for a season with no roster' do
+    season = Season.create!(name: 'Winter 2027', starts_on: Date.new(2027, 1, 4))
+    sign_in_as(players(:ada))
+
+    get players_path(season: season.id)
+
+    assert_response :success
+    assert_select 'p', text: 'No players are rostered for this season yet.'
+  end
+
+  test 'sidebar has one Players entry and no Stats entry' do
+    sign_in_as(players(:ada))
+
+    get players_path
+
+    assert_select "aside a[href='#{players_path}']", text: /Players/, count: 1
+    assert_select 'aside a', text: /Stats/, count: 0
+  end
+
+  test 'profile edit no longer routes' do
+    sign_in_as(players(:zoe))
+
+    get "/players/#{players(:sam).id}/edit"
+
+    assert_response :not_found
+
+    patch "/players/#{players(:sam).id}", params: { player: { phone: '1' } }
+
+    assert_response :not_found
+    assert_equal '512-555-0101', players(:sam).reload.phone
   end
 
   test 'profile shows this season line results' do
@@ -172,97 +268,78 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
     assert_select "##{dom_id(lineups(:fall_alpha_bravo_one), :result)}", text: /4-11, 11-6, 10-12/
   end
 
-  test 'profile contact details follow the same role rules' do
+  test 'profile has no edit link' do
     sign_in_as(players(:grace))
+
+    get player_path(players(:grace))
+
+    assert_select 'a', text: 'Edit profile', count: 0
+  end
+
+  test 'a plain player sees the captains-only message instead of contact details' do
+    sign_in_as(players(:grace))
+
     get player_path(players(:sam))
 
     assert_select 'p', text: CONTACT_HIDDEN
-    assert_not_includes response.body, 'sam.contact@example.test'
+    assert_not_includes response.body, 'sam@example.test'
+    assert_not_includes response.body, '512-555-0101'
+  end
 
+  test 'a captain sees the sign-in email and phone on the profile' do
     sign_in_as(players(:ada))
+
     get player_path(players(:sam))
 
-    assert_includes response.body, 'sam.contact@example.test'
+    assert_select "a[href='mailto:sam@example.test']"
+    assert_select "a[href='tel:512-555-0101']"
+  end
 
+  test 'an admin sees the sign-in email and phone on the profile' do
     sign_in_as(players(:zoe))
+
     get player_path(players(:sam))
 
-    assert_includes response.body, 'sam.contact@example.test'
+    assert_select "a[href='mailto:sam@example.test']"
+    assert_select "a[href='tel:512-555-0101']"
   end
 
-  test 'a player can edit their own profile' do
-    sign_in_as(players(:grace))
+  test 'the profile ignores the legacy contact email' do
+    players(:sam).update!(contact_email: 'legacy@example.test')
+    sign_in_as(players(:ada))
 
-    get edit_player_path(players(:grace))
+    get player_path(players(:sam))
 
-    assert_response :success
-    assert_select 'input[name="player[contact_email]"]'
-    assert_select 'input[name="player[email]"]', count: 0
+    assert_not_includes response.body, 'legacy@example.test'
   end
 
-  test 'a player cannot edit another player profile' do
-    sign_in_as(players(:grace))
+  test 'contact visibility follows the viewed season' do
+    sign_in_as(players(:sc_home_captain))
 
-    get edit_player_path(players(:sam))
+    get player_path(players(:sam), season: seasons(:fall).id)
 
-    assert_redirected_to root_path
-
-    patch player_path(players(:sam)), params: { player: { phone: '999' } }
-
-    assert_redirected_to root_path
-    assert_equal '512-555-0101', players(:sam).reload.phone
-  end
-
-  test 'a player updates their own phone and contact email but not the sign-in email' do
-    sign_in_as(players(:grace))
-
-    patch player_path(players(:grace)),
-          params: { player: { phone: '512-555-0199', contact_email: 'grace.alt@example.test',
-                              email: 'hijack@example.test' } }
-
-    assert_redirected_to player_path(players(:grace))
-    grace = players(:grace).reload
-
-    assert_equal '512-555-0199', grace.phone
-    assert_equal 'grace.alt@example.test', grace.contact_email
-    assert_equal 'grace@example.test', grace.email
-  end
-
-  test 'an admin can edit any player profile' do
-    sign_in_as(players(:zoe))
-
-    get edit_player_path(players(:sam))
-
-    assert_response :success
-
-    patch player_path(players(:sam)), params: { player: { phone: '512-555-0000' } }
-
-    assert_redirected_to player_path(players(:sam))
-    assert_equal '512-555-0000', players(:sam).reload.phone
-  end
-
-  test 'an invalid contact email re-renders the form' do
-    sign_in_as(players(:grace))
-
-    patch player_path(players(:grace)), params: { player: { contact_email: 'not an email' } }
-
-    assert_response :unprocessable_content
-    assert_nil players(:grace).reload.contact_email
+    assert_not_includes response.body, 'sam@example.test'
   end
 
   private
 
-  def add_substitute
-    sub = Player.create!(first_name: 'Zed', last_name: 'Sub')
-    lineup = matches(:fall_alpha_bravo).lineups.create!(position: 2)
-    lineup.games.create!(number: 1, home_score: 11, away_score: 3,
-                         home_player_a: sub, home_player_b: players(:zoe),
-                         away_player_a: players(:wade), away_player_b: players(:sc_home_player1))
-    sub
+  def add_sub_line
+    match = Match.create!(season: seasons(:fall), match_night: match_nights(:fall_week_one),
+                          home_team: teams(:bravo), away_team: teams(:alpha))
+    lineup = match.lineups.create!(position: 2)
+    3.times do |index|
+      lineup.games.create!(number: index + 1, home_score: 11, away_score: 3,
+                           home_player_a: @substitute, home_player_b: players(:ben),
+                           away_player_a: players(:grace), away_player_b: players(:ada))
+    end
   end
 
-  def card_index(player)
-    response.body.index(dom_id(player, :card))
+  def ids(*players)
+    players.map { |player| dom_id(player, :stats) }
+  end
+
+  def row_ids
+    css_select('tbody tr').pluck('id')
   end
 
   def sign_in_as(player)

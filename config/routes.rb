@@ -13,9 +13,8 @@ Rails.application.routes.draw do
 
   resources :seasons, only: %i[index]
   resources :matches, only: %i[show edit update]
-  resources :players, only: %i[index show edit update]
+  resources :players, only: %i[index show]
   get 'standings', to: 'standings#show', as: :standings
-  get 'stats', to: 'stats#show', as: :stats
 
   get 'schedule.ics', to: 'calendars#show', as: :schedule_calendar, format: false, defaults: { format: :ics }
   resources :match_nights, only: %i[index show], path: 'schedule' do
