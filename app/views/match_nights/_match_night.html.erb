@@ -27,9 +27,16 @@
       </div>
     </div>
 
-    <span class="rounded-full px-3 py-1 text-xs font-bold uppercase <%= match_night_status_classes(match_night) %>">
-      <%= match_night_status_label(match_night) %>
-    </span>
+    <div class="flex items-center gap-3">
+      <% if admin? && !match_night.canceled? %>
+        <%= button_to t('match_nights.schedule.cancel_night'), admin_match_night_path(match_night), method: :patch,
+                      form: { data: { turbo_confirm: t('match_nights.schedule.confirm_cancel') } },
+                      class: 'text-xs font-semibold text-red-700 hover:underline' %>
+      <% end %>
+      <span class="rounded-full px-3 py-1 text-xs font-bold uppercase <%= match_night_status_classes(match_night) %>">
+        <%= match_night_status_label(match_night) %>
+      </span>
+    </div>
   </div>
 
   <div class="flex flex-col divide-y divide-gray-100 px-4">
@@ -52,8 +59,8 @@
   </div>
 
   <% if @team_view %>
-    <%= render 'team_availability', match_night: match_night %>
+    <%= render 'match_nights/team_availability', match_night: match_night %>
+  <% elsif !match_night.canceled? %>
+    <%= render 'match_nights/availability_control', match_night: match_night %>
   <% end %>
-
-  <%= render 'availability_control', match_night: match_night %>
 </div>

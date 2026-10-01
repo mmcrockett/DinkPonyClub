@@ -33,42 +33,7 @@
       <p class="text-gray-500"><%= t('standings.show.no_results_yet') %></p>
     <% end %>
 
-    <div class="overflow-x-auto rounded-md bg-white shadow-sm">
-      <table class="w-full text-sm">
-        <thead>
-          <tr class="border-b border-gray-100 text-xs font-bold uppercase text-gray-500">
-            <th class="px-4 py-3 text-left"><%= t('standings.show.table.rank') %></th>
-            <th class="px-4 py-3 text-left"><%= t('standings.show.table.team') %></th>
-            <th class="px-4 py-3 text-right"><%= t('standings.show.table.played') %></th>
-            <th class="px-4 py-3 text-right"><%= t('standings.show.table.wins') %></th>
-            <th class="px-4 py-3 text-right"><%= t('standings.show.table.losses') %></th>
-            <th class="px-4 py-3 text-right"><%= t('standings.show.table.ties') %></th>
-            <th class="px-4 py-3 text-right"><%= t('standings.show.table.points_for') %></th>
-            <th class="px-4 py-3 text-right"><%= t('standings.show.table.points_against') %></th>
-            <th class="px-4 py-3 text-right"><%= t('standings.show.table.diff') %></th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-100">
-          <% @rows.each_with_index do |row, index| %>
-            <tr id="<%= dom_id(row.team, :standings) %>">
-              <td class="px-4 py-3 text-gray-500"><%= index + 1 %></td>
-              <td class="px-4 py-3 font-bold text-dpc-navy"><%= row.team.name %></td>
-              <td class="px-4 py-3 text-right"><%= row.played %></td>
-              <td class="px-4 py-3 text-right"><%= row.wins %></td>
-              <td class="px-4 py-3 text-right"><%= row.losses %></td>
-              <td class="px-4 py-3 text-right"><%= row.ties %></td>
-              <td class="px-4 py-3 text-right"><%= format_points(row.points_for) %></td>
-              <td class="px-4 py-3 text-right"><%= format_points(row.points_against) %></td>
-              <td class="px-4 py-3 text-right"><%= standings_diff(row.diff) %></td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
-    </div>
-
-    <p class="text-sm text-gray-500">
-      <%= t('standings.show.footnote', bonus: format_points(@season.sweep_bonus)) %>
-    </p>
+    <%= render 'standings/table', rows: @rows, season: @season %>
   <% else %>
     <p class="text-gray-500"><%= t('standings.show.empty') %></p>
   <% end %>

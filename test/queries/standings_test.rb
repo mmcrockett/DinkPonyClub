@@ -17,6 +17,12 @@ class StandingsTest < ActiveSupport::TestCase
     assert_equal 1, row.diff
   end
 
+  test 'excludes canceled nights' do
+    match_nights(:fall_week_one).update!(canceled: true)
+
+    assert_equal 0, Standings.new(seasons(:fall)).results_posted
+  end
+
   test 'excludes playoff nights' do
     playoff_night = MatchNight.create!(season: seasons(:fall), played_on: Date.new(2026, 10, 1),
                                        label: 'Final', playoff: true)

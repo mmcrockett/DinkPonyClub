@@ -61,6 +61,56 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
     assert_select "##{dom_id(match_nights(:fall_upcoming), :team_availability)}"
   end
 
+  test 'team view drops the personal availability buttons so each player is set in one place' do
+    sign_in_as_ada
+
+    get match_nights_path(view: 'availability')
+
+    assert_select "##{dom_id(match_nights(:fall_upcoming), :my_availability)}", count: 0
+  end
+
+  test 'matchups view keeps the personal availability buttons' do
+    sign_in_as_ada
+
+    get match_nights_path
+
+    assert_select "##{dom_id(match_nights(:fall_upcoming), :my_availability)}"
+  end
+
+  test 'highlights only the saved answer when availability is closed for a non-captain' do
+    sign_in_as(players(:grace))
+
+    travel_to(match_nights(:fall_upcoming).availability_cutoff_at + 1.minute) { get match_nights_path }
+
+    frame = "##{dom_id(match_nights(:fall_upcoming), :my_availability)}"
+
+    assert_select "#{frame} input[type=radio]", count: 0
+    assert_select "#{frame} span.bg-red-700", text: 'Out'
+    assert_select "#{frame} span.bg-dpc-green, #{frame} span.bg-amber-400", count: 0
+  end
+
+  test 'leaves every personal button unselected on a night the player has not answered' do
+    sign_in_as_ada
+
+    get match_nights_path
+
+    frame = "##{dom_id(match_nights(:fall_playoff), :my_availability)}"
+
+    assert_select "#{frame} input[type=radio]", minimum: 3
+    assert_select "#{frame} input[type=radio][checked]", count: 0
+  end
+
+  test 'team view shows ??? for players who have not answered and counts them separately' do
+    sign_in_as_ada
+
+    get match_nights_path(view: 'availability')
+
+    frame = "##{dom_id(match_nights(:fall_upcoming), :team_availability)}"
+
+    assert_select "#{frame} option[selected][disabled][value='']", text: '???', minimum: 1
+    assert_select "#{frame} p", text: /\d+ in \u00b7 \d+ maybe \u00b7 [1-9]\d* \?\?\?/
+  end
+
   test 'shows team availability for an admin' do
     sign_in_as(players(:zoe))
 
@@ -142,6 +192,31 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "#{frame} a[href=?]", match_path(matches(:fall_alpha_bravo))
     assert_select "#{frame} a[href=?]", edit_match_path(matches(:fall_alpha_bravo)), count: 0
+  end
+
+  test 'shows a cancel button to an admin on a live night only' do
+    sign_in_as(players(:zoe))
+
+    get match_nights_path
+
+    assert_select "##{dom_id(match_nights(:fall_upcoming))} button", text: 'Cancel night'
+    assert_select "##{dom_id(match_nights(:fall_canceled))} button", text: 'Cancel night', count: 0
+  end
+
+  test 'hides the availability control on a canceled night' do
+    sign_in_as(players(:zoe))
+
+    get match_nights_path
+
+    assert_select "##{dom_id(match_nights(:fall_canceled), :my_availability)}", count: 0
+  end
+
+  test 'hides cancel buttons from a captain' do
+    sign_in_as_ada
+
+    get match_nights_path
+
+    assert_select 'button', text: 'Cancel night', count: 0
   end
 
   test 'treats a player deactivated mid-session as signed out' do
