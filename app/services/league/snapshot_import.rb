@@ -23,10 +23,16 @@ module League
     def seed_records
       @season = import_season
       @teams = import_teams
-      @players = RosterImport.new(@season, @teams, report).import(data['players'])
+      @players = import_roster
       @match_nights = MatchNightImport.new(@season, data['canceledDates'], report).import(data['weeks'])
       import_matches
       import_availability
+    end
+
+    def import_roster
+      players = RosterImport.new(@season, @teams, report).import(data['players'])
+      FeeImport.new(@season, players, report).import(data['fee'], data['players']) unless data['archived']
+      players
     end
 
     def import_availability
@@ -47,6 +53,7 @@ module League
       warn_before_reset(season)
       season.match_nights.destroy_all
       season.matches.destroy_all
+      season.fees.destroy_all
       report.increment_seasons_matched
     end
 

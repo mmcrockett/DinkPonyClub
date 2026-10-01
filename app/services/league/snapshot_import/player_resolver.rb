@@ -55,9 +55,18 @@ module League
       end
 
       def fill_contact_details(player, person)
+        backfill_email(player, person)
         player.phone = person['phone'] if player.phone.blank? && person['phone'].present?
         player.contact_email = person['contactEmail'] if player.contact_email.blank? && person['contactEmail'].present?
         player.save! if player.changed?
+      end
+
+      def backfill_email(player, person)
+        email = person['email'].to_s.strip.downcase.presence
+        return if email.nil? || player.email.present?
+
+        player.email = email
+        report.increment_emails_backfilled
       end
     end
   end
