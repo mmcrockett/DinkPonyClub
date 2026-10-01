@@ -134,6 +134,12 @@ GEM
       logger
     i18n (1.15.2)
       concurrent-ruby (~> 1.0)
+    icalendar (2.12.5)
+      base64
+      ice_cube (~> 0.16)
+      logger
+      ostruct
+    ice_cube (0.17.0)
     image_processing (2.1.0)
     importmap-rails (2.2.3)
       actionpack (>= 6.0.0)
@@ -455,6 +461,7 @@ DEPENDENCIES
   bundler-audit
   capybara
   debug
+  icalendar (~> 2.12)
   image_processing (~> 2.1)
   importmap-rails
   jbuilder

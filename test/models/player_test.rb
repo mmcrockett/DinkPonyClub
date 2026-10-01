@@ -13,6 +13,20 @@ class PlayerTest < ActiveSupport::TestCase
     assert_includes player.errors[:last_name], "can't be blank"
   end
 
+  test 'generates a calendar token on create' do
+    player = Player.create!(first_name: 'New', last_name: 'Player')
+
+    assert_equal 32, player.calendar_token.length
+  end
+
+  test 'regenerates the calendar token' do
+    player = players(:ada)
+
+    assert_changes -> { player.reload.calendar_token } do
+      player.regenerate_calendar_token!
+    end
+  end
+
   test 'allows more than one player with no email' do
     assert_predicate players(:grace), :valid?
     assert_predicate players(:sam), :valid?

@@ -16,6 +16,7 @@ Rails.application.routes.draw do
   resources :players, only: %i[index show]
   get 'standings', to: 'standings#show', as: :standings
 
+  get 'schedule.ics', to: 'calendars#show', as: :schedule_calendar, format: false, defaults: { format: :ics }
   resources :match_nights, only: %i[index show], path: 'schedule' do
     resource :availability, only: %i[update]
     patch 'availability/:player_id', to: 'availabilities#update_for_player', as: :player_availability
@@ -29,7 +30,9 @@ Rails.application.routes.draw do
   resource :magic_link, only: %i[create show], path: 'sign_in/link' do
     post :redeem
   end
-  resource :profile, only: %i[show]
+  resource :profile, only: %i[show] do
+    resource :calendar_token, only: %i[create]
+  end
 
   namespace :admin do
     resources :players, only: %i[index new create edit update]

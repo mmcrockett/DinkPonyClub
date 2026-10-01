@@ -251,6 +251,15 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
     assert_select "##{dom_id(lineups(:fall_alpha_bravo_one), :result)}", text: /With Grace Fixture/
   end
 
+  test 'profile never exposes the calendar feed token, even on your own page' do
+    sign_in_as(players(:ada))
+
+    get player_path(players(:ada))
+
+    assert_response :success
+    assert_not_includes response.body, players(:ada).calendar_token
+  end
+
   test 'profile shows scores from the away side for an away player' do
     sign_in_as(players(:grace))
 

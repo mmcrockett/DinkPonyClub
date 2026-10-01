@@ -6,5 +6,7 @@ class ProfilesController < ApplicationController
   def show
     @player = current_player
     @roster_spots = @player.roster_spots.includes(:team, :season)
+    @calendar_url = schedule_calendar_url(token: @player.calendar_token)
+    @webcal_url = schedule_calendar_url(token: @player.calendar_token, protocol: 'webcal')
   end
 end

@@ -1,0 +1,64 @@
+require 'test_helper'
+
+class PlayerCalendarTest < ActiveSupport::TestCase
+  test 'lists only the nights where the player team plays, in order' do
+    calendar = build(players(:ada), seasons(:fall))
+
+    assert_equal [match_nights(:fall_week_one), match_nights(:fall_upcoming)], calendar.match_nights
+  end
+
+  test 'has no nights and no last_modified without a roster spot' do
+    calendar = build(players(:zoe), seasons(:fall))
+
+    assert_empty calendar.match_nights
+    assert_nil calendar.last_modified
+  end
+
+  test 'has no nights without a season' do
+    assert_empty build(players(:ada), nil).match_nights
+  end
+
+  test 'last_modified follows a slot edit' do
+    calendar_before = build(players(:ada), seasons(:fall)).last_modified
+
+    travel 1.minute do
+      match_slots(:fall_future_slot_two).update!(starts_at: match_slots(:fall_future_slot_two).starts_at + 15.minutes)
+    end
+
+    assert_operator build(players(:ada), seasons(:fall)).last_modified, :>, calendar_before
+  end
+
+  test 'last_modified follows the player own availability change' do
+    calendar_before = build(players(:ada), seasons(:fall)).last_modified
+
+    travel 1.minute do
+      match_availabilities(:fall_future_ada).update!(status: 'out')
+    end
+
+    assert_operator build(players(:ada), seasons(:fall)).last_modified, :>, calendar_before
+  end
+
+  test 'cache_key changes when a slot is deleted' do
+    before = build(players(:ada), seasons(:fall)).cache_key
+
+    match_slots(:fall_future_slot_three).destroy!
+
+    assert_not_equal before, build(players(:ada), seasons(:fall)).cache_key
+  end
+
+  test 'last_modified follows a team rename' do
+    calendar_before = build(players(:ada), seasons(:fall)).last_modified
+
+    travel 1.minute do
+      teams(:alpha).update!(name: 'Renamed Alpha')
+    end
+
+    assert_operator build(players(:ada), seasons(:fall)).last_modified, :>, calendar_before
+  end
+
+  private
+
+  def build(player, season)
+    PlayerCalendar.new(player, season, night_url: ->(night) { "https://example.test/schedule/#{night.id}" })
+  end
+end
