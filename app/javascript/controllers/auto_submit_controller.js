@@ -36,7 +36,8 @@ export default class extends Controller {
     const field = this.element.querySelector(`#${CSS.escape(typing.id)}`)
     if (!field) return
 
-    const stale = field.value !== typing.value
+    // The server strips the query, so a trailing space comes back trimmed - not a new search.
+    const stale = field.value.trim() !== typing.value.trim()
     field.value = typing.value
     field.focus()
     field.setSelectionRange(typing.start, typing.end)

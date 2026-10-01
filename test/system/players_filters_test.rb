@@ -19,6 +19,21 @@ class PlayersFiltersTest < ApplicationSystemTestCase
     assert_current_path(/q=grace/)
   end
 
+  test 'a trailing space in the search keeps the typed text without resubmitting forever' do
+    sign_in_as players(:ada), return_to: players_path
+
+    fill_in 'q', with: 'gra '
+
+    assert_current_path(/q=gra/)
+    sleep 1
+    settled = evaluate_script('history.length')
+    sleep 2
+
+    assert_equal settled, evaluate_script('history.length')
+    assert_field 'q', with: 'gra '
+    assert_equal [4, 4], evaluate_script('[document.activeElement.selectionStart, document.activeElement.selectionEnd]')
+  end
+
   test 'clicking a column header sorts, and clicking again reverses' do
     sign_in_as players(:ada), return_to: players_path
 
