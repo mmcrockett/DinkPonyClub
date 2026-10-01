@@ -9,6 +9,16 @@ module League
 
       attr_reader :season, :players, :report
 
+      def self.reset(season, report)
+        return if season.fees.none?
+
+        charges = Charge.joins(:fee).where(fees: { season_id: season.id })
+        paid = ActiveSupport::NumberHelper.number_to_currency(charges.sum(:paid_cents) / 100.0)
+        report.warn("FORCE re-import is deleting #{season.fees.count} fee(s) and #{charges.count} charge(s) " \
+                    "(#{paid} paid) for #{season.name}, including any payments recorded in admin.")
+        season.fees.destroy_all
+      end
+
       def initialize(season, players, report)
         @season = season
         @players = players
@@ -19,6 +29,7 @@ module League
       def import(league_fee_dollars, people)
         @league_fee = create_league_fee(league_fee_dollars)
         people.each { |person| import_person(person) }
+        warn_paid_without_league_fee(people)
       end
 
       private
@@ -61,6 +72,14 @@ module League
           report.increment_fees
           season.fees.create!(name: name, amount_cents: amount_cents, applies_to_all: false)
         end
+      end
+
+      def warn_paid_without_league_fee(people)
+        paid_count = people.count { |person| person['paid'] }
+        return if @league_fee || paid_count.zero?
+
+        report.warn("#{paid_count} player(s) marked paid, but the export has no league fee; " \
+                    'league payments were not imported.')
       end
 
       def warn_unrostered(person)

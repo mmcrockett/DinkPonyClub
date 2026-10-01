@@ -51,9 +51,9 @@ module League
 
     def reset_and_count_season(season)
       warn_before_reset(season)
+      FeeImport.reset(season, report)
       season.match_nights.destroy_all
       season.matches.destroy_all
-      season.fees.destroy_all
       report.increment_seasons_matched
     end
 

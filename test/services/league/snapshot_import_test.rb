@@ -278,6 +278,35 @@ module League
       assert_equal 'grace@example.test', players(:grace).reload.email
     end
 
+    test 'an export email owned by another player matches that player instead of backfilling' do
+      @data['players'].find { |person| person['name'] == 'Ben Stubfield' }['email'] = 'sam@example.test'
+
+      assert_nothing_raised { SnapshotImport.new(@data).call }
+      assert_nil players(:ben).reload.email
+      assert_equal 'sam@example.test', players(:sam).reload.email
+    end
+
+    test 'warns before FORCE destroys fees and recorded payments' do
+      current_season_with_fees
+      SnapshotImport.new(@data).call
+      charge_for(:grace, 'League fee').update!(paid_cents: 5000)
+
+      report = SnapshotImport.new(@data, force: true).call
+
+      assert(report.warnings.any? do |message|
+        message.include?('3 fee(s) and 13 charge(s) ($165.00 paid)')
+      end)
+    end
+
+    test 'warns when players are marked paid but the export has no league fee' do
+      current_season_with_fees
+      @data['fee'] = nil
+
+      report = SnapshotImport.new(@data).call
+
+      assert(report.warnings.any? { |message| message.include?('2 player(s) marked paid') })
+    end
+
     test 'creates no fees for an archived season' do
       @data['fee'] = 50
       @data['players'].first['paid'] = true
