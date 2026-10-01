@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
-# Calendar clients fetch with no cookies and non-browser user agents, so this
-# skips session auth and the allow_browser gate; the token in the URL is the
-# credential.
+# Calendar clients fetch with no cookies and non-browser user agents; the
+# token in the URL is the credential.
 class CalendarsController < ApplicationController
   include SeasonScoped
 
