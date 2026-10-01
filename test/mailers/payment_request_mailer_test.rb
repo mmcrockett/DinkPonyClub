@@ -37,6 +37,15 @@ class PaymentRequestMailerTest < ActionMailer::TestCase
     assert_includes mail.text_part.body.to_s, 'Total: $26.00'
   end
 
+  test 'sends nothing when the balance is cleared before delivery' do
+    charges(:ada_league_fee).update!(paid_cents: 2600)
+    charges(:ada_league_fee).roster_spot.charges.find_by!(fee: fees(:fall_hat)).update!(paid_cents: 1000)
+
+    assert_no_emails do
+      PaymentRequestMailer.request_payment(players(:ada), seasons(:fall)).deliver_now
+    end
+  end
+
   test 'omits the venmo link when no username is configured' do
     Rails.configuration.x.venmo_username = nil
 

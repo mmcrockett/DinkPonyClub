@@ -7,6 +7,8 @@ class PaymentRequestMailer < ApplicationMailer
     @player = player
     @season = season
     @charges = Charge.owing_for(player, season).to_a
+    return if @charges.empty?
+
     @total_cents = @charges.sum(&:balance_cents)
     @venmo_url = venmo_url
 
