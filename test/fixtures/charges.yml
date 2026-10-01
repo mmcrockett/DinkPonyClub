@@ -1,0 +1,11 @@
+ada_league_fee:
+  roster_spot: fall_alpha_ada
+  fee: fall_league_fee
+  amount_cents: 6000
+  paid_cents: 2000
+
+grace_league_fee:
+  roster_spot: fall_alpha_grace
+  fee: fall_league_fee
+  amount_cents: 6000
+  paid_cents: 6000

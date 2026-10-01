@@ -13,6 +13,7 @@ class PlayersController < ApplicationController
     @teams = @season ? @season.teams.order(:name) : []
     @filter = StatsFilter.new(@season ? PlayerStats.new(@season).rows : [], filter_params)
     @rows = @filter.rows
+    @owing_ids = @season && captain_or_admin?(@season) ? Charge.owing_player_ids(@season) : []
   end
 
   def show

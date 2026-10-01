@@ -32,6 +32,31 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
     assert_select "##{dom_id(@substitute, :stats)}", text: /Substitute/
   end
 
+  test 'admins see who owes money' do
+    sign_in_as(players(:zoe))
+
+    get players_path
+
+    assert_select "##{dom_id(players(:ada), :stats)} .owes-chip"
+    assert_select "##{dom_id(players(:grace), :stats)} .owes-chip", count: 0
+  end
+
+  test 'captains see who owes money' do
+    sign_in_as(players(:ada))
+
+    get players_path
+
+    assert_select "##{dom_id(players(:ada), :stats)} .owes-chip"
+  end
+
+  test 'regular players do not see who owes money' do
+    sign_in_as(players(:grace))
+
+    get players_path
+
+    assert_select '.owes-chip', count: 0
+  end
+
   test 'links each name to the player profile' do
     sign_in_as(players(:ada))
 

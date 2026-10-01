@@ -1,0 +1,74 @@
+<% content_for :title, t('.title') %>
+
+<div class="mx-auto flex max-w-2xl flex-col gap-6">
+  <div class="flex flex-wrap items-start justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-extrabold text-dpc-navy"><%= t('.title') %></h1>
+      <p class="text-gray-500"><%= t('.subtitle', season: @season.name) %></p>
+    </div>
+
+    <% if Season.count > 1 %>
+      <%= form_with url: admin_fees_path, method: :get, class: 'flex items-center gap-2' do |form| %>
+        <%= form.select :season, Season.chronological.map { |s| [s.name, s.id] }, { selected: @season.id },
+                         class: 'rounded-md border border-gray-300 px-3 py-2' %>
+        <%= form.submit 'Go', name: nil, class: 'btn bg-dpc-navy text-white' %>
+      <% end %>
+    <% end %>
+  </div>
+
+  <% if @fees.any? %>
+    <ul class="flex flex-col gap-2">
+      <% @fees.each do |fee| %>
+        <li class="flex items-center justify-between rounded-md bg-white px-4 py-3 shadow-sm">
+          <div>
+            <span class="font-semibold"><%= fee.name %></span>
+            <span class="text-gray-500">- <%= dollars(fee.amount_cents) %></span>
+            <span class="ml-2 text-xs font-bold uppercase text-dpc-green">
+              <%= fee.applies_to_all? ? t('.everyone') : t('.opt_in') %>
+            </span>
+          </div>
+          <%= button_to t('.remove'), admin_fee_path(fee, season: @season), method: :delete, class: 'btn btn-secondary',
+                        form: { data: { turbo_confirm: t('.confirm_remove', name: fee.name) } } %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="text-gray-500"><%= t('.empty') %></p>
+  <% end %>
+
+  <%= form_with model: [:admin, @fee], url: admin_fees_path(season: @season), class: 'flex flex-col gap-4' do |form| %>
+    <% if @fee.errors.any? %>
+      <div class="rounded-md bg-red-50 px-4 py-3 text-sm text-red-700">
+        <ul class="list-disc pl-4">
+          <% @fee.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="flex flex-col gap-4 rounded-md bg-white p-5 shadow-sm">
+      <h2 class="font-bold text-dpc-navy"><%= t('.add') %></h2>
+
+      <div class="flex flex-col gap-1">
+        <%= form.label :name, class: 'text-sm font-semibold text-dpc-navy' %>
+        <%= form.text_field :name, class: 'form-input' %>
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <%= form.label :amount, class: 'text-sm font-semibold text-dpc-navy' %>
+        <%= form.text_field :amount, value: (dollars_input_value(@fee.amount_cents) if @fee.amount_cents),
+                            inputmode: 'decimal', class: 'form-input' %>
+      </div>
+
+      <label class="flex items-center gap-2 text-sm text-dpc-navy">
+        <%= form.check_box :applies_to_all %>
+        <%= t('.applies_to_all') %>
+      </label>
+    </div>
+
+    <div class="flex items-center justify-end">
+      <%= form.submit t('.add'), class: 'btn btn-primary' %>
+    </div>
+  <% end %>
+</div>

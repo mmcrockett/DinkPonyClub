@@ -35,7 +35,10 @@ Rails.application.routes.draw do
   end
 
   namespace :admin do
-    resources :players, only: %i[index new create edit update]
+    resources :players, only: %i[index new create edit update] do
+      resource :charges, only: %i[update]
+    end
+    resources :fees, only: %i[index create destroy]
     resource :roster, only: %i[show update]
   end
 

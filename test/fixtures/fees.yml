@@ -1,0 +1,11 @@
+fall_league_fee:
+  season: fall
+  name: League fee
+  amount_cents: 6000
+  applies_to_all: true
+
+fall_hat:
+  season: fall
+  name: Hat
+  amount_cents: 2000
+  applies_to_all: false

@@ -6,6 +6,7 @@ class Season < ApplicationRecord
   has_many :teams, -> { distinct }, through: :roster_spots
   has_many :matches, dependent: :destroy
   has_many :match_nights, dependent: :destroy
+  has_many :fees, dependent: :destroy
 
   validates :name, presence: true, uniqueness: true
 

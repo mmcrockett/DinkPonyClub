@@ -65,6 +65,33 @@ en:
         own_status: "%{status} - you can't change your own status."
       update:
         updated: "%{name} was updated."
+    fees:
+      no_season: "No seasons exist yet."
+      index:
+        title: "Fees"
+        subtitle: "What players owe for %{season}. New fees can be added any time."
+        everyone: "Everyone"
+        opt_in: "Opt-in"
+        remove: "Remove"
+        confirm_remove: "Remove %{name}? This also deletes every player's payment record for it."
+        empty: "No fees for this season yet."
+        add: "Add fee"
+        applies_to_all: "Charge every rostered player (leave unticked for opt-in items like shirts)"
+      create:
+        created: "%{name} was added."
+      destroy:
+        destroyed: "%{name} was removed."
+    charges:
+      form:
+        title: "Fees - %{season}"
+        paid: "Paid $"
+        paid_in_full: "Mark paid in full"
+        save: "Save fees"
+        no_fees: "No fees set up for %{season}."
+        manage_fees: "Manage fees"
+      update:
+        saved: "Fees for %{name} were saved."
+        has_payment: "%{fee} has a payment recorded - set paid to $0 before removing it."
     rosters:
       show:
         title: "Roster & captains"
@@ -119,6 +146,7 @@ en:
   players:
     captain: "Captain"
     substitute: "Substitute"
+    owes: "Owes money"
     contact_hidden: "Contact details are available to captains."
     no_contact: "No contact details on file."
     filters:
@@ -199,3 +227,7 @@ en:
         points_for: "Points for"
         points_against: "Points against"
         diff: "Diff"
+  activerecord:
+    attributes:
+      fee:
+        amount_cents: "Amount"

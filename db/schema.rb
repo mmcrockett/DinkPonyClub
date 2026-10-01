@@ -10,7 +10,30 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_30_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_30_150001) do
+  create_table "charges", force: :cascade do |t|
+    t.integer "amount_cents", null: false
+    t.datetime "created_at", null: false
+    t.integer "fee_id", null: false
+    t.integer "paid_cents", default: 0, null: false
+    t.integer "roster_spot_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["fee_id"], name: "index_charges_on_fee_id"
+    t.index ["roster_spot_id", "fee_id"], name: "index_charges_on_roster_spot_id_and_fee_id", unique: true
+    t.index ["roster_spot_id"], name: "index_charges_on_roster_spot_id"
+  end
+
+  create_table "fees", force: :cascade do |t|
+    t.integer "amount_cents", null: false
+    t.boolean "applies_to_all", default: false, null: false
+    t.datetime "created_at", null: false
+    t.string "name", limit: 100, null: false
+    t.integer "season_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["season_id", "name"], name: "index_fees_on_season_id_and_name", unique: true
+    t.index ["season_id"], name: "index_fees_on_season_id"
+  end
+
   create_table "games", force: :cascade do |t|
     t.integer "away_player_a_id", null: false
     t.integer "away_player_b_id", null: false
@@ -143,6 +166,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_120000) do
     t.index ["name"], name: "index_teams_on_name", unique: true
   end
 
+  add_foreign_key "charges", "fees"
+  add_foreign_key "charges", "roster_spots"
+  add_foreign_key "fees", "seasons"
   add_foreign_key "games", "lineups"
   add_foreign_key "games", "players", column: "away_player_a_id"
   add_foreign_key "games", "players", column: "away_player_b_id"

@@ -1,0 +1,32 @@
+<%= form_with url: admin_player_charges_path(player), method: :patch, class: 'flex flex-col gap-4' do %>
+  <%= hidden_field_tag :season, season.id %>
+
+  <div class="flex flex-col gap-3 rounded-md bg-white p-5 shadow-sm">
+    <h2 class="font-bold text-dpc-navy"><%= t('admin.charges.form.title', season: season.name) %></h2>
+
+    <% fees.each do |fee| %>
+      <% charge = charges[fee.id] %>
+      <div class="flex flex-wrap items-center gap-x-4 gap-y-2" id="<%= dom_id(fee, :charge) %>">
+        <label class="flex min-w-40 flex-1 items-center gap-2 text-sm font-semibold text-dpc-navy">
+          <%= check_box_tag "charges[#{fee.id}][charged]", '1', charge.present? %>
+          <%= fee.name %> (<%= dollars(charge&.amount_cents || fee.amount_cents) %>)
+        </label>
+
+        <label class="flex items-center gap-1 text-sm text-dpc-navy/70">
+          <%= t('admin.charges.form.paid') %>
+          <%= text_field_tag "charges[#{fee.id}][paid]", (dollars_input_value(charge.paid_cents) if charge),
+                             inputmode: 'decimal', class: 'form-input w-24' %>
+        </label>
+
+        <label class="flex items-center gap-1 text-sm text-dpc-navy/70">
+          <%= check_box_tag "charges[#{fee.id}][paid_in_full]", '1', false %>
+          <%= t('admin.charges.form.paid_in_full') %>
+        </label>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="flex items-center justify-end">
+    <%= submit_tag t('admin.charges.form.save'), class: 'btn btn-primary' %>
+  </div>
+<% end %>
