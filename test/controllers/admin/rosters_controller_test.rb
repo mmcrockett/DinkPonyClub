@@ -97,6 +97,7 @@ module Admin
     end
 
     test 'ignores roster spot ids from another season' do
+      roster_spots(:spring_alpha_ada).update!(captain: false)
       sign_in_as players(:zoe)
 
       patch admin_roster_path, params: {
@@ -104,6 +105,7 @@ module Admin
         captain_ids: [roster_spots(:spring_alpha_ada).id, roster_spots(:fall_bravo_sam).id]
       }
 
+      assert_predicate roster_spots(:spring_alpha_ada).reload, :captain?
       assert_not roster_spots(:fall_bravo_sam).reload.captain?
     end
 
