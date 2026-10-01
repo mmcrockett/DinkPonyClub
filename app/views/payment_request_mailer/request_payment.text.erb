@@ -1,0 +1,13 @@
+Hi <%= @player.first_name %>,
+
+Here's what you owe for <%= @season.name %>:
+
+<% @charges.each do |charge| -%>
+- <%= charge.fee.name %>: <%= dollars(charge.balance_cents) %>
+<% end -%>
+
+Total: <%= dollars(@total_cents) %>
+<% if @venmo_url %>
+Pay with Venmo: <%= @venmo_url %>
+<% end %>
+If you've already paid, you can ignore this email.

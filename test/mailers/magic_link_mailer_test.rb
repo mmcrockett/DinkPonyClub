@@ -8,7 +8,7 @@ class MagicLinkMailerTest < ActionMailer::TestCase
     mail = MagicLinkMailer.sign_in(player)
 
     assert_equal [player.email], mail.to
-    assert_equal ['noreply@dinkponyclub.org'], mail.from
+    assert_equal ['no-reply@dinkponyclub.org'], mail.from
     assert_equal I18n.t('magic_link_mailer.sign_in.subject'), mail.subject
 
     token = mail.text_part.body.to_s[/token=([^\s&]+)/, 1]
