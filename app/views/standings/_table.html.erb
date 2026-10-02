@@ -11,6 +11,9 @@
         <th class="px-4 py-3 text-right"><%= t('standings.show.table.points_for') %></th>
         <th class="px-4 py-3 text-right"><%= t('standings.show.table.points_against') %></th>
         <th class="px-4 py-3 text-right"><%= t('standings.show.table.diff') %></th>
+        <th class="hidden px-4 py-3 text-right sm:table-cell"><%= t('standings.show.table.streak') %></th>
+        <th class="hidden px-4 py-3 text-left sm:table-cell"><%= t('standings.show.table.form') %></th>
+        <th class="hidden px-4 py-3 text-left sm:table-cell"><%= t('standings.show.table.next') %></th>
       </tr>
     </thead>
     <tbody class="divide-y divide-gray-100">
@@ -25,6 +28,15 @@
           <td class="px-4 py-3 text-right"><%= format_points(row.points_for) %></td>
           <td class="px-4 py-3 text-right"><%= format_points(row.points_against) %></td>
           <td class="px-4 py-3 text-right"><%= standings_diff(row.diff) %></td>
+          <td class="streak hidden px-4 py-3 text-right font-semibold sm:table-cell"><%= row.streak || '-' %></td>
+          <td class="form hidden px-4 py-3 sm:table-cell">
+            <span class="flex gap-1">
+              <% row.form.each do |outcome| %>
+                <span class="inline-flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-white <%= form_chip_classes(outcome) %>"><%= outcome %></span>
+              <% end %>
+            </span>
+          </td>
+          <td class="next-opponent hidden px-4 py-3 text-gray-600 sm:table-cell"><%= row.next_opponent&.name || '-' %></td>
         </tr>
       <% end %>
     </tbody>
