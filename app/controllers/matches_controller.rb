@@ -38,9 +38,9 @@ class MatchesController < ApplicationController
   end
 
   def load_rosters
-    @home_roster = @match.home_team.roster_for(@match.season)
-    @away_roster = @match.away_team.roster_for(@match.season)
-    @players_by_id = Player.where(id: @home_roster + @away_roster).index_by { |player| player.id.to_s }
+    @home_roster = @match.home_team.roster_for(@match.season).to_a
+    @away_roster = @match.away_team.roster_for(@match.season).to_a
+    @players_by_id = (@home_roster + @away_roster).index_by { |player| player.id.to_s }
   end
 
   def require_match_captain_or_admin

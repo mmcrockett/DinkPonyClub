@@ -3,7 +3,7 @@
 <%= turbo_frame_tag dom_id(match_night, :team_availability) do %>
   <div class="grid gap-6 border-t border-gray-100 p-4 sm:grid-cols-2">
     <% @team_rosters.each do |team, roster| %>
-      <% editable = admin? || current_player.captain_of_team?(match_night.season, team.id) %>
+      <% editable = admin? || @captain_team_ids.include?(team.id) %>
       <% counts = roster.map { |player| availabilities[player.id]&.status }.tally %>
 
       <div>

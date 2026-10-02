@@ -3,6 +3,7 @@
 module UpNext
   extend ActiveSupport::Concern
   include SlotPreferences
+  include CurrentAvailabilities
 
   private
 
@@ -10,14 +11,7 @@ module UpNext
     @next_match_night = season.match_nights.upcoming.where(canceled: false).chronological
                               .includes(MatchNightsController::MATCH_NIGHT_INCLUDES).first
     @can_enter_results = captain_or_admin?(season)
-    @availabilities = availabilities_for(@next_match_night)
+    @availabilities = current_player_availabilities([@next_match_night].compact)
     @slot_preferences = current_player_slot_preferences([@next_match_night].compact)
-  end
-
-  def availabilities_for(match_night)
-    return {} unless match_night
-
-    availability = match_night.match_availabilities.find { |a| a.player_id == current_player.id }
-    availability ? { match_night.id => availability } : {}
   end
 end
