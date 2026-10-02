@@ -123,7 +123,17 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
     frame = "##{dom_id(match_nights(:fall_upcoming), :my_availability)}"
 
     assert_select "#{frame} input[type=radio]", count: 0
-    assert_select "#{frame} span[aria-label='Prefer']", minimum: 1
+    assert_select "#{frame} span.bg-dpc-green .sr-only", text: 'Prefer', count: 1
+    assert_select "#{frame} span.opacity-40 .sr-only", text: 'Prefer', count: 2
+  end
+
+  test 'keeps saved slot preferences when a player switches to out' do
+    sign_in_as_ada
+    slot = match_slots(:fall_future_slot_one)
+
+    patch match_night_availability_path(match_nights(:fall_upcoming)), params: { match_availability: { status: 'out' } }
+
+    assert_equal 'thumbs_up', slot.slot_availabilities.find_by!(player: players(:ada)).preference
   end
 
   test 'highlights only the saved answer when availability is closed for a non-captain' do

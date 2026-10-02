@@ -18,9 +18,9 @@
             </label>
           <% else %>
             <span class="touch-target flex items-center rounded-md border px-3
-                         <%= saved == value ? slot_preference_selected_classes(value) : 'border-gray-200 opacity-40' %>"
-                  aria-label="<%= slot_preference_aria_label(value) %>">
-              <%= slot_preference_label(value) %>
+                         <%= saved == value ? slot_preference_selected_classes(value) : 'border-gray-200 opacity-40' %>">
+              <span aria-hidden="true"><%= slot_preference_label(value) %></span>
+              <span class="sr-only"><%= slot_preference_aria_label(value) %></span>
             </span>
           <% end %>
         <% end %>
