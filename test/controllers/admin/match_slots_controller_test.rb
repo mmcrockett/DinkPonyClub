@@ -46,6 +46,37 @@ module Admin
       assert_match(/Could not add time/, flash[:alert])
     end
 
+    test 'rejects an out-of-range time with an alert instead of raising' do
+      sign_in_as players(:zoe)
+
+      assert_no_difference 'MatchSlot.count' do
+        post admin_match_night_match_slots_path(@night), params: { match_slot: { starts_at: '25:00' } }
+      end
+
+      assert_match(/Could not add time/, flash[:alert])
+    end
+
+    test 'rejects a duplicate time on the same night' do
+      sign_in_as players(:zoe)
+
+      assert_no_difference 'MatchSlot.count' do
+        post admin_match_night_match_slots_path(@night), params: { match_slot: { starts_at: '19:00' } }
+      end
+
+      assert_match(/Could not add time/, flash[:alert])
+    end
+
+    test 'rejects a slot on a canceled night' do
+      sign_in_as players(:zoe)
+      canceled = match_nights(:fall_canceled)
+
+      assert_no_difference 'MatchSlot.count' do
+        post admin_match_night_match_slots_path(canceled), params: { match_slot: { starts_at: '19:00' } }
+      end
+
+      assert_match(/is canceled/, flash[:alert])
+    end
+
     test 'removes a slot and its availabilities' do
       sign_in_as players(:zoe)
       slot = match_slots(:fall_future_slot_one)

@@ -3,7 +3,7 @@
   <% match_night.match_slots.each do |slot| %>
     <% saved = @slot_preferences[slot.id] %>
     <div class="flex items-center justify-between gap-3">
-      <span class="text-sm"><%= slot.starts_at.strftime('%-l:%M %p') %></span>
+      <span class="text-sm"><%= slot.label %></span>
       <div class="flex gap-1">
         <% SlotAvailability.preferences.each_key do |value| %>
           <% if editable %>

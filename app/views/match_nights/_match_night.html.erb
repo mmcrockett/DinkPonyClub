@@ -17,7 +17,7 @@
         </div>
         <p class="text-sm text-gray-500">
           <% if match_night.match_slots.any? %>
-            <%= match_night.match_slots.first.starts_at.strftime('%-l:%M %p') %> &middot;
+            <%= match_night.match_slots.first.label %> &middot;
           <% end %>
           <%= match_night.venue %>
         </p>

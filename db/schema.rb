@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_30_150001) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_02_220929) do
   create_table "charges", force: :cascade do |t|
     t.integer "amount_cents", null: false
     t.datetime "created_at", null: false
@@ -90,6 +90,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_150001) do
     t.datetime "starts_at", null: false
     t.datetime "updated_at", null: false
     t.index ["match_night_id", "position"], name: "index_match_slots_on_match_night_and_position", unique: true
+    t.index ["match_night_id", "starts_at"], name: "index_match_slots_on_match_night_and_starts_at", unique: true
   end
 
   create_table "matches", force: :cascade do |t|

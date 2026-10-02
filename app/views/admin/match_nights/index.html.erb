@@ -33,7 +33,7 @@
           <% unless night.canceled? %>
             <div class="flex flex-wrap items-center gap-2 border-t border-gray-100 pt-3">
               <% night.match_slots.each do |slot| %>
-                <% time = slot.starts_at.strftime('%-l:%M %p') %>
+                <% time = slot.label %>
                 <span class="flex items-center gap-2 rounded-md border border-gray-300 px-2 py-1 text-sm">
                   <%= time %>
                   <%= button_to t('.remove_time'), admin_match_night_match_slot_path(night, slot), method: :delete,
