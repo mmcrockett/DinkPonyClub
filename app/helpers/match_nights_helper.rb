@@ -40,8 +40,6 @@ module MatchNightsHelper
     'out' => 'border-red-700 bg-red-700 text-white'
   }.freeze
 
-  SLOT_PREFERENCES = %w[thumbs_up meh thumbs_down].freeze
-
   SLOT_PREFERENCE_CHECKED_CLASSES = {
     'thumbs_up' => 'has-checked:border-dpc-green has-checked:bg-dpc-green',
     'meh' => 'has-checked:border-amber-400 has-checked:bg-amber-400',

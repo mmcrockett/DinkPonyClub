@@ -29,7 +29,7 @@ class ScheduleAvailabilityTest < ApplicationSystemTestCase
     selector = "input[name='slot_preferences[#{slot.id}]']"
 
     within("##{dom_id(match_nights(:fall_upcoming))}") do
-      first("label[aria-label='Rather not']").click
+      first('label', text: 'Rather not', visible: :all).click
     end
 
     assert_selector "#{selector}[value=thumbs_down]:checked", visible: false
