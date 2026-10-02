@@ -294,13 +294,28 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
     season = seasons(:fall)
 
     before = count_queries { get season_match_nights_path(season) }
-    3.times { |n| season.match_nights.create!(played_on: Date.current + 30 + n, label: "Extra #{n}") }
+    add_match_nights(season)
     after = count_queries { get season_match_nights_path(season) }
 
     assert_equal before, after
   end
 
+  test 'team availability query count does not grow with more match nights' do
+    sign_in_as_ada
+    season = seasons(:fall)
+
+    before = count_queries { get season_match_nights_path(season, view: 'availability') }
+    add_match_nights(season)
+    after = count_queries { get season_match_nights_path(season, view: 'availability') }
+
+    assert_equal before, after
+  end
+
   private
+
+  def add_match_nights(season)
+    3.times { |n| season.match_nights.create!(played_on: Date.current + 30 + n, label: "Extra #{n}") }
+  end
 
   def count_queries(&)
     count = 0

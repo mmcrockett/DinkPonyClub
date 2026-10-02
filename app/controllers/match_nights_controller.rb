@@ -28,7 +28,10 @@ class MatchNightsController < ApplicationController
     @season = @match_night.season
     @can_enter_results = captain_or_admin?(@season)
     @team_view = params[:view] == 'availability' && @can_enter_results
-    load_team_view(@season, [@match_night]) if @team_view
+    if @team_view
+      ActiveRecord::Associations::Preloader.new(records: [@match_night], associations: :match_availabilities).call
+      load_team_view(@season)
+    end
     @availabilities = current_player_availabilities([@match_night])
     @slot_preferences = current_player_slot_preferences([@match_night])
   end
@@ -42,8 +45,7 @@ class MatchNightsController < ApplicationController
     @team_view ? nights.includes(:match_availabilities) : nights
   end
 
-  def load_team_view(season, match_nights = [])
-    ActiveRecord::Associations::Preloader.new(records: match_nights, associations: :match_availabilities).call
+  def load_team_view(season)
     @team_rosters = team_rosters_for(season)
     @captain_team_ids = current_player.roster_spots.captains.where(season: season).pluck(:team_id)
   end
