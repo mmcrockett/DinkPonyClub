@@ -287,6 +287,15 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
     assert_select '.career-total', text: /Career\s+6\s+2\s+4\s+33%/
   end
 
+  test 'profile hides the career total for a one-season player' do
+    sign_in_as(players(:grace))
+
+    get season_player_path(seasons(:fall), players(:sam))
+
+    assert_select '.career tbody tr', count: 1
+    assert_select '.career-total', count: 0
+  end
+
   test 'profile never exposes the calendar feed token, even on your own page' do
     sign_in_as(players(:ada))
 

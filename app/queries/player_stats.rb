@@ -1,13 +1,11 @@
 # frozen_string_literal: true
 
 class PlayerStats
-  Row = Struct.new(:player, :team, :captain, :games, :wins, :losses, :win_pct, keyword_init: true) do
+  Row = Struct.new(:player, :season, :team, :captain, :games, :wins, :losses, :win_pct, keyword_init: true) do
     def substitute?
       team.nil?
     end
   end
-
-  PLAYER_COLUMNS = Game::PLAYER_COLUMNS
 
   attr_reader :season
 
@@ -30,7 +28,7 @@ class PlayerStats
 
   def games_by_player_id
     @games_by_player_id ||= season_games.each_with_object(Hash.new { |hash, key| hash[key] = [] }) do |game, memo|
-      PLAYER_COLUMNS.each { |column| memo[game[column]] << game }
+      Game::PLAYER_COLUMNS.each { |column| memo[game[column]] << game }
     end
   end
 
@@ -45,7 +43,7 @@ class PlayerStats
     wins = wins_for(player, games)
 
     Row.new(
-      player: player, team: team, captain: captain, games: games.size,
+      player: player, season: season, team: team, captain: captain, games: games.size,
       wins: wins, losses: games.size - wins, win_pct: win_pct(wins, games.size)
     )
   end

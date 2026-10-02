@@ -17,10 +17,10 @@ class PlayersController < ApplicationController
   def show
     @player = Player.find(params.expect(:id))
     @season = current_season
-    @row = @season && PlayerStats.new(@season).rows.find { |row| row.player == @player }
+    @career = PlayerCareer.new(@player)
+    @row = @career.rows.find { |row| row.season == @season }
     @show_contacts = @season.present? && captain_or_admin?(@season)
     @line_results = @season ? line_results : []
-    @career = PlayerCareer.new(@player)
   end
 
   private
