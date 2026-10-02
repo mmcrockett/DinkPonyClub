@@ -39,12 +39,14 @@
       <% end %>
     </ul>
 
-    <div class="mt-auto flex flex-col gap-1 border-t border-white/10 pt-2">
-      <%= render 'layouts/sidebar_install' %>
+    <div class="mt-auto flex flex-col gap-1">
       <% if app_version %>
         <p class="px-4 text-[10px] leading-none text-white/40" title="<%= app_revision %>">v<%= app_version %></p>
       <% end %>
-      <%= render 'layouts/sidebar_account' %>
+      <div class="flex flex-col gap-1 border-t border-white/10 pt-2">
+        <%= render 'layouts/sidebar_install' %>
+        <%= render 'layouts/sidebar_account' %>
+      </div>
     </div>
   </aside>
 
