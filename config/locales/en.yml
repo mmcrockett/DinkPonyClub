@@ -69,8 +69,19 @@ en:
       update:
         updated: "%{name} was updated."
     match_nights:
+      no_season: "No seasons exist yet."
+      create:
+        created: "%{label} added."
       update:
         canceled: "%{label} canceled."
+      index:
+        title: "Schedule"
+        cancel_night: "Cancel night"
+        confirm_cancel: "Cancel this match night? Players will see it as canceled."
+        empty: "No match nights for this season yet."
+        add: "Add night"
+        playoffs: "Playoffs"
+        canceled: "Canceled"
     fees:
       no_season: "No seasons exist yet."
       index:
@@ -140,7 +151,7 @@ en:
   match_nights:
     schedule:
       title: "The season schedule"
-      subtitle: "Set your availability now. Update it whenever plans change."
+      manage: "Manage schedule"
       team_availability: "Team availability"
       show_matchups: "Show matchups"
       empty: "No match nights are scheduled yet."
@@ -164,8 +175,6 @@ en:
         meh: "Okay"
         thumbs_down: "Rather not"
       canceled: "Canceled"
-      cancel_night: "Cancel night"
-      confirm_cancel: "Cancel this match night? Players will see it as canceled."
       playoffs: "Playoffs"
       scorecard: "Scorecard"
       enter_results: "Enter results"
@@ -247,7 +256,6 @@ en:
   standings:
     show:
       title: "The race for first."
-      subtitle: "Regular season - Ranked by wins, then point differential."
       empty: "No teams are rostered for this season yet."
       no_results_yet: "No results have been posted yet. The table fills in as scorecards land."
       footnote: "Every game win is one point; a three-game line sweep adds %{bonus}."
@@ -275,7 +283,6 @@ en:
   teams:
     index:
       title: "Teams"
-      subtitle: "Who's playing in %{season}."
     show:
       back: "All teams"
       rank: "Rank"
