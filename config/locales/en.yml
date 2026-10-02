@@ -257,6 +257,19 @@ en:
         points_for: "Points for"
         points_against: "Points against"
         diff: "Diff"
+        streak: "Streak"
+        form: "Last 5"
+        next: "Next"
+  seasons:
+    show:
+      weeks_played:
+        one: "1 week played"
+        other: "%{count} weeks played"
+      up_next: "Up next"
+      full_schedule: "Full schedule"
+      standings: "Standings"
+      full_standings: "Full standings"
+      recent_results: "Recent results - %{label}"
   activerecord:
     attributes:
       fee:
