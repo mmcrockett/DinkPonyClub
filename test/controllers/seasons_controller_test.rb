@@ -35,6 +35,16 @@ class SeasonsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".recent-results a[href='#{match_path(matches(:fall_alpha_bravo))}']"
   end
 
+  test 'show up next card lists slot preferences with the saved choice' do
+    sign_in_as_ada
+    slot = match_slots(:fall_future_slot_one)
+
+    get season_path(seasons(:fall))
+
+    assert_select "input[name='slot_preferences[#{slot.id}]']", count: 3
+    assert_select "input[name='slot_preferences[#{slot.id}]'][value=thumbs_up][checked]"
+  end
+
   test 'show standings include streak and next opponent' do
     sign_in_as_ada
 

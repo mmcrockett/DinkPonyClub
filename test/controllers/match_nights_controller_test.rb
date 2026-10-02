@@ -77,6 +77,65 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
     assert_select "##{dom_id(match_nights(:fall_upcoming), :my_availability)}"
   end
 
+  test 'shows slot preference radios with the saved choice for a player who is in' do
+    sign_in_as_ada
+    slot = match_slots(:fall_future_slot_one)
+
+    get season_match_nights_path(seasons(:fall))
+
+    frame = "##{dom_id(match_nights(:fall_upcoming), :my_availability)}"
+
+    assert_select "#{frame} input[name='slot_preferences[#{slot.id}]']", count: 3
+    assert_select "#{frame} input[name='slot_preferences[#{slot.id}]'][value=thumbs_up][checked]"
+  end
+
+  test 'hides slot preference radios for a player who is out' do
+    sign_in_as(players(:grace))
+
+    get season_match_nights_path(seasons(:fall))
+
+    frame = "##{dom_id(match_nights(:fall_upcoming), :my_availability)}"
+
+    assert_select "#{frame} input[name^='slot_preferences']", count: 0
+  end
+
+  test 'hides slot preference radios on a night with no slots' do
+    sign_in_as_ada
+    match_nights(:fall_upcoming).match_slots.destroy_all
+
+    get season_match_nights_path(seasons(:fall))
+
+    frame = "##{dom_id(match_nights(:fall_upcoming), :my_availability)}"
+
+    assert_select "#{frame} input[name^='slot_preferences']", count: 0
+  end
+
+  test 'shows slot preferences read-only once availability has closed' do
+    sign_in_as(players(:grace))
+    match_availabilities(:fall_future_grace).update!(status: 'in')
+    slot_one = match_slots(:fall_future_slot_one)
+    slot_one.slot_availabilities.create!(player: players(:grace), preference: 'thumbs_up')
+
+    travel_to(match_nights(:fall_upcoming).availability_cutoff_at + 1.minute) do
+      get season_match_nights_path(seasons(:fall))
+    end
+
+    frame = "##{dom_id(match_nights(:fall_upcoming), :my_availability)}"
+
+    assert_select "#{frame} input[type=radio]", count: 0
+    assert_select "#{frame} span.bg-dpc-green .sr-only", text: 'Prefer', count: 1
+    assert_select "#{frame} span.opacity-40 .sr-only", text: 'Prefer', count: 2
+  end
+
+  test 'keeps saved slot preferences when a player switches to out' do
+    sign_in_as_ada
+    slot = match_slots(:fall_future_slot_one)
+
+    patch match_night_availability_path(match_nights(:fall_upcoming)), params: { match_availability: { status: 'out' } }
+
+    assert_equal 'thumbs_up', slot.slot_availabilities.find_by!(player: players(:ada)).preference
+  end
+
   test 'highlights only the saved answer when availability is closed for a non-captain' do
     sign_in_as(players(:grace))
 

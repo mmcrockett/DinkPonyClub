@@ -2,11 +2,14 @@
 
 class MatchNightsController < ApplicationController
   include SeasonScoped
+  include SlotPreferences
 
   before_action :require_sign_in
   before_action :redirect_to_season_scope, only: :index
 
-  MATCH_NIGHT_INCLUDES = { matches: [:home_team, :away_team, { lineups: :games }], match_availabilities: [] }.freeze
+  MATCH_NIGHT_INCLUDES = {
+    matches: [:home_team, :away_team, { lineups: :games }], match_availabilities: [], match_slots: []
+  }.freeze
 
   def index
     @season = current_season
@@ -17,6 +20,7 @@ class MatchNightsController < ApplicationController
     @team_view = params[:view] == 'availability' && @can_enter_results
     @team_rosters = team_rosters_for(@season) if @team_view
     @availabilities = current_player_availabilities(@match_nights)
+    @slot_preferences = current_player_slot_preferences(@match_nights)
   end
 
   def show
@@ -26,6 +30,7 @@ class MatchNightsController < ApplicationController
     @team_view = params[:view] == 'availability' && @can_enter_results
     @team_rosters = team_rosters_for(@season) if @team_view
     @availabilities = current_player_availabilities([@match_night])
+    @slot_preferences = current_player_slot_preferences([@match_night])
   end
 
   private

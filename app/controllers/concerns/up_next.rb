@@ -2,6 +2,7 @@
 
 module UpNext
   extend ActiveSupport::Concern
+  include SlotPreferences
 
   private
 
@@ -10,6 +11,7 @@ module UpNext
                               .includes(MatchNightsController::MATCH_NIGHT_INCLUDES).first
     @can_enter_results = captain_or_admin?(season)
     @availabilities = availabilities_for(@next_match_night)
+    @slot_preferences = current_player_slot_preferences([@next_match_night].compact)
   end
 
   def availabilities_for(match_night)

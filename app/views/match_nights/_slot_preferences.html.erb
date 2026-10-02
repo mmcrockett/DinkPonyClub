@@ -1,0 +1,30 @@
+<div class="flex flex-col gap-2">
+  <p class="text-sm font-medium text-gray-600"><%= t('match_nights.schedule.slot_preferences_prompt') %></p>
+  <% match_night.match_slots.each do |slot| %>
+    <% saved = @slot_preferences[slot.id] %>
+    <div class="flex items-center justify-between gap-3">
+      <span class="text-sm"><%= slot.starts_at.strftime('%-l:%M %p') %></span>
+      <div class="flex gap-1">
+        <% SlotAvailability.preferences.each_key do |value| %>
+          <% if editable %>
+            <label class="touch-target flex cursor-pointer items-center rounded-md border border-gray-300 px-3
+                          has-focus-visible:ring-2 has-focus-visible:ring-dpc-navy
+                          <%= slot_preference_checked_classes(value) %>">
+              <%= radio_button_tag "slot_preferences[#{slot.id}]", value, saved == value,
+                                    id: "slot_preferences_#{slot.id}_#{value}", class: 'sr-only',
+                                    data: { action: 'change->availability#submit' } %>
+              <span aria-hidden="true"><%= slot_preference_label(value) %></span>
+              <span class="sr-only"><%= slot_preference_aria_label(value) %></span>
+            </label>
+          <% else %>
+            <span class="touch-target flex items-center rounded-md border px-3
+                         <%= saved == value ? slot_preference_selected_classes(value) : 'border-gray-200 opacity-40' %>">
+              <span aria-hidden="true"><%= slot_preference_label(value) %></span>
+              <span class="sr-only"><%= slot_preference_aria_label(value) %></span>
+            </span>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>
