@@ -80,8 +80,6 @@ en:
         confirm_cancel: "Cancel this match night? Players will see it as canceled."
         empty: "No match nights for this season yet."
         add: "Add night"
-        playoffs: "Playoffs"
-        canceled: "Canceled"
     fees:
       no_season: "No seasons exist yet."
       index:

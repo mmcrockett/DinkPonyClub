@@ -48,6 +48,16 @@ module Admin
       assert_response :unprocessable_content
     end
 
+    test 'redirects to players with an alert when no season exists' do
+      sign_in_as players(:zoe)
+      Season.destroy_all
+
+      get admin_match_nights_path
+
+      assert_redirected_to admin_players_path
+      assert_equal 'No seasons exist yet.', flash[:alert]
+    end
+
     test 'redirects a non-admin and leaves the night unchanged' do
       sign_in_as players(:ada)
 
