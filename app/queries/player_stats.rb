@@ -7,7 +7,7 @@ class PlayerStats
     end
   end
 
-  PLAYER_COLUMNS = %i[home_player_a_id home_player_b_id away_player_a_id away_player_b_id].freeze
+  PLAYER_COLUMNS = Game::PLAYER_COLUMNS
 
   attr_reader :season
 

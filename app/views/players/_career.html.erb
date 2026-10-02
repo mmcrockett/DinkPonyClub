@@ -1,0 +1,45 @@
+<div class="career flex flex-col gap-2">
+  <h2 class="text-lg font-bold text-dpc-navy"><%= t('players.show.by_season') %></h2>
+  <div class="overflow-x-auto rounded-md bg-white shadow-sm">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="border-b border-gray-100 text-xs font-bold uppercase text-gray-500">
+          <th class="px-4 py-3 text-left"><%= t('players.show.season') %></th>
+          <th class="px-4 py-3 text-left"><%= t('players.index.table.team') %></th>
+          <th class="px-4 py-3 text-right"><%= t('players.show.games') %></th>
+          <th class="px-4 py-3 text-right"><%= t('players.show.wins') %></th>
+          <th class="px-4 py-3 text-right"><%= t('players.show.losses') %></th>
+          <th class="px-4 py-3 text-right"><%= t('players.show.win_rate') %></th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        <% career.rows.each do |row| %>
+          <tr id="<%= dom_id(row.season, :career) %>" class="<%= 'bg-gray-50 font-bold' if row.season == season %>">
+            <td class="px-4 py-3 text-dpc-navy">
+              <%= link_to row.season.name, season_player_path(row.season, career.player), class: 'hover:underline' %>
+            </td>
+            <td class="px-4 py-3 <%= row.substitute? ? 'text-gray-400' : 'text-gray-600' %>">
+              <%= row.substitute? ? t('players.substitute') : team_link(row.team, row.season) %>
+            </td>
+            <td class="px-4 py-3 text-right"><%= row.games %></td>
+            <td class="px-4 py-3 text-right"><%= row.wins %></td>
+            <td class="px-4 py-3 text-right"><%= row.losses %></td>
+            <td class="px-4 py-3 text-right"><%= win_rate_label(row) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+      <% if career.rows.size > 1 %>
+        <% totals = career.totals %>
+        <tfoot>
+          <tr class="career-total border-t border-gray-200 font-bold text-dpc-navy">
+            <td class="px-4 py-3" colspan="2"><%= t('players.show.career') %></td>
+            <td class="px-4 py-3 text-right"><%= totals.games %></td>
+            <td class="px-4 py-3 text-right"><%= totals.wins %></td>
+            <td class="px-4 py-3 text-right"><%= totals.losses %></td>
+            <td class="px-4 py-3 text-right"><%= win_rate_label(totals) %></td>
+          </tr>
+        </tfoot>
+      <% end %>
+    </table>
+  </div>
+</div>

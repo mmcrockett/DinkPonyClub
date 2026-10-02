@@ -3,9 +3,6 @@
 class PlayersController < ApplicationController
   include SeasonScoped
 
-  PLAYER_IN_GAME_SQL = 'games.home_player_a_id = :id OR games.home_player_b_id = :id OR ' \
-                       'games.away_player_a_id = :id OR games.away_player_b_id = :id'
-
   before_action :require_sign_in
   before_action :redirect_to_season_scope
 
@@ -23,6 +20,7 @@ class PlayersController < ApplicationController
     @row = @season && PlayerStats.new(@season).rows.find { |row| row.player == @player }
     @show_contacts = @season.present? && captain_or_admin?(@season)
     @line_results = @season ? line_results : []
+    @career = PlayerCareer.new(@player)
   end
 
   private
@@ -34,7 +32,7 @@ class PlayersController < ApplicationController
   def line_results
     Game.joins(lineup: { match: :match_night })
         .where(matches: { season_id: @season.id })
-        .where(PLAYER_IN_GAME_SQL, id: @player.id)
+        .merge(Game.involving(@player))
         .includes(:home_player_a, :home_player_b, :away_player_a, :away_player_b,
                   lineup: { match: %i[match_night home_team away_team] })
         .order('match_nights.played_on', 'lineups.position', 'games.number')

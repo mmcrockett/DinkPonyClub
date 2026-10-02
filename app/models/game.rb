@@ -3,6 +3,9 @@
 class Game < ApplicationRecord
   WINNING_SCORE = 11
   WIN_BY = 2
+  PLAYER_COLUMNS = %i[home_player_a_id home_player_b_id away_player_a_id away_player_b_id].freeze
+
+  scope :involving, ->(player) { PLAYER_COLUMNS.map { |column| where(column => player.id) }.reduce(:or) }
 
   belongs_to :lineup
   belongs_to :home_player_a, class_name: 'Player'

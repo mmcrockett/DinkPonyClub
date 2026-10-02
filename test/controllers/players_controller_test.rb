@@ -275,6 +275,18 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
     assert_select "##{dom_id(lineups(:fall_alpha_bravo_one), :result)}", text: /With Grace Fixture/
   end
 
+  test 'profile lists every season with a career total and highlights the viewed one' do
+    sign_in_as(players(:grace))
+
+    get season_player_path(seasons(:fall), players(:ada))
+
+    assert_select '.career tbody tr', count: 2
+    assert_select ".career a[href='#{season_player_path(seasons(:spring), players(:ada))}']",
+                  text: seasons(:spring).name
+    assert_select ".career tr##{dom_id(seasons(:fall), :career)}.font-bold"
+    assert_select '.career-total', text: /Career\s+6\s+2\s+4\s+33%/
+  end
+
   test 'profile never exposes the calendar feed token, even on your own page' do
     sign_in_as(players(:ada))
 
