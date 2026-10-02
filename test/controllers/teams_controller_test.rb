@@ -45,6 +45,15 @@ class TeamsControllerTest < ActionDispatch::IntegrationTest
     assert_select "li##{dom_id(matches(:fall_future), :team)}", text: /Scheduled/
   end
 
+  test 'show marks a canceled night without a score or scorecard' do
+    match_nights(:fall_upcoming).update!(canceled: true)
+
+    get season_team_path(seasons(:fall), teams(:bravo))
+
+    assert_select "li##{dom_id(matches(:fall_future), :team)}", text: /Canceled/
+    assert_select "li##{dom_id(matches(:fall_future), :team)} a[href=?]", match_path(matches(:fall_future)), count: 0
+  end
+
   test 'show says so when the team is not part of the season' do
     get season_team_path(seasons(:scorecard), teams(:alpha))
 

@@ -16,7 +16,7 @@ class TeamsController < ApplicationController
     load_standing
     @roster_spots = @season.roster_spots.where(team: @team).includes(:player).sort_by { |spot| spot.player.full_name }
     @matches = @team.matches_in(@season).chronological
-                    .includes(:match_night, :home_team, :away_team, lineups: :games)
+                    .includes(:season, :match_night, :home_team, :away_team, lineups: :games)
   end
 
   private

@@ -13,7 +13,7 @@
 
     <% if @row %>
       <dl class="grid grid-cols-2 gap-2 sm:grid-cols-4">
-        <% [[t('.rank'), @rank], [t('.record'), "#{@row.wins}-#{@row.losses}-#{@row.ties}"],
+        <% [[t('.rank'), @rank], [t('.record'), @row.record],
             [t('.diff'), standings_diff(@row.diff)], [t('.streak'), @row.streak || '-']].each do |label, value| %>
           <div>
             <dt class="text-xs font-semibold uppercase text-gray-500"><%= label %></dt>

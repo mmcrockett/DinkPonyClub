@@ -2,7 +2,11 @@
 
 class Standings
   Row = Struct.new(:team, :played, :wins, :losses, :ties, :points_for, :points_against, :diff,
-                   :streak, :form, :next_opponent, keyword_init: true)
+                   :streak, :form, :next_opponent, keyword_init: true) do
+    def record
+      "#{wins}-#{losses}-#{ties}"
+    end
+  end
 
   MATCH_INCLUDES = [:season, :match_night, :home_team, :away_team, { lineups: :games }].freeze
   FORM_LENGTH = 5
