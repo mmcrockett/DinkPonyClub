@@ -39,6 +39,10 @@
     <%= render 'contact', player: @player, show_contacts: @show_contacts %>
   </div>
 
+  <% if @career.rows.any? %>
+    <%= render 'career', career: @career, season: @season %>
+  <% end %>
+
   <div class="flex flex-col gap-2">
     <h2 class="text-lg font-bold text-dpc-navy"><%= t('players.show.lines') %></h2>
     <% if @line_results.any? %>
