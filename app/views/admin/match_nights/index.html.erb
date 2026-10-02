@@ -10,22 +10,46 @@
   <% if @match_nights.any? %>
     <ul class="flex flex-col gap-2">
       <% @match_nights.each do |night| %>
-        <li id="<%= dom_id(night) %>" class="flex items-center justify-between gap-3 rounded-md bg-white px-4 py-3 shadow-sm">
-          <div class="min-w-0">
-            <span class="font-semibold"><%= night.label %></span>
-            <span class="text-gray-500">- <%= night.played_on.strftime('%b %-d, %Y') %></span>
-            <% if night.venue.present? %>
-              <span class="text-gray-500">&middot; <%= night.venue %></span>
-            <% end %>
-            <% if night.playoff? %>
-              <span class="ml-2 text-xs font-bold uppercase text-dpc-green"><%= t('match_nights.schedule.playoffs') %></span>
+        <li id="<%= dom_id(night) %>" class="flex flex-col gap-3 rounded-md bg-white px-4 py-3 shadow-sm">
+          <div class="flex items-center justify-between gap-3">
+            <div class="min-w-0">
+              <span class="font-semibold"><%= night.label %></span>
+              <span class="text-gray-500">- <%= night.played_on.strftime('%b %-d, %Y') %></span>
+              <% if night.venue.present? %>
+                <span class="text-gray-500">&middot; <%= night.venue %></span>
+              <% end %>
+              <% if night.playoff? %>
+                <span class="ml-2 text-xs font-bold uppercase text-dpc-green"><%= t('match_nights.schedule.playoffs') %></span>
+              <% end %>
+            </div>
+            <% if night.canceled? %>
+              <span class="text-xs font-bold uppercase text-red-700"><%= t('match_nights.schedule.canceled') %></span>
+            <% else %>
+              <%= button_to t('.cancel_night'), admin_match_night_path(night), method: :patch, class: 'btn btn-secondary',
+                            form: { data: { turbo_confirm: t('.confirm_cancel') } } %>
             <% end %>
           </div>
-          <% if night.canceled? %>
-            <span class="text-xs font-bold uppercase text-red-700"><%= t('match_nights.schedule.canceled') %></span>
-          <% else %>
-            <%= button_to t('.cancel_night'), admin_match_night_path(night), method: :patch, class: 'btn btn-secondary',
-                          form: { data: { turbo_confirm: t('.confirm_cancel') } } %>
+
+          <% unless night.canceled? %>
+            <div class="flex flex-wrap items-center gap-2 border-t border-gray-100 pt-3">
+              <% night.match_slots.each do |slot| %>
+                <% time = slot.starts_at.strftime('%-l:%M %p') %>
+                <span class="flex items-center gap-2 rounded-md border border-gray-300 px-2 py-1 text-sm">
+                  <%= time %>
+                  <%= button_to t('.remove_time'), admin_match_night_match_slot_path(night, slot), method: :delete,
+                                class: 'text-xs text-red-700 underline',
+                                form: { class: 'inline', data: { turbo_confirm: t('.confirm_remove_time', time: time) } } %>
+                </span>
+              <% end %>
+              <% if night.match_slots.empty? %>
+                <span class="text-sm text-gray-500"><%= t('.no_times') %></span>
+              <% end %>
+              <%= form_with scope: :match_slot, url: admin_match_night_match_slots_path(night), class: 'ml-auto flex items-center gap-2' do |slot_form| %>
+                <%= slot_form.time_field :starts_at, step: 900, required: true, class: 'form-input',
+                                         aria: { label: t('.add_time') } %>
+                <%= slot_form.submit t('.add_time'), class: 'btn btn-secondary' %>
+              <% end %>
+            </div>
           <% end %>
         </li>
       <% end %>

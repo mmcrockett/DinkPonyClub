@@ -24,6 +24,15 @@ module Admin
       assert_select "##{dom_id(match_nights(:fall_canceled))} button", count: 0
     end
 
+    test 'lists slot times with a remove button on live nights' do
+      sign_in_as players(:zoe)
+
+      get admin_match_nights_path(season: seasons(:fall))
+
+      assert_select "##{dom_id(match_nights(:fall_upcoming))} span", text: /7:00 PM/
+      assert_select "##{dom_id(match_nights(:fall_upcoming))} button", text: 'Remove', count: 3
+    end
+
     test 'adds a night for an admin' do
       sign_in_as players(:zoe)
 
