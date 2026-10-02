@@ -1,6 +1,8 @@
 <% content_for :title, t('standings.show.title') %>
 
 <div class="flex flex-col gap-6">
+  <%= render 'shared/season_breadcrumb', season: @season %>
+
   <div class="flex flex-wrap items-start justify-between gap-4">
     <div>
       <h1 class="text-2xl font-extrabold text-dpc-navy"><%= t('standings.show.title') %></h1>
@@ -11,14 +13,6 @@
       <span class="rounded-full bg-dpc-navy px-3 py-1 text-xs font-bold uppercase text-white">
         <%= t('standings.show.results_posted', count: @results_posted) %>
       </span>
-
-      <% if Season.count > 1 %>
-        <%= form_with url: standings_path, method: :get, class: 'flex items-center gap-2' do |form| %>
-          <%= form.select :season, Season.chronological.map { |s| [s.name, s.id] }, { selected: @season&.id },
-                           class: 'rounded-md border border-gray-300 px-3 py-2' %>
-          <%= form.submit 'Go', class: 'btn bg-dpc-navy text-white' %>
-        <% end %>
-      <% end %>
     </div>
   </div>
 

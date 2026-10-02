@@ -4,7 +4,7 @@ class ScheduleAvailabilityTest < ApplicationSystemTestCase
   include ActionView::RecordIdentifier
 
   test 'setting availability from the schedule updates without a full page reload' do
-    sign_in_as players(:ada), return_to: match_nights_path
+    sign_in_as players(:ada), return_to: season_match_nights_path(seasons(:fall))
 
     within("##{dom_id(match_nights(:fall_upcoming))}") do
       assert_selector 'label', exact_text: 'In'
@@ -16,7 +16,7 @@ class ScheduleAvailabilityTest < ApplicationSystemTestCase
       assert_selector 'input[type=radio][value=maybe]:checked', visible: false
     end
 
-    visit match_nights_path
+    visit season_match_nights_path(seasons(:fall))
 
     within("##{dom_id(match_nights(:fall_upcoming))}") do
       assert_selector 'input[type=radio][value=maybe]:checked', visible: false

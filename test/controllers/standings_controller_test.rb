@@ -4,7 +4,7 @@ class StandingsControllerTest < ActionDispatch::IntegrationTest
   include ActionView::RecordIdentifier
 
   test 'redirects to root when signed out' do
-    get standings_path
+    get season_standings_path(seasons(:fall))
 
     assert_redirected_to root_path
   end
@@ -12,7 +12,7 @@ class StandingsControllerTest < ActionDispatch::IntegrationTest
   test 'ranks teams by wins then point differential' do
     sign_in_as_ada
 
-    get standings_path
+    get season_standings_path(seasons(:fall))
 
     assert_response :success
     assert_operator response.body.index(dom_id(teams(:alpha), :standings)),
@@ -22,7 +22,7 @@ class StandingsControllerTest < ActionDispatch::IntegrationTest
   test 'shows the leader on the first podium card' do
     sign_in_as_ada
 
-    get standings_path
+    get season_standings_path(seasons(:fall))
 
     assert_select "##{dom_id(teams(:alpha), :podium)}", text: /Leading the pack/i
     assert_select "##{dom_id(teams(:alpha), :podium)}", text: /1-0/
@@ -31,7 +31,7 @@ class StandingsControllerTest < ActionDispatch::IntegrationTest
   test 'counts posted results' do
     sign_in_as_ada
 
-    get standings_path
+    get season_standings_path(seasons(:fall))
 
     assert_select 'span', text: '1 result posted'
   end
@@ -40,7 +40,7 @@ class StandingsControllerTest < ActionDispatch::IntegrationTest
     complete_playoff_match
     sign_in_as_ada
 
-    get standings_path
+    get season_standings_path(seasons(:fall))
 
     assert_select 'span', text: '1 result posted'
     assert_select "##{dom_id(teams(:alpha), :podium)}", text: /1-0/
@@ -49,7 +49,7 @@ class StandingsControllerTest < ActionDispatch::IntegrationTest
   test 'footnote reports the season sweep bonus' do
     sign_in_as_ada
 
-    get standings_path
+    get season_standings_path(seasons(:fall))
 
     assert_select 'p', text: /a three-game line sweep adds 0.5/
   end
@@ -57,7 +57,7 @@ class StandingsControllerTest < ActionDispatch::IntegrationTest
   test 'scopes the table to the requested season' do
     sign_in_as_ada
 
-    get standings_path(season: seasons(:spring).id)
+    get season_standings_path(seasons(:spring))
 
     assert_response :success
     assert_select "##{dom_id(teams(:alpha), :standings)}", count: 1
@@ -68,7 +68,7 @@ class StandingsControllerTest < ActionDispatch::IntegrationTest
   test 'hides the podium until a result is posted' do
     sign_in_as_ada
 
-    get standings_path(season: seasons(:spring).id)
+    get season_standings_path(seasons(:spring))
 
     assert_select "##{dom_id(teams(:alpha), :podium)}", count: 0
     assert_select 'p', text: /No results have been posted yet/
@@ -78,7 +78,7 @@ class StandingsControllerTest < ActionDispatch::IntegrationTest
     season = Season.create!(name: 'Winter 2027', starts_on: Date.new(2027, 1, 4))
     sign_in_as_ada
 
-    get standings_path(season: season.id)
+    get season_standings_path(season)
 
     assert_response :success
     assert_select 'table', count: 0

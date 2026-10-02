@@ -4,7 +4,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   include ActionView::RecordIdentifier
 
   test 'redirects to root when signed out' do
-    get match_nights_path
+    get season_match_nights_path(seasons(:fall))
 
     assert_redirected_to root_path
   end
@@ -12,7 +12,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   test 'index renders nights in chronological order' do
     sign_in_as_ada
 
-    get match_nights_path
+    get season_match_nights_path(seasons(:fall))
 
     assert_response :success
     assert_operator response.body.index(dom_id(match_nights(:fall_week_one))),
@@ -22,7 +22,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   test 'marks the first upcoming night as up next' do
     sign_in_as_ada
 
-    get match_nights_path
+    get season_match_nights_path(seasons(:fall))
 
     assert_select "##{dom_id(match_nights(:fall_upcoming))}", text: /Up next/i
   end
@@ -30,7 +30,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   test 'shows a final pill for a completed night and scheduled for an upcoming one' do
     sign_in_as_ada
 
-    get match_nights_path
+    get season_match_nights_path(seasons(:fall))
 
     assert_select "##{dom_id(match_nights(:fall_week_one))}", text: /Final/
     assert_select "##{dom_id(match_nights(:fall_upcoming))}", text: /Scheduled/
@@ -39,7 +39,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   test 'shows canceled and playoffs pills' do
     sign_in_as_ada
 
-    get match_nights_path
+    get season_match_nights_path(seasons(:fall))
 
     assert_select "##{dom_id(match_nights(:fall_canceled))}", text: /Canceled/
     assert_select "##{dom_id(match_nights(:fall_playoff))}", text: /Playoffs/
@@ -48,7 +48,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   test 'hides team availability for a non-captain' do
     sign_in_as(players(:grace))
 
-    get match_nights_path(view: 'availability')
+    get season_match_nights_path(seasons(:fall), view: 'availability')
 
     assert_select "##{dom_id(match_nights(:fall_upcoming), :team_availability)}", count: 0
   end
@@ -56,7 +56,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   test 'shows team availability for a captain' do
     sign_in_as_ada
 
-    get match_nights_path(view: 'availability')
+    get season_match_nights_path(seasons(:fall), view: 'availability')
 
     assert_select "##{dom_id(match_nights(:fall_upcoming), :team_availability)}"
   end
@@ -64,7 +64,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   test 'team view drops the personal availability buttons so each player is set in one place' do
     sign_in_as_ada
 
-    get match_nights_path(view: 'availability')
+    get season_match_nights_path(seasons(:fall), view: 'availability')
 
     assert_select "##{dom_id(match_nights(:fall_upcoming), :my_availability)}", count: 0
   end
@@ -72,7 +72,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   test 'matchups view keeps the personal availability buttons' do
     sign_in_as_ada
 
-    get match_nights_path
+    get season_match_nights_path(seasons(:fall))
 
     assert_select "##{dom_id(match_nights(:fall_upcoming), :my_availability)}"
   end
@@ -80,7 +80,9 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   test 'highlights only the saved answer when availability is closed for a non-captain' do
     sign_in_as(players(:grace))
 
-    travel_to(match_nights(:fall_upcoming).availability_cutoff_at + 1.minute) { get match_nights_path }
+    travel_to(match_nights(:fall_upcoming).availability_cutoff_at + 1.minute) do
+      get season_match_nights_path(seasons(:fall))
+    end
 
     frame = "##{dom_id(match_nights(:fall_upcoming), :my_availability)}"
 
@@ -92,7 +94,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   test 'leaves every personal button unselected on a night the player has not answered' do
     sign_in_as_ada
 
-    get match_nights_path
+    get season_match_nights_path(seasons(:fall))
 
     frame = "##{dom_id(match_nights(:fall_playoff), :my_availability)}"
 
@@ -103,7 +105,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   test 'team view shows ??? for players who have not answered and counts them separately' do
     sign_in_as_ada
 
-    get match_nights_path(view: 'availability')
+    get season_match_nights_path(seasons(:fall), view: 'availability')
 
     frame = "##{dom_id(match_nights(:fall_upcoming), :team_availability)}"
 
@@ -114,7 +116,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   test 'shows team availability for an admin' do
     sign_in_as(players(:zoe))
 
-    get match_nights_path(view: 'availability')
+    get season_match_nights_path(seasons(:fall), view: 'availability')
 
     assert_select "##{dom_id(match_nights(:fall_upcoming), :team_availability)}"
   end
@@ -122,7 +124,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   test 'disables the availability select for a team the captain does not control' do
     sign_in_as_ada
 
-    get match_nights_path(view: 'availability')
+    get season_match_nights_path(seasons(:fall), view: 'availability')
 
     frame = "##{dom_id(match_nights(:fall_upcoming), :team_availability)}"
 
@@ -133,7 +135,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   test 'scopes the list to the requested season' do
     sign_in_as_ada
 
-    get match_nights_path(season: seasons(:spring).id)
+    get season_match_nights_path(seasons(:spring))
 
     assert_response :success
     assert_select "##{dom_id(match_nights(:fall_week_one))}", count: 0
@@ -151,7 +153,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   test 'links a completed match to its scorecard for a plain player' do
     sign_in_as(players(:grace))
 
-    get match_nights_path
+    get season_match_nights_path(seasons(:fall))
 
     assert_select "##{dom_id(match_nights(:fall_week_one))} a[href=?]", match_path(matches(:fall_alpha_bravo)),
                   text: 'Scorecard'
@@ -160,7 +162,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   test 'shows an enter results link on an unplayed match for a captain' do
     sign_in_as_ada
 
-    get match_nights_path
+    get season_match_nights_path(seasons(:fall))
 
     assert_select "##{dom_id(match_nights(:fall_upcoming))} a[href=?]", edit_match_path(matches(:fall_future)),
                   text: 'Enter results'
@@ -169,7 +171,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   test 'shows an enter results link on an unplayed match for an admin' do
     sign_in_as(players(:zoe))
 
-    get match_nights_path
+    get season_match_nights_path(seasons(:fall))
 
     assert_select "##{dom_id(match_nights(:fall_upcoming))} a[href=?]", edit_match_path(matches(:fall_future))
   end
@@ -177,7 +179,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   test 'hides the enter results link from a plain player' do
     sign_in_as(players(:grace))
 
-    get match_nights_path
+    get season_match_nights_path(seasons(:fall))
 
     assert_select "##{dom_id(match_nights(:fall_upcoming))} a[href=?]", edit_match_path(matches(:fall_future)),
                   count: 0
@@ -186,7 +188,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   test 'links a completed match to its scorecard rather than the edit form for a captain' do
     sign_in_as_ada
 
-    get match_nights_path
+    get season_match_nights_path(seasons(:fall))
 
     frame = "##{dom_id(match_nights(:fall_week_one))}"
 
@@ -197,7 +199,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   test 'shows a cancel button to an admin on a live night only' do
     sign_in_as(players(:zoe))
 
-    get match_nights_path
+    get season_match_nights_path(seasons(:fall))
 
     assert_select "##{dom_id(match_nights(:fall_upcoming))} button", text: 'Cancel night'
     assert_select "##{dom_id(match_nights(:fall_canceled))} button", text: 'Cancel night', count: 0
@@ -206,7 +208,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   test 'hides the availability control on a canceled night' do
     sign_in_as(players(:zoe))
 
-    get match_nights_path
+    get season_match_nights_path(seasons(:fall))
 
     assert_select "##{dom_id(match_nights(:fall_canceled), :my_availability)}", count: 0
   end
@@ -214,7 +216,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   test 'hides cancel buttons from a captain' do
     sign_in_as_ada
 
-    get match_nights_path
+    get season_match_nights_path(seasons(:fall))
 
     assert_select 'button', text: 'Cancel night', count: 0
   end
@@ -223,7 +225,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
     sign_in_as_ada
     players(:ada).inactive!
 
-    get match_nights_path
+    get season_match_nights_path(seasons(:fall))
 
     assert_redirected_to root_path
   end

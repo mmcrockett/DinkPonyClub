@@ -79,7 +79,58 @@ class StandingsTest < ActiveSupport::TestCase
     assert_equal 1, row.ties
   end
 
+  test 'reports streak and recent form from completed matches in date order' do
+    add_alpha_win_on(Date.new(2026, 9, 27))
+
+    rows = Standings.new(seasons(:fall)).rows.index_by(&:team)
+
+    assert_equal 'W2', rows[teams(:alpha)].streak
+    assert_equal %w[W W], rows[teams(:alpha)].form
+    assert_equal 'L2', rows[teams(:bravo)].streak
+  end
+
+  test 'streak and form are empty before any result' do
+    match_nights(:fall_week_one).update!(canceled: true)
+
+    row = Standings.new(seasons(:fall)).rows.first
+
+    assert_nil row.streak
+    assert_empty row.form
+  end
+
+  test 'form keeps only the last five results' do
+    7.times { |i| add_alpha_win_on(Date.new(2026, 9, 21) + i) }
+
+    row = Standings.new(seasons(:fall)).rows.find { |candidate| candidate.team == teams(:alpha) }
+
+    assert_equal 5, row.form.size
+    assert_equal 'W8', row.streak
+  end
+
+  test 'next opponent is the other team in the soonest unplayed regular season match' do
+    rows = Standings.new(seasons(:fall)).rows.index_by(&:team)
+
+    assert_equal teams(:bravo), rows[teams(:alpha)].next_opponent
+    assert_equal teams(:alpha), rows[teams(:bravo)].next_opponent
+  end
+
+  test 'next opponent ignores canceled nights and has none once everything is played' do
+    match_nights(:fall_upcoming).update!(canceled: true)
+
+    rows = Standings.new(seasons(:fall)).rows
+
+    assert_equal [nil, nil], rows.map(&:next_opponent)
+  end
+
   private
+
+  def add_alpha_win_on(date)
+    night = MatchNight.create!(season: seasons(:fall), played_on: date, label: "Week #{date}")
+    match = Match.create!(season: seasons(:fall), match_night: night, home_team: teams(:alpha),
+                          away_team: teams(:bravo))
+    build_split_lineup!(match, 1, [11, 4], [11, 6], [11, 8],
+                        players: [players(:ada), players(:grace), players(:sam), players(:ben)])
+  end
 
   TiedMatch = Struct.new(:team, :match)
 

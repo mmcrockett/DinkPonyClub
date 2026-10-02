@@ -6,7 +6,7 @@
       <section class="flex flex-col gap-3">
         <div class="flex items-baseline justify-between gap-3">
           <h2 class="text-xl font-extrabold text-dpc-navy"><%= t('.standings', season: @season.name) %></h2>
-          <%= link_to t('.full_standings'), standings_path, class: 'text-sm font-semibold text-dpc-green hover:underline' %>
+          <%= link_to t('.full_standings'), season_standings_path(@season), class: 'text-sm font-semibold text-dpc-green hover:underline' %>
         </div>
 
         <% if @rows.any? %>

@@ -4,6 +4,7 @@ class MatchNightsController < ApplicationController
   include SeasonScoped
 
   before_action :require_sign_in
+  before_action :redirect_to_season_scope, only: :index
 
   MATCH_NIGHT_INCLUDES = { matches: [:home_team, :away_team, { lineups: :games }], match_availabilities: [] }.freeze
 

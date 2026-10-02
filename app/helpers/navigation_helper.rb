@@ -6,9 +6,9 @@ module NavigationHelper
       { label: 'Home', icon: 'home', path: root_path },
       { label: 'Seasons', icon: 'layers', path: seasons_path },
       { label: 'Teams', icon: 'users' },
-      { label: 'Schedule', icon: 'calendar', path: match_nights_path },
-      { label: 'Players', icon: 'user', path: players_path },
-      { label: 'Standings', icon: 'trophy', path: standings_path }
+      { label: 'Schedule', icon: 'calendar', path: season_nav_path(:match_nights) },
+      { label: 'Players', icon: 'user', path: season_nav_path(:players) },
+      { label: 'Standings', icon: 'trophy', path: season_nav_path(:standings) }
     ]
     items << { label: 'Admin', icon: 'cog', path: admin_players_path } if admin?
     items
@@ -24,5 +24,13 @@ module NavigationHelper
 
   def sidebar_expanded?
     cookies[:sidebar] != 'collapsed'
+  end
+
+  private
+
+  def season_nav_path(resource)
+    return public_send("#{resource}_path") unless nav_season
+
+    public_send("season_#{resource}_path", nav_season)
   end
 end

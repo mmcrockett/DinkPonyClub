@@ -16,7 +16,7 @@ module Admin
 
       patch admin_match_night_path(match_nights(:fall_upcoming))
 
-      assert_redirected_to match_nights_path(season: seasons(:fall).id)
+      assert_redirected_to season_match_nights_path(seasons(:fall))
       assert_equal 'Week 2 canceled.', flash[:notice]
       assert_predicate match_nights(:fall_upcoming).reload, :canceled?
     end

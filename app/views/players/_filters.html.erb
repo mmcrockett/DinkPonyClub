@@ -1,12 +1,4 @@
-<%= form_with url: players_path, method: :get, class: 'flex flex-wrap items-center gap-3', data: { controller: 'auto-submit' } do |form| %>
-  <% if Season.count > 1 %>
-    <%= form.select :season, Season.chronological.map { |s| [s.name, s.id] }, { selected: season&.id },
-                     class: 'rounded-md border border-gray-300 px-3 py-2', aria: { label: t('players.filters.season') },
-                     data: { action: 'change->auto-submit#submit' } %>
-  <% elsif season %>
-    <%= form.hidden_field :season, value: season.id %>
-  <% end %>
-
+<%= form_with url: season ? season_players_path(season) : players_path, method: :get, class: 'flex flex-wrap items-center gap-3', data: { controller: 'auto-submit' } do |form| %>
   <%= form.search_field :q, value: filter.query, placeholder: t('players.filters.search'), autocomplete: 'off',
                               class: 'rounded-md border border-gray-300 px-3 py-2', aria: { label: t('players.filters.search') },
                               data: { action: 'input->auto-submit#debouncedSubmit' } %>

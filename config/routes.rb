@@ -11,7 +11,11 @@ Rails.application.routes.draw do
   get 'manifest' => 'rails/pwa#manifest', as: :pwa_manifest
   get 'service-worker' => 'rails/pwa#service_worker', as: :pwa_service_worker
 
-  resources :seasons, only: %i[index]
+  resources :seasons, only: %i[index show] do
+    resource :standings, only: :show
+    resources :match_nights, only: :index, path: 'schedule'
+    resources :players, only: %i[index show]
+  end
   resources :matches, only: %i[show edit update]
   resources :players, only: %i[index show]
   get 'standings', to: 'standings#show', as: :standings
