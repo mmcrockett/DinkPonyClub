@@ -154,6 +154,15 @@ en:
         unanswered: "???"
       team_counts_html: "%{in} in &middot; %{maybe} maybe &middot; %{unanswered} ???"
       closed_note: "Contact your captain directly if you need to change."
+      slot_preferences_prompt: "Which times work?"
+      slot_preference:
+        thumbs_up: "👍"
+        meh: "😐"
+        thumbs_down: "👎"
+      slot_preference_aria:
+        thumbs_up: "Prefer"
+        meh: "Okay"
+        thumbs_down: "Rather not"
       canceled: "Canceled"
       cancel_night: "Cancel night"
       confirm_cancel: "Cancel this match night? Players will see it as canceled."

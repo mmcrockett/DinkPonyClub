@@ -40,6 +40,36 @@ module MatchNightsHelper
     'out' => 'border-red-700 bg-red-700 text-white'
   }.freeze
 
+  SLOT_PREFERENCES = %w[thumbs_up meh thumbs_down].freeze
+
+  SLOT_PREFERENCE_CHECKED_CLASSES = {
+    'thumbs_up' => 'has-checked:border-dpc-green has-checked:bg-dpc-green',
+    'meh' => 'has-checked:border-amber-400 has-checked:bg-amber-400',
+    'thumbs_down' => 'has-checked:border-red-700 has-checked:bg-red-700'
+  }.freeze
+
+  SLOT_PREFERENCE_SELECTED_CLASSES = {
+    'thumbs_up' => 'border-dpc-green bg-dpc-green',
+    'meh' => 'border-amber-400 bg-amber-400',
+    'thumbs_down' => 'border-red-700 bg-red-700'
+  }.freeze
+
+  def slot_preference_label(preference)
+    t("match_nights.schedule.slot_preference.#{preference}")
+  end
+
+  def slot_preference_aria_label(preference)
+    t("match_nights.schedule.slot_preference_aria.#{preference}")
+  end
+
+  def slot_preference_checked_classes(preference)
+    SLOT_PREFERENCE_CHECKED_CLASSES.fetch(preference)
+  end
+
+  def slot_preference_selected_classes(preference)
+    SLOT_PREFERENCE_SELECTED_CLASSES.fetch(preference)
+  end
+
   def availability_status_label(status)
     t("match_nights.schedule.availability.#{status}")
   end

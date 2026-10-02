@@ -1,37 +1,48 @@
 <% availability = @availabilities[match_night.id] %>
 <% status = availability&.status %>
 <% editable = match_night.availability_open? || captain_or_admin?(match_night.season) %>
+<% show_slots = status.in?(%w[in maybe]) && match_night.match_slots.any? %>
 
 <%= turbo_frame_tag dom_id(match_night, :my_availability) do %>
-  <div class="flex flex-wrap items-center justify-between gap-3 border-t border-gray-100 p-4">
-    <span class="font-medium text-gray-600"><%= t('match_nights.schedule.are_you_playing') %></span>
-
-    <% if editable %>
-      <%= form_with url: match_night_availability_path(match_night), method: :patch, scope: :match_availability,
-                     data: { controller: 'availability' }, class: 'flex gap-1' do |form| %>
-        <% MatchAvailability.statuses.each_key do |value| %>
-          <label class="touch-target cursor-pointer rounded-md border border-gray-300 px-3 font-medium
-                        has-checked:font-bold has-focus-visible:ring-2 has-focus-visible:ring-dpc-navy
-                        <%= availability_checked_classes(value) %>">
-            <%= form.radio_button :status, value, checked: status == value,
-                                   class: 'sr-only', data: { action: 'change->availability#submit' } %>
-            <%= availability_status_label(value) %>
-          </label>
-        <% end %>
-        <%= form.submit 'Save', class: 'sr-only' %>
-      <% end %>
-    <% else %>
-      <div class="flex flex-col items-end gap-1">
+  <% if editable %>
+    <%= form_with url: match_night_availability_path(match_night), method: :patch,
+                   data: { controller: 'availability' },
+                   class: 'flex flex-col gap-3 border-t border-gray-100 p-4' do |form| %>
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <span class="font-medium text-gray-600"><%= t('match_nights.schedule.are_you_playing') %></span>
         <div class="flex gap-1">
           <% MatchAvailability.statuses.each_key do |value| %>
-            <span class="touch-target rounded-md border px-3
-                          <%= status == value ? "font-bold #{availability_selected_classes(value)}" : 'border-gray-200 text-gray-400' %>">
+            <label class="touch-target cursor-pointer rounded-md border border-gray-300 px-3 font-medium
+                          has-checked:font-bold has-focus-visible:ring-2 has-focus-visible:ring-dpc-navy
+                          <%= availability_checked_classes(value) %>">
+              <%= radio_button_tag 'match_availability[status]', value, status == value,
+                                    id: "match_availability_status_#{value}_#{match_night.id}", class: 'sr-only',
+                                    data: { action: 'change->availability#submit' } %>
               <%= availability_status_label(value) %>
-            </span>
+            </label>
           <% end %>
         </div>
-        <p class="text-xs italic text-gray-500"><%= t('match_nights.schedule.closed_note') %></p>
       </div>
+      <%= render 'match_nights/slot_preferences', match_night: match_night, editable: true if show_slots %>
+      <%= form.submit 'Save', class: 'sr-only' %>
     <% end %>
-  </div>
+  <% else %>
+    <div class="flex flex-col gap-3 border-t border-gray-100 p-4">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <span class="font-medium text-gray-600"><%= t('match_nights.schedule.are_you_playing') %></span>
+        <div class="flex flex-col items-end gap-1">
+          <div class="flex gap-1">
+            <% MatchAvailability.statuses.each_key do |value| %>
+              <span class="touch-target rounded-md border px-3
+                            <%= status == value ? "font-bold #{availability_selected_classes(value)}" : 'border-gray-200 text-gray-400' %>">
+                <%= availability_status_label(value) %>
+              </span>
+            <% end %>
+          </div>
+          <p class="text-xs italic text-gray-500"><%= t('match_nights.schedule.closed_note') %></p>
+        </div>
+      </div>
+      <%= render 'match_nights/slot_preferences', match_night: match_night, editable: false if show_slots %>
+    </div>
+  <% end %>
 <% end %>
