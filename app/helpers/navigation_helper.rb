@@ -22,11 +22,6 @@ module NavigationHelper
     ENV['KAMAL_VERSION'].to_s.first(7).presence
   end
 
-  def season_switch_path(season)
-    query = request.query_parameters.except('team').symbolize_keys
-    url_for(request.path_parameters.merge(query).merge(season_id: season, only_path: true))
-  end
-
   def sidebar_expanded?
     cookies[:sidebar] != 'collapsed'
   end

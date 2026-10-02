@@ -4,7 +4,7 @@ module SeasonScoped
   extend ActiveSupport::Concern
 
   included do
-    helper_method :current_season
+    helper_method :current_season, :season_switch_path
   end
 
   private
@@ -22,7 +22,11 @@ module SeasonScoped
   def redirect_to_season_scope
     return if params[:season_id] || current_season.nil?
 
-    query = request.query_parameters.except('season').symbolize_keys
-    redirect_to url_for(request.path_parameters.merge(query).merge(season_id: current_season, only_path: true))
+    redirect_to season_switch_path(current_season, except: %w[season])
+  end
+
+  def season_switch_path(season, except: [])
+    query = request.query_parameters.except(*except)
+    url_for(request.path_parameters.merge(season_id: season, params: query, only_path: true))
   end
 end

@@ -10,7 +10,7 @@
         <ul class="absolute z-10 mt-1 min-w-40 rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5">
           <% Season.chronological.each do |option| %>
             <li>
-              <%= link_to option.name, season_switch_path(option),
+              <%= link_to option.name, season_switch_path(option, except: %w[team]),
                           class: "block px-3 py-1.5 hover:bg-gray-100 #{option == season ? 'font-bold text-dpc-navy' : 'text-gray-700'}",
                           aria: { current: (option == season ? 'true' : nil) } %>
             </li>
