@@ -1,0 +1,30 @@
+<% content_for :title, t('.title') %>
+
+<div class="flex flex-col gap-6">
+  <%= render 'shared/season_breadcrumb', season: @season %>
+
+  <div>
+    <h1 class="text-2xl font-extrabold text-dpc-navy"><%= t('.title') %></h1>
+    <p class="text-gray-500"><%= t('.subtitle', season: @season.name) %></p>
+  </div>
+
+  <% if @rows.any? %>
+    <ul class="grid gap-4 sm:grid-cols-2">
+      <% @rows.each do |row| %>
+        <li id="<%= dom_id(row.team) %>" class="flex items-center justify-between gap-3 rounded-md bg-white p-4 shadow-sm">
+          <div class="min-w-0">
+            <p class="text-lg font-extrabold text-dpc-navy"><%= team_link(row.team, @season) %></p>
+            <% if row.team.tagline.present? %>
+              <p class="truncate text-sm text-gray-500"><%= row.team.tagline %></p>
+            <% end %>
+          </div>
+          <span class="shrink-0 rounded-full bg-gray-100 px-3 py-1 text-xs font-bold text-gray-600">
+            <%= row.record %>
+          </span>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="text-gray-500"><%= t('standings.show.empty') %></p>
+  <% end %>
+</div>

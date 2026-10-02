@@ -17,6 +17,13 @@ class StandingsTest < ActiveSupport::TestCase
     assert_equal 1, row.diff
   end
 
+  test 'record is wins-losses-ties' do
+    rows = Standings.new(seasons(:fall)).rows.index_by(&:team)
+
+    assert_equal '1-0-0', rows[teams(:alpha)].record
+    assert_equal '0-1-0', rows[teams(:bravo)].record
+  end
+
   test 'excludes canceled nights' do
     match_nights(:fall_week_one).update!(canceled: true)
 

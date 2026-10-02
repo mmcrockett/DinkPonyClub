@@ -1,0 +1,77 @@
+<% content_for :title, @team.name %>
+
+<div class="mx-auto flex max-w-3xl flex-col gap-6">
+  <%= render 'shared/season_breadcrumb', season: @season %>
+
+  <%= link_to t('.back'), season_teams_path(@season), class: 'text-sm font-semibold text-dpc-navy underline' %>
+
+  <div class="flex flex-col gap-4 rounded-md bg-white p-5 shadow-sm">
+    <div>
+      <h1 class="text-2xl font-extrabold text-dpc-navy"><%= @team.name %></h1>
+      <p class="text-gray-500"><%= [@team.tagline.presence, @season.name].compact.join(' - ') %></p>
+    </div>
+
+    <% if @row %>
+      <dl class="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <% [[t('.rank'), @rank], [t('.record'), @row.record],
+            [t('.diff'), standings_diff(@row.diff)], [t('.streak'), @row.streak || '-']].each do |label, value| %>
+          <div>
+            <dt class="text-xs font-semibold uppercase text-gray-500"><%= label %></dt>
+            <dd class="text-lg font-bold text-dpc-navy"><%= value %></dd>
+          </div>
+        <% end %>
+      </dl>
+    <% end %>
+  </div>
+
+  <% if @roster_spots.empty? && @matches.empty? %>
+    <p class="text-gray-500"><%= t('.not_in_season') %></p>
+  <% else %>
+    <div class="flex flex-col gap-2">
+      <h2 class="text-lg font-bold text-dpc-navy"><%= t('.roster') %></h2>
+      <ul class="roster grid gap-2 sm:grid-cols-2">
+        <% @roster_spots.each do |spot| %>
+          <li class="flex items-center gap-2 rounded-md bg-white px-4 py-3 shadow-sm">
+            <%= link_to spot.player.full_name, season_player_path(@season, spot.player),
+                        class: 'font-semibold text-dpc-navy hover:underline' %>
+            <% if spot.captain %>
+              <span class="captain-chip rounded-full bg-dpc-green px-1.5 py-0.5 text-xs font-bold text-white"
+                    title="<%= t('players.captain') %>" aria-label="<%= t('players.captain') %>">C</span>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <h2 class="text-lg font-bold text-dpc-navy"><%= t('.schedule') %></h2>
+      <ul class="schedule flex flex-col gap-2">
+        <% @matches.each do |match| %>
+          <% line = team_match_line(@team, match) %>
+          <li id="<%= dom_id(match, :team) %>" class="flex flex-wrap items-center justify-between gap-3 rounded-md bg-white px-4 py-3 shadow-sm">
+            <div>
+              <p class="font-semibold text-dpc-navy">
+                <%= l(match.played_on, format: :short) %> - <%= match.match_night.label %>
+              </p>
+              <p class="text-sm text-gray-500">
+                <%= line.home ? t('.vs') : t('.at') %> <%= team_link(line.opponent, @season) %>
+              </p>
+            </div>
+            <div class="flex items-center gap-3 text-sm">
+              <% if match.match_night.canceled? %>
+                <span class="text-gray-500"><%= t('match_nights.schedule.canceled') %></span>
+              <% elsif line.score %>
+                <span><%= line.score %></span>
+                <span class="inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold text-white <%= form_chip_classes(line.outcome) %>"><%= line.outcome %></span>
+                <%= link_to t('match_nights.schedule.scorecard'), match_path(match),
+                            class: 'text-xs font-semibold text-dpc-green hover:underline' %>
+              <% else %>
+                <span class="text-gray-500"><%= t('match_nights.schedule.scheduled') %></span>
+              <% end %>
+            </div>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+</div>

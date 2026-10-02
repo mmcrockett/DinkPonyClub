@@ -5,7 +5,7 @@ module NavigationHelper
     items = [
       { label: 'Home', icon: 'home', path: root_path },
       { label: 'Seasons', icon: 'layers', path: seasons_path },
-      { label: 'Teams', icon: 'users' },
+      { label: 'Teams', icon: 'users', path: (season_teams_path(nav_season) if nav_season) },
       { label: 'Schedule', icon: 'calendar', path: season_nav_path(:match_nights) },
       { label: 'Players', icon: 'user', path: season_nav_path(:players) },
       { label: 'Standings', icon: 'trophy', path: season_nav_path(:standings) }

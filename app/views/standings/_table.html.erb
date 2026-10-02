@@ -20,7 +20,7 @@
       <% rows.each_with_index do |row, index| %>
         <tr id="<%= dom_id(row.team, :standings) %>">
           <td class="px-4 py-3 text-gray-500"><%= index + 1 %></td>
-          <td class="px-4 py-3 font-bold text-dpc-navy"><%= row.team.name %></td>
+          <td class="px-4 py-3 font-bold text-dpc-navy"><%= team_link(row.team, season) %></td>
           <td class="px-4 py-3 text-right"><%= row.played %></td>
           <td class="px-4 py-3 text-right"><%= row.wins %></td>
           <td class="px-4 py-3 text-right"><%= row.losses %></td>

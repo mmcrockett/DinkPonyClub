@@ -50,7 +50,7 @@
               <p class="font-semibold text-dpc-navy">
                 <%= l(line.match.played_on, format: :short) %> - <%= line.match.match_night.label %>
                 <span class="text-gray-500">
-                  <%= t('players.show.line_vs', position: lineup.position, opponent: line.opponent.name) %>
+                  <%= t('players.show.line_vs_html', position: lineup.position, opponent: team_link(line.opponent, @season)) %>
                 </span>
               </p>
               <% if line.partners.any? %>

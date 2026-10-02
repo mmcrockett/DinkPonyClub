@@ -31,6 +31,12 @@ class MatchResult
     points_winner || differential_winner
   end
 
+  def outcome_for(team)
+    return 'T' if winner.nil?
+
+    winner == team ? 'W' : 'L'
+  end
+
   delegate :complete?, to: :match
 
   private
