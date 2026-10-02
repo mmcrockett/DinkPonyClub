@@ -14,7 +14,7 @@ class SeasonsController < ApplicationController
     @season = current_season
     load_up_next(@season)
     @rows = Standings.new(@season).rows
-    nights = @season.match_nights.chronological.includes(MatchNightsController::MATCH_NIGHT_INCLUDES).to_a
+    nights = @season.match_nights.chronological.includes(MatchNightsController::RESULT_INCLUDES).to_a
     @recent_night = nights.reverse.find(&:complete?)
     @weeks_completed = nights.count { |night| !night.playoff? && night.complete? }
   end

@@ -289,7 +289,25 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_path
   end
 
+  test 'index query count does not grow with more match nights' do
+    sign_in_as_ada
+    season = seasons(:fall)
+
+    before = count_queries { get season_match_nights_path(season) }
+    3.times { |n| season.match_nights.create!(played_on: Date.current + 30 + n, label: "Extra #{n}") }
+    after = count_queries { get season_match_nights_path(season) }
+
+    assert_equal before, after
+  end
+
   private
+
+  def count_queries(&)
+    count = 0
+    counter = ->(*, payload) { count += 1 unless payload[:cached] || %w[SCHEMA TRANSACTION].include?(payload[:name]) }
+    ActiveSupport::Notifications.subscribed(counter, 'sql.active_record', &)
+    count
+  end
 
   def sign_in_as_ada
     sign_in_as(players(:ada))
