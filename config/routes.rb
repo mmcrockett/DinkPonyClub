@@ -15,6 +15,7 @@ Rails.application.routes.draw do
     resource :standings, only: :show
     resources :match_nights, only: :index, path: 'schedule'
     resources :players, only: %i[index show]
+    resources :teams, only: %i[index show]
   end
   resources :matches, only: %i[show edit update]
   resources :players, only: %i[index show]

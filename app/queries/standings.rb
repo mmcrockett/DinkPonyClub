@@ -56,7 +56,7 @@ class Standings
 
   def row_for(team)
     results = results_for(team)
-    outcomes = results.map { |result, _side| outcome_for(result, team) }
+    outcomes = results.map { |result, _side| result.outcome_for(team) }
 
     Row.new(
       team: team, played: results.size, **record_for(results, team), **points_summary(results),
@@ -77,12 +77,6 @@ class Standings
       losses: results.count { |result, _side| result.winner.present? && result.winner != team },
       ties: results.count { |result, _side| result.winner.nil? }
     }
-  end
-
-  def outcome_for(result, team)
-    return 'T' if result.winner.nil?
-
-    result.winner == team ? 'W' : 'L'
   end
 
   def streak_for(outcomes)

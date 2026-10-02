@@ -196,7 +196,7 @@ en:
       losses: "Losses"
       win_rate: "Win rate"
       lines: "This season's lines"
-      line_vs: "Line %{position} vs %{opponent}"
+      line_vs_html: "Line %{position} vs %{opponent}"
       partners: "With %{names}"
       no_lines: "No line results this season yet."
   calendar_tokens:
@@ -260,6 +260,21 @@ en:
         streak: "Streak"
         form: "Last 5"
         next: "Next"
+  teams:
+    index:
+      title: "Teams"
+      subtitle: "Who's playing in %{season}."
+    show:
+      back: "All teams"
+      rank: "Rank"
+      record: "Record"
+      diff: "Diff"
+      streak: "Streak"
+      roster: "Roster"
+      schedule: "Schedule and results"
+      vs: "vs"
+      at: "at"
+      not_in_season: "This team isn't part of this season."
   seasons:
     show:
       weeks_played:
