@@ -80,6 +80,17 @@ en:
         confirm_cancel: "Cancel this match night? Players will see it as canceled."
         empty: "No match nights for this season yet."
         add: "Add night"
+        add_time: "Add time"
+        remove_time: "Remove"
+        confirm_remove_time: "Remove %{time}? This also deletes every player's preference for it."
+        no_times: "No times yet - players can't pick time preferences."
+    match_slots:
+      create:
+        created: "%{time} added to %{label}."
+        invalid: "Could not add time: %{errors}"
+        canceled: "%{label} is canceled - times can't be added."
+      destroy:
+        removed: "%{time} removed from %{label}."
     fees:
       no_season: "No seasons exist yet."
       index:

@@ -34,7 +34,7 @@ module Admin
     private
 
     def season_nights
-      @season.match_nights.chronological.to_a
+      @season.match_nights.chronological.includes(:match_slots).to_a
     end
 
     def require_season
