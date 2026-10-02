@@ -33,6 +33,9 @@ class ScheduleAvailabilityTest < ApplicationSystemTestCase
     end
 
     assert_selector "#{selector}[value=thumbs_down]:checked", visible: false
-    assert_equal 'thumbs_down', slot.slot_availabilities.find_by!(player: players(:ada)).preference
+    page.document.synchronize do
+      saved = slot.slot_availabilities.find_by!(player: players(:ada)).preference
+      raise Capybara::ExpectationNotMet, "preference still #{saved}" unless saved == 'thumbs_down'
+    end
   end
 end
