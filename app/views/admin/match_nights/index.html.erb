@@ -13,7 +13,20 @@
         <li id="<%= dom_id(night) %>" class="flex flex-col gap-3 rounded-md bg-white px-4 py-3 shadow-sm">
           <div class="flex items-center justify-between gap-3">
             <div class="min-w-0">
-              <span class="font-semibold"><%= night.label %></span>
+              <details class="inline-block align-top">
+                <summary class="flex cursor-pointer list-none items-center gap-1">
+                  <span class="font-semibold"><%= night.label %></span>
+                  <span class="text-gray-400" title="<%= t('.rename') %>">
+                    <%= render 'shared/icon', name: 'pencil-square', class: 'h-4 w-4' %>
+                    <span class="sr-only"><%= t('.rename') %></span>
+                  </span>
+                </summary>
+                <%= form_with model: [:admin, night], method: :patch, class: 'mt-2 flex items-center gap-2' do |rename_form| %>
+                  <%= rename_form.text_field :label, maxlength: 60, required: true, class: 'form-input',
+                                             aria: { label: t('.rename') } %>
+                  <%= rename_form.submit t('.save'), class: 'btn btn-secondary' %>
+                <% end %>
+              </details>
               <span class="text-gray-500">- <%= night.played_on.strftime('%b %-d, %Y') %></span>
               <% if night.venue.present? %>
                 <span class="text-gray-500">&middot; <%= night.venue %></span>
@@ -25,8 +38,12 @@
             <% if night.canceled? %>
               <span class="text-xs font-bold uppercase text-red-700"><%= t('match_nights.schedule.canceled') %></span>
             <% else %>
-              <%= button_to t('.cancel_night'), admin_match_night_path(night), method: :patch, class: 'btn btn-secondary',
-                            form: { data: { turbo_confirm: t('.confirm_cancel') } } %>
+              <%= button_to cancel_admin_match_night_path(night), method: :patch,
+                            class: 'rounded-md p-2 text-red-700 hover:bg-red-50',
+                            title: t('.cancel_night'), aria: { label: t('.cancel_night') },
+                            form: { data: { turbo_confirm: t('.confirm_cancel') } } do %>
+                <%= render 'shared/icon', name: 'x-mark', class: 'h-5 w-5' %>
+              <% end %>
             <% end %>
           </div>
 
@@ -36,9 +53,12 @@
                 <% time = slot.label %>
                 <span class="flex items-center gap-2 rounded-md border border-gray-300 px-2 py-1 text-sm">
                   <%= time %>
-                  <%= button_to t('.remove_time'), admin_match_night_match_slot_path(night, slot), method: :delete,
-                                class: 'text-xs text-red-700 underline',
-                                form: { class: 'inline', data: { turbo_confirm: t('.confirm_remove_time', time: time) } } %>
+                  <%= button_to admin_match_night_match_slot_path(night, slot), method: :delete,
+                                class: 'text-gray-400 hover:text-red-700',
+                                title: t('.remove_time', time: time), aria: { label: t('.remove_time', time: time) },
+                                form: { class: 'inline', data: { turbo_confirm: t('.confirm_remove_time', time: time) } } do %>
+                    <%= render 'shared/icon', name: 'x-mark', class: 'h-4 w-4' %>
+                  <% end %>
                 </span>
               <% end %>
               <% if night.match_slots.empty? %>
@@ -47,7 +67,10 @@
               <%= form_with scope: :match_slot, url: admin_match_night_match_slots_path(night), class: 'ml-auto flex items-center gap-2' do |slot_form| %>
                 <%= slot_form.time_field :starts_at, step: 900, required: true, class: 'form-input',
                                          aria: { label: t('.add_time') } %>
-                <%= slot_form.submit t('.add_time'), class: 'btn btn-secondary' %>
+                <%= slot_form.button type: :submit, title: t('.add_time'), aria: { label: t('.add_time') },
+                                     class: 'rounded-md border border-gray-300 p-2 text-dpc-navy hover:bg-gray-50' do %>
+                  <%= render 'shared/icon', name: 'plus', class: 'h-5 w-5' %>
+                <% end %>
               <% end %>
             </div>
           <% end %>

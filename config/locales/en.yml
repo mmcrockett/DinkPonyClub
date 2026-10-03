@@ -73,15 +73,19 @@ en:
       create:
         created: "%{label} added."
       update:
+        renamed: "Renamed to %{label}."
+      cancel:
         canceled: "%{label} canceled."
       index:
         title: "Schedule"
+        rename: "Rename"
+        save: "Save"
         cancel_night: "Cancel night"
         confirm_cancel: "Cancel this match night? Players will see it as canceled."
         empty: "No match nights for this season yet."
         add: "Add night"
         add_time: "Add time"
-        remove_time: "Remove"
+        remove_time: "Remove %{time}"
         confirm_remove_time: "Remove %{time}? This also deletes every player's preference for it."
         no_times: "No times yet - players can't pick time preferences."
     match_slots:

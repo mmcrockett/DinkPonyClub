@@ -8,7 +8,7 @@ class MatchNight < ApplicationRecord
   has_many :slot_availabilities, through: :match_slots
 
   validates :played_on, presence: true
-  validates :label, presence: true
+  validates :label, presence: true, length: { maximum: 60 }
 
   scope :chronological, -> { order(:played_on) }
   scope :upcoming, -> { where(played_on: Date.current..) }

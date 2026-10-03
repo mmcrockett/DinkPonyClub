@@ -25,6 +25,17 @@ module Admin
 
     def update
       match_night = MatchNight.find(params.expect(:id))
+      flash_key, message = if match_night.update(params.expect(match_night: %i[label]))
+                             [:notice, t('.renamed', label: match_night.label)]
+                           else
+                             [:alert, match_night.errors.full_messages.to_sentence]
+                           end
+
+      redirect_to admin_match_nights_path(season: match_night.season), flash_key => message
+    end
+
+    def cancel
+      match_night = MatchNight.find(params.expect(:id))
       match_night.update!(canceled: true)
 
       redirect_to admin_match_nights_path(season: match_night.season),
