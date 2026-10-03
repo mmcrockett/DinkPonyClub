@@ -9,6 +9,10 @@ module PlayersHelper
     number_to_percentage(row.win_pct * 100, precision: 0)
   end
 
+  def rating_label(row)
+    row.rating || '-'
+  end
+
   def player_team_label(row)
     row.substitute? ? t('players.substitute') : row.team.name
   end

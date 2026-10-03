@@ -2,7 +2,8 @@
 
 class StatsFilter
   SORTS = %w[name team games wins losses win_pct].freeze
-  DESCENDING_BY_DEFAULT = %w[games wins losses win_pct].freeze
+  RATING = 'rating'
+  DESCENDING_BY_DEFAULT = %w[games wins losses win_pct rating].freeze
   DIRECTIONS = %w[asc desc].freeze
   SUBSTITUTES = 'substitutes'
 
@@ -14,11 +15,20 @@ class StatsFilter
 
   def initialize(rows, params = {})
     @all_rows = rows
+    @ratings = rows.any?(&:rating)
     @query = params[:q].to_s.strip
     @team = params[:team].presence
     @hide_substitutes = params[:hide_substitutes] == '1'
-    @sort = SORTS.include?(params[:sort]) ? params[:sort] : SORTS.first
-    @direction = DIRECTIONS.include?(params[:dir]) ? params[:dir] : self.class.default_direction(@sort)
+    @sort = sorts.include?(params[:sort]) ? params[:sort] : SORTS.first
+    @direction = direction_from(params[:dir])
+  end
+
+  def sorts
+    @ratings ? SORTS + [RATING] : SORTS
+  end
+
+  def ratings?
+    @ratings
   end
 
   def hide_substitutes?
@@ -40,6 +50,10 @@ class StatsFilter
   end
 
   private
+
+  def direction_from(value)
+    DIRECTIONS.include?(value) ? value : self.class.default_direction(sort)
+  end
 
   def matches_query?(row)
     query.empty? || row.player.full_name.downcase.include?(query.downcase)
@@ -70,7 +84,7 @@ class StatsFilter
   def sort_value(row)
     case sort
     when 'team' then row.team&.name&.downcase
-    when 'games', 'wins', 'losses', 'win_pct' then row.public_send(sort)
+    when 'games', 'wins', 'losses', 'win_pct', RATING then row.public_send(sort)
     else name_key(row)
     end
   end
