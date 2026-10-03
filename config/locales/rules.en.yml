@@ -1,0 +1,33 @@
+en:
+  rules:
+    show:
+      title: "Rules & Format"
+      season: "Fall 2026"
+      heading: "How we play."
+      intro: "The format, scoring, and club rules in one place."
+      format_heading: "Match format"
+      metrics:
+        - value: "4"
+          label: "Drafted teams"
+        - value: "5"
+          label: "Lines per matchup"
+        - value: "3"
+          label: "Games per line"
+        - value: "+0.5"
+          label: "Sweep bonus"
+      sections:
+        - heading: "Five lines, equal weight"
+          body: "Each matchup has five lines. Every line matters equally: Line 5 can affect the result just as much as Line 1. Captains form the lineup weekly and tell you which line you will play."
+        - heading: "Timing"
+          body: "A normal week has one line starting at 7:00 PM, two at 7:30 PM, and the final two around 8:15 PM. The extra games may instead run around 8:30-8:45 PM after the late games finish. Tell your captain which time slots work best for you each week."
+        - heading: "Gameplay"
+          body: "Each line plays three doubles games to 11, win by two. Call lets when they occur. The home team serves first in Game 1; the away team chooses its starting side. Switch sides each game. If it is windy, you may agree to switch sides mid-game."
+        - heading: "Scoring"
+          body: "Each game win earns one team point. Winning all three games on a line adds a 0.5-point sweep bonus. The weekly winner is the team with the most points across all five lines. Regular-season scoring determines playoff seeds; the exact seeding order and tiebreakers still need organizer confirmation."
+        - heading: "Season dates"
+          body: "The regular season runs September 24-November 5. October 8 is canceled. Semifinals and finals are both November 13; playoff start times will be confirmed."
+        - heading: "Team spirit"
+          body: "Stay for the duration of both team matches if you can. Cheer on your teammates, enjoy the evening, and hang around for more pickleball."
+      location_heading: "Sean O'Brien's courts"
+      location_body: "Parking is available beside and behind the courts, plus the Mama Bettie's parking garage. Bring plenty of water; drinks will be available in coolers. Eat before arriving or order Mama Bettie's for pickup to support our neighbors."
+      directions: "Get directions"

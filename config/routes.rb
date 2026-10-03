@@ -19,6 +19,7 @@ Rails.application.routes.draw do
   end
   resources :matches, only: %i[show edit update]
   resources :players, only: %i[index show]
+  get 'rules', to: 'rules#show', as: :rules
   get 'standings', to: 'standings#show', as: :standings
 
   get 'schedule.ics', to: 'calendars#show', as: :schedule_calendar, format: false, defaults: { format: :ics }
