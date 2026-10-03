@@ -311,6 +311,36 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
     assert_equal before, after
   end
 
+  test 'past team availability shows results without selection controls' do
+    sign_in_as_ada
+
+    travel_to Time.zone.local(2026, 9, 24) do
+      get season_match_nights_path(seasons(:fall), view: 'availability')
+    end
+
+    frame = "##{dom_id(match_nights(:fall_week_one))}"
+
+    assert_select "#{frame} select", count: 0
+    assert_select "#{frame} a[href=?]", match_path(matches(:fall_alpha_bravo))
+  end
+
+  test 'team availability colors saved responses and unanswered choices' do
+    sign_in_as(players(:zoe))
+    night = match_nights(:fall_upcoming)
+    night.match_availabilities.create!(player: players(:sam), status: 'out')
+    night.match_availabilities.create!(player: players(:ben), status: 'maybe')
+    night.match_availabilities.where(player: players(:grace)).destroy_all
+
+    get season_match_nights_path(seasons(:fall), view: 'availability')
+
+    frame = "##{dom_id(night, :team_availability)}"
+
+    assert_select "#{frame} select.bg-dpc-green option[selected][value=in]"
+    assert_select "#{frame} select.bg-red-700 option[selected][value=out]"
+    assert_select "#{frame} select.bg-white option[selected][value=maybe]"
+    assert_select "#{frame} select.bg-white option[selected][value='']"
+  end
+
   private
 
   def add_match_nights(season)
