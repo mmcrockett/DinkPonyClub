@@ -17,7 +17,7 @@
         <table class="w-full text-sm">
           <thead>
             <tr class="border-b border-gray-100 text-xs font-bold uppercase text-gray-500">
-              <% StatsFilter::SORTS.each do |column| %>
+              <% @filter.sorts.each do |column| %>
                 <th class="px-4 py-3 <%= %w[name team].include?(column) ? 'text-left' : 'text-right' %>"
                     aria-sort="<%= players_aria_sort(@filter, column) %>">
                   <%= players_sort_link(@filter, column, season: @season) %>
@@ -47,6 +47,10 @@
                 <td class="px-4 py-3 text-right"><%= row.wins %></td>
                 <td class="px-4 py-3 text-right"><%= row.losses %></td>
                 <td class="px-4 py-3 text-right"><%= win_rate_label(row) %></td>
+                <% if @filter.ratings? %>
+                  <td class="px-4 py-3 text-right <%= 'text-gray-400' if row.rated_games.to_i.zero? %>"
+                      title="<%= t('players.rated_games', count: row.rated_games.to_i) %>"><%= rating_label(row) %></td>
+                <% end %>
               </tr>
             <% end %>
           </tbody>

@@ -57,6 +57,35 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
     assert_select '.owes-chip', count: 0
   end
 
+  test 'captains see a sortable rating column' do
+    sign_in_as(players(:ada))
+
+    get season_players_path(seasons(:fall), sort: 'rating')
+
+    assert_response :success
+    assert_select 'th a', text: /Rating/
+    assert_select "##{dom_id(players(:ada), :stats)} td:last-child", text: /\d{4}/
+  end
+
+  test 'regular players see no rating column and cannot sort by it' do
+    sign_in_as(players(:grace))
+
+    get season_players_path(seasons(:fall), sort: 'rating')
+
+    assert_response :success
+    assert_select 'th a', text: /Rating/, count: 0
+    assert_select 'th[aria-sort="ascending"]', text: /Player/
+  end
+
+  test 'any signed in player sees the pupr on a profile' do
+    sign_in_as(players(:grace))
+
+    get season_player_path(seasons(:fall), players(:ada))
+
+    assert_select 'span[title^="Pony Universal Pickleball Rating"]', text: 'PUPR'
+    assert_select 'p', text: /\A\s*\d\.\d{2}\s*\z/
+  end
+
   test 'links each name to the player profile' do
     sign_in_as(players(:ada))
 

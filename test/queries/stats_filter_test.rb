@@ -70,6 +70,18 @@ class StatsFilterTest < ActiveSupport::TestCase
                  names(StatsFilter.new(@rows, sort: 'losses', dir: 'asc'))
   end
 
+  test 'rating sort is ignored unless ratings are enabled' do
+    assert_equal 'name', StatsFilter.new(@rows, sort: 'rating').sort
+    assert_not_includes StatsFilter.new(@rows).sorts, 'rating'
+  end
+
+  test 'sorts by rating descending with unrated players last' do
+    rated = [row('Low', 'One', nil, nil, rating: 1400), row('High', 'Two', nil, nil, rating: 1600),
+             row('None', 'Three', nil, nil)]
+
+    assert_equal ['High Two', 'Low One', 'None Three'], names(StatsFilter.new(rated, sort: 'rating'))
+  end
+
   test 'next direction reverses the active column and uses the default for others' do
     filter = StatsFilter.new(@rows, sort: 'wins', dir: 'desc')
 

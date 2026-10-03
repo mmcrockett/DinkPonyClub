@@ -9,9 +9,10 @@ class PlayersController < ApplicationController
   def index
     @season = current_season
     @teams = @season ? @season.teams.order(:name) : []
-    @filter = StatsFilter.new(@season ? PlayerStats.new(@season).rows : [], filter_params)
+    @captain_view = @season.present? && captain_or_admin?(@season)
+    @filter = StatsFilter.new(stats_rows, filter_params)
     @rows = @filter.rows
-    @owing_ids = @season && captain_or_admin?(@season) ? Charge.owing_player_ids(@season) : []
+    @owing_ids = @captain_view ? Charge.owing_player_ids(@season) : []
   end
 
   def show
@@ -19,11 +20,18 @@ class PlayersController < ApplicationController
     @season = current_season
     @career = PlayerCareer.new(@player)
     @row = @career.rows.find { |row| row.season == @season }
+    @rating = PlayerRatings.new(@season).for(@player.id) if @season
     @show_contacts = @season.present? && captain_or_admin?(@season)
     @line_results = @season ? line_results : []
   end
 
   private
+
+  def stats_rows
+    return [] unless @season
+
+    PlayerStats.new(@season, ratings: (PlayerRatings.new(@season) if @captain_view)).rows
+  end
 
   def filter_params
     params.permit(:q, :team, :hide_substitutes, :sort, :dir)

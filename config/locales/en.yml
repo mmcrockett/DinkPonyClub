@@ -199,6 +199,12 @@ en:
     captain: "Captain"
     substitute: "Substitute"
     owes: "Owes money"
+    pupr:
+      short: "PUPR"
+      meaning: "Pony Universal Pickleball Rating - this league's own rating on the DUPR scale, worked out from games played in the league."
+    rated_games:
+      one: "%{count} rated game"
+      other: "%{count} rated games"
     contact_hidden: "Contact details are available to captains."
     no_contact: "No contact details on file."
     filters:
@@ -219,6 +225,7 @@ en:
         wins: "Wins"
         losses: "Losses"
         win_pct: "Win %"
+        rating: "Rating"
     show:
       back: "Back to players"
       not_playing: "Not playing this season"
