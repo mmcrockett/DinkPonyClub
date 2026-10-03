@@ -210,6 +210,10 @@ en:
     contact_hidden: "Contact details are available to captains."
     no_contact: "No contact details on file."
     filters:
+      period: "Results period"
+      season_results: "Season results"
+      lifetime: "Lifetime results"
+      lifetime_note: "Results include all recorded seasons. Ratings are unchanged. Teams, captain badges and substitute filters refer to %{season}."
       search: "Find a player..."
       team: "Team"
       all_teams: "All teams"

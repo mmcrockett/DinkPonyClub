@@ -10,9 +10,10 @@ class PlayerStats
 
   attr_reader :season
 
-  def initialize(season, ratings: nil)
+  def initialize(season, ratings: nil, lifetime: false)
     @season = season
     @ratings = ratings
+    @lifetime = lifetime
   end
 
   def rows
@@ -35,9 +36,9 @@ class PlayerStats
   end
 
   def season_games
-    Game.joins(:lineup)
-        .where(lineups: { match_id: season.matches.select(:id) })
-        .to_a
+    return Game.all.to_a if @lifetime
+
+    Game.joins(:lineup).where(lineups: { match_id: season.matches.select(:id) }).to_a
   end
 
   def row_for(player, team, captain)

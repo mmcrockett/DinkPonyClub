@@ -17,10 +17,10 @@ module PlayersHelper
     row.substitute? ? t('players.substitute') : row.team.name
   end
 
-  def players_sort_link(filter, column, season:)
+  def players_sort_link(filter, column, season:, lifetime: false)
     query_params = { q: filter.query.presence, team: filter.team,
                      hide_substitutes: filter.hide_substitutes? ? '1' : nil,
-                     sort: column, dir: filter.next_direction(column) }.compact
+                     sort: column, dir: filter.next_direction(column), period: ('lifetime' if lifetime) }.compact
 
     link_to season_players_path(season, query_params), class: 'inline-flex items-center gap-1 hover:text-dpc-navy' do
       safe_join([t("players.index.table.#{column}"), sort_indicator(filter, column)].compact)
