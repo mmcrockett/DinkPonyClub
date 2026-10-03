@@ -79,6 +79,7 @@ en:
       index:
         title: "Schedule"
         edit: "Edit"
+        label: "Label"
         date: "Date"
         save: "Save"
         cancel_night: "Cancel night"

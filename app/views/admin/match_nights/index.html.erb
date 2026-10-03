@@ -23,7 +23,7 @@
                 </summary>
                 <%= form_with model: [:admin, night], method: :patch, class: 'mt-2 flex flex-wrap items-center gap-2' do |edit_form| %>
                   <%= edit_form.text_field :label, maxlength: 60, required: true, class: 'form-input',
-                                           aria: { label: t('.edit') } %>
+                                           aria: { label: t('.label') } %>
                   <%= edit_form.date_field :played_on, required: true, class: 'form-input',
                                            aria: { label: t('.date') } %>
                   <%= edit_form.submit t('.save'), class: 'btn btn-secondary' %>
