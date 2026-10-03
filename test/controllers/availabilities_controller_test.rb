@@ -136,6 +136,19 @@ class AvailabilitiesControllerTest < ActionDispatch::IntegrationTest
     assert_equal I18n.t('availabilities.update_for_player.not_on_roster'), flash[:alert]
   end
 
+  test 'an admin cannot change team availability on past dates' do
+    sign_in_as(players(:zoe))
+    availability = match_availabilities(:fall_future_ada)
+
+    travel_to @match_night.played_on.in_time_zone + 1.day do
+      patch match_night_player_availability_path(@match_night, players(:ada)),
+            params: { match_availability: { status: 'out' } }
+    end
+
+    assert_predicate availability.reload, :in?
+    assert_equal I18n.t('availabilities.update.closed'), flash[:alert]
+  end
+
   private
 
   def sign_in_as_ada
