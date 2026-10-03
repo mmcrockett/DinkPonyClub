@@ -7,6 +7,11 @@ module TeamsHelper
     link_to team.name, season_team_path(season, team), class: 'hover:underline'
   end
 
+  def team_logo(team, **)
+    path = "team-logos/#{team.name.parameterize}.png"
+    image_tag(path, alt: '', **) if Rails.application.assets.load_path.find(path)
+  end
+
   def team_match_line(team, match)
     home = match.home_team == team
     result = MatchResult.new(match)

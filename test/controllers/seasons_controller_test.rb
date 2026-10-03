@@ -16,6 +16,19 @@ class SeasonsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_path
   end
 
+  test 'show has the celebration images only for Summer 2026' do
+    sign_in_as_ada
+
+    get season_path(seasons(:summer))
+
+    assert_select "img[src*='celebration']", 1
+    assert_select "img[src*='champs']", 1
+
+    get season_path(seasons(:fall))
+
+    assert_select "img[src*='celebration']", 0
+  end
+
   test 'show is a 404 for an unknown season' do
     sign_in_as_ada
 
