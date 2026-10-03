@@ -1,0 +1,38 @@
+<% content_for :title, t('.title') %>
+
+<div class="mx-auto flex max-w-6xl flex-col gap-6">
+  <header>
+    <p class="mb-2 text-xs font-bold uppercase tracking-widest text-dpc-green"><%= t('.season') %></p>
+    <h1 class="text-3xl font-extrabold text-dpc-navy"><%= t('.heading') %></h1>
+    <p class="mt-2 text-gray-600"><%= t('.intro') %></p>
+  </header>
+
+  <div class="grid grid-cols-2 gap-3 md:grid-cols-4">
+    <% t('.metrics').each do |metric| %>
+      <div class="rounded-lg bg-dpc-navy p-5 text-white">
+        <p class="text-3xl font-extrabold"><%= metric[:value] %></p>
+        <p class="mt-1 text-sm"><%= metric[:label] %></p>
+      </div>
+    <% end %>
+  </div>
+
+  <article class="rounded-lg border border-gray-200 bg-white p-5 shadow-sm sm:p-8">
+    <h2 class="mb-6 text-xl font-bold"><%= t('.format_heading') %></h2>
+    <div class="grid gap-6 md:grid-cols-2">
+      <% t('.sections').each do |section| %>
+        <section>
+          <h3 class="mb-2 font-bold text-dpc-navy"><%= section[:heading] %></h3>
+          <p class="leading-relaxed text-gray-600"><%= section[:body] %></p>
+        </section>
+      <% end %>
+    </div>
+  </article>
+
+  <section class="rounded-lg border border-gray-200 bg-white p-5 shadow-sm sm:p-8">
+    <h2 class="text-xl font-bold"><%= t('.location_heading') %></h2>
+    <p class="mt-3 leading-relaxed text-gray-600"><%= t('.location_body') %></p>
+    <%= link_to t('.directions'), 'https://maps.app.goo.gl/HEHt2a5zAPH1XdvD9',
+                class: 'mt-4 inline-flex rounded-md bg-dpc-navy px-4 py-2 font-semibold text-white hover:underline',
+                target: '_blank', rel: 'noopener noreferrer' %>
+  </section>
+</div>
