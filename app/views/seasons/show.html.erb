@@ -8,6 +8,13 @@
     <p class="text-gray-500"><%= t('.weeks_played', count: @weeks_completed) %></p>
   </div>
 
+  <% if celebration_season?(@season) %>
+    <div class="flex flex-col items-center gap-6">
+      <%= image_tag 'celebration.gif', alt: t('.celebration_alt'), class: 'w-full max-w-md rounded-lg shadow-lg' %>
+      <%= image_tag 'champs.png', alt: t('.champions_alt'), class: 'w-full max-w-md rounded-lg shadow-lg' %>
+    </div>
+  <% end %>
+
   <% if @next_match_night %>
     <section class="flex flex-col gap-3">
       <div class="flex items-baseline justify-between gap-3">

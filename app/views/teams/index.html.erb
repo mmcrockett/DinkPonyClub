@@ -9,11 +9,14 @@
     <ul class="grid gap-4 sm:grid-cols-2">
       <% @rows.each do |row| %>
         <li id="<%= dom_id(row.team) %>" class="flex items-center justify-between gap-3 rounded-md bg-white p-4 shadow-sm">
-          <div class="min-w-0">
-            <p class="text-lg font-extrabold text-dpc-navy"><%= team_link(row.team, @season) %></p>
-            <% if row.team.tagline.present? %>
-              <p class="truncate text-sm text-gray-500"><%= row.team.tagline %></p>
-            <% end %>
+          <div class="flex min-w-0 items-center gap-3">
+            <%= team_logo(row.team, class: 'h-10 w-10 shrink-0 rounded-full object-cover') %>
+            <div class="min-w-0">
+              <p class="text-lg font-extrabold text-dpc-navy"><%= team_link(row.team, @season) %></p>
+              <% if row.team.tagline.present? %>
+                <p class="truncate text-sm text-gray-500"><%= row.team.tagline %></p>
+              <% end %>
+            </div>
           </div>
           <span class="shrink-0 rounded-full bg-gray-100 px-3 py-1 text-xs font-bold text-gray-600">
             <%= row.record %>

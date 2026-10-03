@@ -325,6 +325,8 @@ en:
       standings: "Standings"
       full_standings: "Full standings"
       recent_results: "Recent results - %{label}"
+      celebration_alt: "Championship celebration"
+      champions_alt: "Dink Pony Club champions"
   activerecord:
     attributes:
       fee:
