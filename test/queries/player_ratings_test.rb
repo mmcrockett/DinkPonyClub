@@ -54,6 +54,7 @@ class PlayerRatingsTest < ActiveSupport::TestCase
     ratings = PlayerRatings.new(seasons(:fall))
 
     assert_in_delta 6000, total(ratings)
+    assert_operator ratings.for(@ada.id).elo, :>, ratings.for(@sam.id).elo
   end
 
   test 'new players without a rank are seeded from the line they first play' do
