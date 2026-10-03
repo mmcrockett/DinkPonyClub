@@ -10,6 +10,8 @@ class MatchNight < ApplicationRecord
   validates :played_on, presence: true
   validates :label, presence: true, length: { maximum: 60 }
 
+  after_update :move_slots_to_played_on, if: :saved_change_to_played_on?
+
   scope :chronological, -> { order(:played_on) }
   scope :upcoming, -> { where(played_on: Date.current..) }
   scope :without_matches, -> { where.not(id: Match.select(:match_night_id)) }
@@ -26,5 +28,14 @@ class MatchNight < ApplicationRecord
 
   def complete?
     !canceled? && matches.any? && matches.all?(&:complete?)
+  end
+
+  private
+
+  def move_slots_to_played_on
+    match_slots.each do |slot|
+      time = slot.starts_at.in_time_zone
+      slot.update!(starts_at: Time.zone.local(played_on.year, played_on.month, played_on.day, time.hour, time.min))
+    end
   end
 end

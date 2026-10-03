@@ -73,12 +73,13 @@ en:
       create:
         created: "%{label} added."
       update:
-        renamed: "Renamed to %{label}."
+        updated: "%{label} updated."
       cancel:
         canceled: "%{label} canceled."
       index:
         title: "Schedule"
-        rename: "Rename"
+        edit: "Edit"
+        date: "Date"
         save: "Save"
         cancel_night: "Cancel night"
         confirm_cancel: "Cancel this match night? Players will see it as canceled."
@@ -215,7 +216,6 @@ en:
       hide_substitutes: "Hide substitutes"
     index:
       title: "Good people. Great games."
-      subtitle: "%{season} - Player records, including substitutes."
       empty: "No players are rostered for this season yet."
       no_matches: "No players match these filters."
       table:
