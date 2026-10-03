@@ -5,6 +5,13 @@ class MatchNightTest < ActiveSupport::TestCase
     assert_predicate match_nights(:fall_week_one), :valid?
   end
 
+  test 'label longer than 60 characters is invalid' do
+    night = match_nights(:fall_week_one)
+    night.label = 'x' * 61
+
+    assert_not night.valid?
+  end
+
   test 'availability is open before noon central on match day' do
     night = match_nights(:fall_upcoming)
 

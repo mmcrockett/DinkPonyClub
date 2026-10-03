@@ -16,8 +16,9 @@
               <details class="inline-block align-top">
                 <summary class="flex cursor-pointer list-none items-center gap-1">
                   <span class="font-semibold"><%= night.label %></span>
-                  <span class="text-gray-400" title="<%= t('.rename') %>" aria-label="<%= t('.rename') %>">
+                  <span class="text-gray-400" title="<%= t('.rename') %>">
                     <%= render 'shared/icon', name: 'pencil-square', class: 'h-4 w-4' %>
+                    <span class="sr-only"><%= t('.rename') %></span>
                   </span>
                 </summary>
                 <%= form_with model: [:admin, night], method: :patch, class: 'mt-2 flex items-center gap-2' do |rename_form| %>
