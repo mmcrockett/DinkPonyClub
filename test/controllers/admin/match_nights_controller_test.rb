@@ -20,7 +20,7 @@ module Admin
 
       get admin_match_nights_path(season: seasons(:fall))
 
-      assert_select "##{dom_id(match_nights(:fall_upcoming))} button", text: 'Cancel night'
+      assert_select "##{dom_id(match_nights(:fall_upcoming))} button[aria-label='Cancel night']"
       assert_select "##{dom_id(match_nights(:fall_canceled))} button", count: 0
     end
 
@@ -30,7 +30,7 @@ module Admin
       get admin_match_nights_path(season: seasons(:fall))
 
       assert_select "##{dom_id(match_nights(:fall_upcoming))} span", text: /7:00 PM/
-      assert_select "##{dom_id(match_nights(:fall_upcoming))} button", text: 'Remove', count: 3
+      assert_select "##{dom_id(match_nights(:fall_upcoming))} button[aria-label^='Remove']", count: 3
     end
 
     test 'adds a night for an admin' do
@@ -70,7 +70,7 @@ module Admin
     test 'redirects a non-admin and leaves the night unchanged' do
       sign_in_as players(:ada)
 
-      patch admin_match_night_path(match_nights(:fall_upcoming))
+      patch cancel_admin_match_night_path(match_nights(:fall_upcoming))
 
       assert_redirected_to root_path
       assert_not match_nights(:fall_upcoming).reload.canceled?
@@ -79,11 +79,40 @@ module Admin
     test 'cancels a night for an admin' do
       sign_in_as players(:zoe)
 
-      patch admin_match_night_path(match_nights(:fall_upcoming))
+      patch cancel_admin_match_night_path(match_nights(:fall_upcoming))
 
       assert_redirected_to admin_match_nights_path(season: seasons(:fall))
       assert_equal 'Week 2 canceled.', flash[:notice]
       assert_predicate match_nights(:fall_upcoming).reload, :canceled?
+    end
+
+    test 'renames a night for an admin' do
+      sign_in_as players(:zoe)
+
+      patch admin_match_night_path(match_nights(:fall_upcoming)), params: { match_night: { label: 'Week 3' } }
+
+      assert_redirected_to admin_match_nights_path(season: seasons(:fall))
+      assert_equal 'Renamed to Week 3.', flash[:notice]
+      assert_equal 'Week 3', match_nights(:fall_upcoming).reload.label
+    end
+
+    test 'rejects a blank rename' do
+      sign_in_as players(:zoe)
+
+      patch admin_match_night_path(match_nights(:fall_upcoming)), params: { match_night: { label: '' } }
+
+      assert_redirected_to admin_match_nights_path(season: seasons(:fall))
+      assert_predicate flash[:alert], :present?
+      assert_equal 'Week 2', match_nights(:fall_upcoming).reload.label
+    end
+
+    test 'redirects a non-admin rename and leaves the label unchanged' do
+      sign_in_as players(:ada)
+
+      patch admin_match_night_path(match_nights(:fall_upcoming)), params: { match_night: { label: 'Hacked' } }
+
+      assert_redirected_to root_path
+      assert_equal 'Week 2', match_nights(:fall_upcoming).reload.label
     end
 
     private
