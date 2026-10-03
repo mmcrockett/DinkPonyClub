@@ -39,6 +39,8 @@ class AvailabilitiesController < ApplicationController
   def authorize_update_for_player?
     return deny?(t('authentication.require_captain_or_admin')) unless captain_or_admin?(@match_night.season)
 
+    return deny?(t('availabilities.update.closed')) if @match_night.past? || @match_night.canceled?
+
     roster_spot = authorized_roster_spot
     return false unless roster_spot
     return deny?(t('.invalid_status')) unless valid_status?(status_param)
