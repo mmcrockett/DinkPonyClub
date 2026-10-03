@@ -1,19 +1,23 @@
 # frozen_string_literal: true
 
 class PlayerRatings
-  Rating = Struct.new(:elo, :games)
+  Rating = Struct.new(:elo, :games) do
+    def pupr
+      (PUPR_CENTER + ((elo - BASE) / ELO_PER_PUPR)).clamp(2.0, 8.0).round(2)
+    end
+  end
   Played = Data.define(:home, :away, :home_score, :away_score, :position, :season_id)
 
   BASE = 1500
   LINE_STEP = 170
   K = 24
+  PUPR_CENTER = 3.5
+  ELO_PER_PUPR = 400.0
   MAX_MARGIN_BONUS = 0.5
   MAX_MARGIN = 11
   DEFAULT_LINES = 4
   PLUCKED = (Game::PLAYER_COLUMNS.map { |column| "games.#{column}" } +
              %w[games.home_score games.away_score lineups.position matches.season_id]).freeze
-
-  attr_reader :season
 
   def initialize(season)
     @season = season
@@ -35,7 +39,7 @@ class PlayerRatings
   end
 
   def played_games
-    cutoff = season.match_nights.maximum(:played_on) || Date.current
+    cutoff = @season.match_nights.maximum(:played_on) || Date.current
 
     Game.joins(lineup: { match: :match_night })
         .where(match_nights: { played_on: ..cutoff })
@@ -91,9 +95,9 @@ class PlayerRatings
   end
 
   def seed_roster(table)
-    count = line_count(season.id)
+    count = line_count(@season.id)
 
-    season.roster_spots.each do |spot|
+    @season.roster_spots.each do |spot|
       tier = tier_from_rank(spot.draft_rank)
       table[spot.player_id] ||= Rating.new(seed(tier, count), 0) if tier
     end

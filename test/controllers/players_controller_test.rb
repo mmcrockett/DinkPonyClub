@@ -77,6 +77,15 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
     assert_select 'th[aria-sort="ascending"]', text: /Player/
   end
 
+  test 'any signed in player sees the pupr on a profile' do
+    sign_in_as(players(:grace))
+
+    get season_player_path(seasons(:fall), players(:ada))
+
+    assert_select 'span[title^="Pony Universal Pickleball Rating"]', text: 'PUPR'
+    assert_select 'p', text: /\A\s*\d\.\d{2}\s*\z/
+  end
+
   test 'links each name to the player profile' do
     sign_in_as(players(:ada))
 

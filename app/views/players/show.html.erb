@@ -17,6 +17,14 @@
           <% if @season %> - <%= @season.name %><% end %>
         </p>
       </div>
+      <% if @rating %>
+        <div class="text-right">
+          <p class="text-xs font-semibold uppercase text-gray-500">
+            <span class="cursor-help" title="<%= t('players.pupr.meaning') %>" aria-label="<%= t('players.pupr.meaning') %>"><%= t('players.pupr.short') %></span>
+          </p>
+          <p class="text-2xl font-extrabold text-dpc-navy"><%= number_with_precision(@rating.pupr, precision: 2) %></p>
+        </div>
+      <% end %>
       <% if @row&.captain %>
         <span class="rounded-full bg-dpc-green px-2 py-0.5 text-xs font-bold uppercase text-white">
           <%= t('players.captain') %>

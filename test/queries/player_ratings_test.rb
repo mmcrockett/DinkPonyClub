@@ -76,6 +76,12 @@ class PlayerRatingsTest < ActiveSupport::TestCase
     assert_nil ratings.for(unranked.id)
   end
 
+  test 'pupr maps 1500 to 3.5 and 400 points to one rating point' do
+    assert_in_delta 3.5, PlayerRatings::Rating.new(1500.0, 0).pupr
+    assert_in_delta 4.5, PlayerRatings::Rating.new(1900.0, 0).pupr
+    assert_in_delta 2.0, PlayerRatings::Rating.new(0.0, 0).pupr
+  end
+
   private
 
   def total(ratings)
