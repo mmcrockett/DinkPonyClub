@@ -395,6 +395,37 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
     assert_not_includes response.body, 'sam@example.test'
   end
 
+  test 'lifetime selection persists through sorting and filters' do
+    sign_in_as(players(:ada))
+
+    get season_players_path(seasons(:spring), period: 'lifetime', sort: 'wins', team: teams(:alpha).id)
+
+    assert_response :success
+    assert_select 'select[name=period] option[selected]', text: 'Lifetime results'
+    assert_select 'th a[href*="period=lifetime"]'
+    assert_select "##{dom_id(players(:ada), :stats)} td:nth-child(3)", text: '6'
+    assert_select "##{dom_id(players(:sam), :stats)}", count: 0
+  end
+
+  test 'switching to lifetime leaves the existing rating unchanged' do
+    sign_in_as(players(:ada))
+    get season_players_path(seasons(:fall))
+    rating = css_select("##{dom_id(players(:ada), :stats)} td:last-child").first.text
+
+    get season_players_path(seasons(:fall), period: 'lifetime')
+
+    assert_select "##{dom_id(players(:ada), :stats)} td:last-child", text: rating
+  end
+
+  test 'lifetime does not expose ratings to non-captains' do
+    sign_in_as(players(:grace))
+
+    get season_players_path(seasons(:fall), period: 'lifetime', sort: 'rating')
+
+    assert_response :success
+    assert_select 'th a', text: /Rating/, count: 0
+  end
+
   private
 
   def add_sub_line
