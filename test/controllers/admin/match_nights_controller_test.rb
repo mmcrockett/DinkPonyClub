@@ -92,8 +92,31 @@ module Admin
       patch admin_match_night_path(match_nights(:fall_upcoming)), params: { match_night: { label: 'Week 3' } }
 
       assert_redirected_to admin_match_nights_path(season: seasons(:fall))
-      assert_equal 'Renamed to Week 3.', flash[:notice]
+      assert_equal 'Week 3 updated.', flash[:notice]
       assert_equal 'Week 3', match_nights(:fall_upcoming).reload.label
+    end
+
+    test 'changes the date for an admin and moves its slots' do
+      sign_in_as players(:zoe)
+      night = match_nights(:fall_upcoming)
+      new_date = night.played_on + 7
+
+      patch admin_match_night_path(night), params: { match_night: { label: night.label, played_on: new_date } }
+
+      assert_redirected_to admin_match_nights_path(season: seasons(:fall))
+      assert_equal new_date, night.reload.played_on
+      assert_equal [new_date], night.match_slots.map { |slot| slot.starts_at.in_time_zone.to_date }.uniq
+    end
+
+    test 'rejects a blank date' do
+      sign_in_as players(:zoe)
+      night = match_nights(:fall_upcoming)
+      original = night.played_on
+
+      patch admin_match_night_path(night), params: { match_night: { label: night.label, played_on: '' } }
+
+      assert_predicate flash[:alert], :present?
+      assert_equal original, night.reload.played_on
     end
 
     test 'rejects a blank rename' do
@@ -106,13 +129,16 @@ module Admin
       assert_equal 'Week 2', match_nights(:fall_upcoming).reload.label
     end
 
-    test 'redirects a non-admin rename and leaves the label unchanged' do
+    test 'redirects a non-admin rename and leaves the label and date unchanged' do
       sign_in_as players(:ada)
+      night = match_nights(:fall_upcoming)
+      original = night.played_on
 
-      patch admin_match_night_path(match_nights(:fall_upcoming)), params: { match_night: { label: 'Hacked' } }
+      patch admin_match_night_path(night), params: { match_night: { label: 'Hacked', played_on: original + 7 } }
 
       assert_redirected_to root_path
-      assert_equal 'Week 2', match_nights(:fall_upcoming).reload.label
+      assert_equal 'Week 2', night.reload.label
+      assert_equal original, night.played_on
     end
 
     private

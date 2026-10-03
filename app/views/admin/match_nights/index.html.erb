@@ -16,15 +16,17 @@
               <details class="inline-block align-top">
                 <summary class="flex cursor-pointer list-none items-center gap-1">
                   <span class="font-semibold"><%= night.label %></span>
-                  <span class="text-gray-400" title="<%= t('.rename') %>">
+                  <span class="text-gray-400" title="<%= t('.edit') %>">
                     <%= render 'shared/icon', name: 'pencil-square', class: 'h-4 w-4' %>
-                    <span class="sr-only"><%= t('.rename') %></span>
+                    <span class="sr-only"><%= t('.edit') %></span>
                   </span>
                 </summary>
-                <%= form_with model: [:admin, night], method: :patch, class: 'mt-2 flex items-center gap-2' do |rename_form| %>
-                  <%= rename_form.text_field :label, maxlength: 60, required: true, class: 'form-input',
-                                             aria: { label: t('.rename') } %>
-                  <%= rename_form.submit t('.save'), class: 'btn btn-secondary' %>
+                <%= form_with model: [:admin, night], method: :patch, class: 'mt-2 flex flex-wrap items-center gap-2' do |edit_form| %>
+                  <%= edit_form.text_field :label, maxlength: 60, required: true, class: 'form-input',
+                                           aria: { label: t('.label') } %>
+                  <%= edit_form.date_field :played_on, required: true, class: 'form-input',
+                                           aria: { label: t('.date') } %>
+                  <%= edit_form.submit t('.save'), class: 'btn btn-secondary' %>
                 <% end %>
               </details>
               <span class="text-gray-500">- <%= night.played_on.strftime('%b %-d, %Y') %></span>

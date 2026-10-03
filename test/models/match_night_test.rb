@@ -12,6 +12,28 @@ class MatchNightTest < ActiveSupport::TestCase
     assert_not night.valid?
   end
 
+  test 'changing played_on moves slots to the new date at the same time of day' do
+    night = match_nights(:fall_upcoming)
+    new_date = night.played_on + 7
+    before = night.match_slots.map { |slot| slot.starts_at.in_time_zone.strftime('%H:%M') }
+
+    night.update!(played_on: new_date)
+
+    after = night.match_slots.reload
+
+    assert_equal [new_date], after.map { |slot| slot.starts_at.in_time_zone.to_date }.uniq
+    assert_equal(before, after.map { |slot| slot.starts_at.in_time_zone.strftime('%H:%M') })
+  end
+
+  test 'changing only the label leaves slots alone' do
+    night = match_nights(:fall_upcoming)
+    before = night.match_slots.map(&:starts_at)
+
+    night.update!(label: 'Week 9')
+
+    assert_equal before, night.match_slots.reload.map(&:starts_at)
+  end
+
   test 'availability is open before noon central on match day' do
     night = match_nights(:fall_upcoming)
 

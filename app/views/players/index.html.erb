@@ -6,10 +6,6 @@
   <h1 class="text-2xl font-extrabold text-dpc-navy"><%= t('players.index.title') %></h1>
 
   <%= turbo_frame_tag 'players', class: 'flex flex-col gap-6', data: { turbo_action: 'advance' } do %>
-    <% if @season %>
-      <p class="-mt-4 text-gray-500"><%= t('players.index.subtitle', season: @season.name) %></p>
-    <% end %>
-
     <%= render 'filters', season: @season, teams: @teams, filter: @filter %>
 
     <% if @rows.any? %>
