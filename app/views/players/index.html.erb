@@ -6,7 +6,11 @@
   <h1 class="text-2xl font-extrabold text-dpc-navy"><%= t('players.index.title') %></h1>
 
   <%= turbo_frame_tag 'players', class: 'flex flex-col gap-6', data: { turbo_action: 'advance' } do %>
-    <%= render 'filters', season: @season, teams: @teams, filter: @filter %>
+    <%= render 'filters', season: @season, teams: @teams, filter: @filter, lifetime: @lifetime %>
+
+    <% if @lifetime && @season %>
+      <p class="text-sm text-gray-500"><%= t('players.filters.lifetime_note', season: @season.name) %></p>
+    <% end %>
 
     <% if @rows.any? %>
       <div class="overflow-x-auto rounded-md bg-white shadow-sm">
@@ -16,7 +20,7 @@
               <% @filter.sorts.each do |column| %>
                 <th class="px-4 py-3 <%= %w[name team].include?(column) ? 'text-left' : 'text-right' %>"
                     aria-sort="<%= players_aria_sort(@filter, column) %>">
-                  <%= players_sort_link(@filter, column, season: @season) %>
+                  <%= players_sort_link(@filter, column, season: @season, lifetime: @lifetime) %>
                 </th>
               <% end %>
             </tr>

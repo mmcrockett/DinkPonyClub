@@ -60,6 +60,24 @@ class PlayerStatsTest < ActiveSupport::TestCase
     assert_equal(baseline, count_queries { PlayerStats.new(seasons(:fall)).rows })
   end
 
+  test 'lifetime totals include other seasons without changing roster context' do
+    season_row = PlayerStats.new(seasons(:spring)).rows.find { |row| row.player == players(:ada) }
+    lifetime_row = PlayerStats.new(seasons(:spring), lifetime: true).rows.find { |row| row.player == players(:ada) }
+
+    assert_equal 0, season_row.games
+    assert_equal 3, lifetime_row.games
+    assert_equal 2, lifetime_row.wins
+    assert_equal 1, lifetime_row.losses
+    assert_equal season_row.team, lifetime_row.team
+  end
+
+  test 'lifetime win percentage and zero-game players are handled' do
+    rows = PlayerStats.new(seasons(:scorecard), lifetime: true).rows
+
+    assert_in_delta(2.0 / 3, rows.find { |row| row.player == players(:ada) }.win_pct)
+    assert_nil rows.find { |row| row.player == players(:sc_home_captain) }.win_pct
+  end
+
   private
 
   def row_for(player)
