@@ -2,9 +2,9 @@ en:
   rules:
     show:
       title: "Rules & Format"
-      season: "Fall 2026"
       heading: "How we play."
       intro: "The format, scoring, and club rules in one place."
+      schedule_link: "See the schedule for season dates."
       format_heading: "Match format"
       metrics:
         - value: "4"
@@ -23,9 +23,7 @@ en:
         - heading: "Gameplay"
           body: "Each line plays three doubles games to 11, win by two. Call lets when they occur. The home team serves first in Game 1; the away team chooses its starting side. Switch sides each game. If it is windy, you may agree to switch sides mid-game."
         - heading: "Scoring"
-          body: "Each game win earns one team point. Winning all three games on a line adds a 0.5-point sweep bonus. The weekly winner is the team with the most points across all five lines. Regular-season scoring determines playoff seeds; the exact seeding order and tiebreakers still need organizer confirmation."
-        - heading: "Season dates"
-          body: "The regular season runs September 24-November 5. October 8 is canceled. Semifinals and finals are both November 13; playoff start times will be confirmed."
+          body: "Each game win earns one team point. Winning all three games on a line adds a 0.5-point sweep bonus. The weekly winner is the team with the most points across all five lines. Regular-season scoring determines playoff seeds."
         - heading: "Team spirit"
           body: "Stay for the duration of both team matches if you can. Cheer on your teammates, enjoy the evening, and hang around for more pickleball."
       location_heading: "Sean O'Brien's courts"
