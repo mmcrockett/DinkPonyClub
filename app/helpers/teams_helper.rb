@@ -8,7 +8,7 @@ module TeamsHelper
   end
 
   def team_logo(team, **)
-    path = "team-logos/#{team.name.parameterize}.png"
+    path = "team-logos/#{team.name.parameterize}.webp"
     image_tag(path, alt: '', **) if Rails.application.assets.load_path.find(path)
   end
 

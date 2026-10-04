@@ -22,6 +22,14 @@ module NavigationHelper
     ENV['KAMAL_VERSION'].to_s.first(7).presence
   end
 
+  def app_built_at
+    Time.zone.parse(ENV['APP_BUILT_AT'].to_s)&.utc&.strftime('%Y-%m-%d %H:%M UTC')
+  end
+
+  def app_version_title
+    [app_revision, app_built_at].compact.join(' - ').presence
+  end
+
   def sidebar_expanded?
     cookies[:sidebar] != 'collapsed'
   end

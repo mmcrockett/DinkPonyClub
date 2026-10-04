@@ -74,9 +74,10 @@ asset_path: /rails/public/assets
 builder:
   arch: amd64
 
-  # Commit count on the built ref, shown in the sidebar (set by build-push.yml).
+  # Commit count and commit time of the built ref, shown in the sidebar (set by build-push.yml).
   args:
     APP_VERSION: "<%= ENV.fetch('APP_VERSION', '') %>"
+    APP_BUILT_AT: "<%= ENV.fetch('APP_BUILT_AT', '') %>"
 
   # # Build image via remote server (useful for faster amd64 builds on arm64 computers)
   # remote: ssh://docker@docker-builder-server

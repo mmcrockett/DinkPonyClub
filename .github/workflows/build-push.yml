@@ -41,6 +41,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           export APP_VERSION="$(git rev-list --count HEAD)"
+          export APP_BUILT_AT="$(git log -1 --format=%cI)"
           bundle exec kamal build push
 
       # Only main, so a feature branch can't evict main's own deployable tags.

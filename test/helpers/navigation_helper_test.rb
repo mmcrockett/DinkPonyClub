@@ -11,6 +11,19 @@ class NavigationHelperTest < ActionView::TestCase
     with_env('KAMAL_VERSION' => nil) { assert_nil app_revision }
   end
 
+  test 'app_built_at formats APP_BUILT_AT in UTC and is nil when blank' do
+    with_env('APP_BUILT_AT' => '2026-10-04T12:22:53-05:00') { assert_equal '2026-10-04 17:22 UTC', app_built_at }
+    with_env('APP_BUILT_AT' => '') { assert_nil app_built_at }
+  end
+
+  test 'app_version_title joins the sha and build time, skipping what is missing' do
+    with_env('KAMAL_VERSION' => '002a32d1234567890', 'APP_BUILT_AT' => '2026-10-04T17:22:53Z') do
+      assert_equal '002a32d - 2026-10-04 17:22 UTC', app_version_title
+    end
+    with_env('KAMAL_VERSION' => '002a32d1234567890', 'APP_BUILT_AT' => '') { assert_equal '002a32d', app_version_title }
+    with_env('KAMAL_VERSION' => nil, 'APP_BUILT_AT' => '') { assert_nil app_version_title }
+  end
+
   private
 
   def with_env(vars)
