@@ -49,7 +49,7 @@
             <% if night.canceled? %>
               <span class="text-xs font-bold uppercase text-red-700"><%= t('match_nights.schedule.canceled') %></span>
             <% elsif played %>
-              <span class="text-xs font-bold uppercase text-gray-500"><%= t('match_nights.schedule.final') %></span>
+              <span class="text-xs font-bold uppercase text-gray-500"><%= (night.complete? ? t('.complete') : t('.locked')) %></span>
             <% else %>
               <%= button_to cancel_admin_match_night_path(night), method: :patch,
                             class: 'rounded-md p-2 text-red-700 hover:bg-red-50',

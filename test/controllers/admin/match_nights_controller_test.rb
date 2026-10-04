@@ -43,6 +43,7 @@ module Admin
       assert_select "#{played} button", count: 0
       assert_select "#{played} input[type=date]", count: 0
       assert_select "#{played} input[type=time]", count: 0
+      assert_select played, text: /Locked/
       assert_select "##{dom_id(match_nights(:fall_upcoming))} input[type=date]", count: 1
     end
 

@@ -22,13 +22,23 @@ module Admin
       assert_redirected_to root_path
     end
 
-    test 'refuses to add or remove times on a night with games' do
+    test 'refuses to add a time on a night with games' do
       sign_in_as players(:zoe)
-      night = match_nights(:fall_week_one)
 
       assert_no_difference 'MatchSlot.count' do
-        post admin_match_night_match_slots_path(night), params: { match_slot: { starts_at: '18:00' } }
-        delete admin_match_night_match_slot_path(night, night.match_slots.first || match_slots(:fall_future_slot_one))
+        post admin_match_night_match_slots_path(match_nights(:fall_week_one)),
+             params: { match_slot: { starts_at: '18:00' } }
+      end
+      assert_predicate flash[:alert], :present?
+    end
+
+    test 'refuses to remove a time on a night with games' do
+      sign_in_as players(:zoe)
+      night = match_nights(:fall_week_one)
+      slot = night.match_slots.create!(starts_at: Time.zone.local(2026, 9, 20, 19), position: 1)
+
+      assert_no_difference 'MatchSlot.count' do
+        delete admin_match_night_match_slot_path(night, slot)
       end
       assert_predicate flash[:alert], :present?
     end
