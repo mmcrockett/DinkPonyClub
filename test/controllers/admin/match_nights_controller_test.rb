@@ -33,6 +33,53 @@ module Admin
       assert_select "##{dom_id(match_nights(:fall_upcoming))} button[aria-label^='Remove']", count: 3
     end
 
+    test 'locks the date, cancel, and times on a night with games' do
+      sign_in_as players(:zoe)
+
+      get admin_match_nights_path(season: seasons(:fall))
+
+      played = "##{dom_id(match_nights(:fall_week_one))}"
+
+      assert_select "#{played} button", count: 0
+      assert_select "#{played} input[type=date]", count: 0
+      assert_select "#{played} input[type=time]", count: 0
+      assert_select played, text: /Complete/
+      assert_select "##{dom_id(match_nights(:fall_upcoming))} input[type=date]", count: 1
+    end
+
+    test 'new renders the add night form' do
+      sign_in_as players(:zoe)
+
+      get new_admin_match_night_path(season: seasons(:fall))
+
+      assert_response :success
+      assert_select "input[name='match_night[played_on]']"
+    end
+
+    test 'refuses to cancel a night with games' do
+      sign_in_as players(:zoe)
+
+      patch cancel_admin_match_night_path(match_nights(:fall_week_one))
+
+      assert_predicate flash[:alert], :present?
+      assert_not match_nights(:fall_week_one).reload.canceled?
+    end
+
+    test 'refuses a date change on a night with games but allows a rename' do
+      sign_in_as players(:zoe)
+      night = match_nights(:fall_week_one)
+      original = night.played_on
+
+      patch admin_match_night_path(night), params: { match_night: { label: 'Opener', played_on: original + 7 } }
+
+      assert_predicate flash[:alert], :present?
+      assert_equal original, night.reload.played_on
+
+      patch admin_match_night_path(night), params: { match_night: { label: 'Opener' } }
+
+      assert_equal 'Opener', night.reload.label
+    end
+
     test 'adds a night for an admin' do
       sign_in_as players(:zoe)
 
@@ -55,6 +102,7 @@ module Admin
       end
 
       assert_response :unprocessable_content
+      assert_select "input[name='match_night[played_on]']"
     end
 
     test 'redirects to players with an alert when no season exists' do

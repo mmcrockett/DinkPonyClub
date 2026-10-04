@@ -5,6 +5,7 @@ module Admin
     before_action :require_admin
     before_action :set_match_night
     before_action :reject_canceled_night, only: :create
+    before_action :reject_played_night, only: %i[create destroy]
 
     def create
       slot = @match_night.match_slots.new(starts_at: starts_at, position: next_position)
@@ -33,6 +34,12 @@ module Admin
       return unless @match_night.canceled?
 
       redirect_back_to_schedule alert: t('admin.match_slots.create.canceled', label: @match_night.label)
+    end
+
+    def reject_played_night
+      return unless @match_night.played?
+
+      redirect_back_to_schedule alert: t('admin.match_slots.played', label: @match_night.label)
     end
 
     def starts_at
