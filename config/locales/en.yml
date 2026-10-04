@@ -269,6 +269,8 @@ en:
       league: "Dink Pony Club"
   home:
     index:
+      banner_alt: "Dink Pony Club Fall 2026 team lineups: Old Balls, New Flicks; Soft Serves; Net Gainz; and Big Dink Energy"
+      banner_link: "View full-size Fall 2026 team lineups"
       standings: "%{season} standings"
       full_standings: "Full standings"
       welcome: "Dink Pony Club"
