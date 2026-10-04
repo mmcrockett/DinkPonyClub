@@ -76,6 +76,9 @@ COPY --chown=rails:rails --from=build /rails /rails
 ARG APP_VERSION=""
 ENV APP_VERSION=$APP_VERSION
 
+ARG APP_BUILT_AT=""
+ENV APP_BUILT_AT=$APP_BUILT_AT
+
 # Entrypoint prepares the database.
 ENTRYPOINT ["/rails/bin/docker-entrypoint"]
 
