@@ -6,15 +6,18 @@ class MatchNight < ApplicationRecord
   has_many :match_availabilities, dependent: :destroy
   has_many :match_slots, -> { order(:starts_at) }, dependent: :destroy, inverse_of: :match_night
   has_many :slot_availabilities, through: :match_slots
+  has_many :games, through: :matches
 
   validates :played_on, presence: true
   validates :label, presence: true, length: { maximum: 60 }
+  validate :played_on_unchanged_once_played, on: :update
 
   after_update :move_slots_to_played_on, if: :saved_change_to_played_on?
 
   scope :chronological, -> { order(:played_on) }
   scope :upcoming, -> { where(played_on: Date.current..) }
   scope :without_matches, -> { where.not(id: Match.select(:match_night_id)) }
+  scope :with_games, -> { where(id: Match.joins(:games).select(:match_night_id)) }
 
   AVAILABILITY_CUTOFF_HOUR = 12
 
@@ -30,11 +33,21 @@ class MatchNight < ApplicationRecord
     played_on.present? && played_on < Date.current
   end
 
+  def played?
+    games.exists?
+  end
+
   def complete?
     !canceled? && matches.any? && matches.all?(&:complete?)
   end
 
   private
+
+  def played_on_unchanged_once_played
+    return unless played_on_changed? && played?
+
+    errors.add(:played_on, 'cannot change after a game has been played')
+  end
 
   def move_slots_to_played_on
     match_slots.each do |slot|

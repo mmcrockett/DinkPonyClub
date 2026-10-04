@@ -1,0 +1,53 @@
+<% content_for :title, t('.title') %>
+
+<div class="mx-auto flex max-w-2xl flex-col gap-6">
+  <div class="flex flex-wrap items-start justify-between gap-4">
+    <h1 class="text-2xl font-extrabold text-dpc-navy"><%= t('.title') %> - <%= @season.name %></h1>
+    <%= link_to t('.back'), admin_match_nights_path(season: @season), class: 'text-sm text-dpc-navy underline' %>
+  </div>
+
+  <%= form_with model: [:admin, @match_night], url: admin_match_nights_path(season: @season),
+                class: 'flex flex-col gap-4' do |form| %>
+    <% if @match_night.errors.any? %>
+      <div class="rounded-md bg-red-50 px-4 py-3 text-sm text-red-700">
+        <ul class="list-disc pl-4">
+          <% @match_night.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="flex flex-col gap-4 rounded-md bg-white p-5 shadow-sm">
+      <div class="flex flex-col gap-1">
+        <%= form.label :played_on, class: 'text-sm font-semibold text-dpc-navy' %>
+        <%= form.date_field :played_on, class: 'form-input' %>
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <%= form.label :label, class: 'text-sm font-semibold text-dpc-navy' %>
+        <%= form.text_field :label, maxlength: 60, class: 'form-input' %>
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <%= form.label :venue, class: 'text-sm font-semibold text-dpc-navy' %>
+        <%= form.text_field :venue, maxlength: 150, class: 'form-input' %>
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <%= form.label :notes, class: 'text-sm font-semibold text-dpc-navy' %>
+        <%= form.text_area :notes, rows: 2, class: 'form-input' %>
+      </div>
+
+      <label class="flex items-center gap-2 text-sm text-dpc-navy">
+        <%= form.check_box :playoff %>
+        <%= t('match_nights.schedule.playoffs') %>
+      </label>
+    </div>
+
+    <div class="flex items-center justify-end gap-3">
+      <%= link_to t('.cancel'), admin_match_nights_path(season: @season), class: 'btn btn-secondary' %>
+      <%= form.submit t('.title'), class: 'btn btn-primary' %>
+    </div>
+  <% end %>
+</div>

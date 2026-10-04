@@ -76,6 +76,11 @@ en:
         updated: "%{label} updated."
       cancel:
         canceled: "%{label} canceled."
+        played: "%{label} has games on record - it can't be canceled."
+      new:
+        title: "Add night"
+        back: "Back to schedule"
+        cancel: "Cancel"
       index:
         title: "Schedule"
         edit: "Edit"
@@ -91,6 +96,7 @@ en:
         confirm_remove_time: "Remove %{time}? This also deletes every player's preference for it."
         no_times: "No times yet - players can't pick time preferences."
     match_slots:
+      played: "%{label} has games on record - times can't be changed."
       create:
         created: "%{time} added to %{label}."
         invalid: "Could not add time: %{errors}"

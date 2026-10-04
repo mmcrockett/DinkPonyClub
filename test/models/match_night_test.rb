@@ -5,6 +5,19 @@ class MatchNightTest < ActiveSupport::TestCase
     assert_predicate match_nights(:fall_week_one), :valid?
   end
 
+  test 'played? is true only for nights with games' do
+    assert_predicate match_nights(:fall_week_one), :played?
+    assert_not match_nights(:fall_upcoming).played?
+    assert_equal [match_nights(:fall_week_one)], seasons(:fall).match_nights.with_games.to_a
+  end
+
+  test 'played_on cannot change once a game has been played' do
+    night = match_nights(:fall_week_one)
+
+    assert_not night.update(played_on: night.played_on + 7)
+    assert_predicate night.errors[:played_on], :present?
+  end
+
   test 'label longer than 60 characters is invalid' do
     night = match_nights(:fall_week_one)
     night.label = 'x' * 61
