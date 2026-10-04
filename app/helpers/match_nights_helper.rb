@@ -73,23 +73,12 @@ module MatchNightsHelper
   end
 
   def team_availability_classes(status)
-    return 'border-dpc-green bg-dpc-green text-white' if status == 'in'
-    return 'border-red-700 bg-red-700 text-white' if status == 'out'
-
-    'border-gray-300 bg-white text-dpc-navy'
+    AVAILABILITY_SELECTED_CLASSES.fetch(status, 'border-gray-300 bg-white text-dpc-navy')
   end
 
   def availability_select_options(status)
-    options = MatchAvailability.statuses.keys.map do |value|
-      [availability_status_label(value), value, { class: team_availability_classes(value) }]
-    end
-    if status
-      options
-    else
-      [
-        [t('match_nights.schedule.availability.unanswered'), '', { class: team_availability_classes(nil) }], *options
-      ]
-    end
+    options = MatchAvailability.statuses.keys.map { |value| [availability_status_label(value), value] }
+    status ? options : [[t('match_nights.schedule.availability.unanswered'), ''], *options]
   end
 
   def availability_checked_classes(status)

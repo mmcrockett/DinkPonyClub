@@ -337,7 +337,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "#{frame} select.bg-dpc-green option[selected][value=in]"
     assert_select "#{frame} select.bg-red-700 option[selected][value=out]"
-    assert_select "#{frame} select.bg-white option[selected][value=maybe]"
+    assert_select "#{frame} select.bg-amber-400 option[selected][value=maybe]"
     assert_select "#{frame} select.bg-white option[selected][value='']"
   end
 

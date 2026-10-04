@@ -149,6 +149,29 @@ class AvailabilitiesControllerTest < ActionDispatch::IntegrationTest
     assert_equal I18n.t('availabilities.update.closed'), flash[:alert]
   end
 
+  test 'a captain cannot change team availability on a canceled night' do
+    sign_in_as_ada
+    @match_night.update!(canceled: true)
+
+    patch match_night_player_availability_path(@match_night, players(:grace)),
+          params: { match_availability: { status: 'in' } }
+
+    assert_equal I18n.t('availabilities.update.closed'), flash[:alert]
+    assert_predicate @match_night.match_availabilities.find_by!(player: players(:grace)), :out?
+  end
+
+  test 'a captain cannot change their own availability on a past night' do
+    sign_in_as_ada
+    availability = match_availabilities(:fall_future_ada)
+
+    travel_to @match_night.played_on.in_time_zone + 1.day do
+      patch match_night_availability_path(@match_night), params: { match_availability: { status: 'out' } }
+    end
+
+    assert_predicate availability.reload, :in?
+    assert_equal I18n.t('availabilities.update.closed'), flash[:alert]
+  end
+
   private
 
   def sign_in_as_ada
