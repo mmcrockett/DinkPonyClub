@@ -51,6 +51,28 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     assert_select "##{dom_id(match_nights(:fall_upcoming))}", count: 0
   end
 
+  test 'signed in during Fall 2026 shows the lineups banner' do
+    sign_in_as(players(:ada))
+
+    get root_path
+
+    assert_select 'img[alt=?]', I18n.t('home.index.banner_alt')
+  end
+
+  test 'signed in during another season hides the lineups banner' do
+    sign_in_as(players(:ada))
+
+    get root_path(season: seasons(:summer))
+
+    assert_select 'img[alt=?]', I18n.t('home.index.banner_alt'), count: 0
+  end
+
+  test 'signed out hides the lineups banner' do
+    get root_path
+
+    assert_select 'img[alt=?]', I18n.t('home.index.banner_alt'), count: 0
+  end
+
   private
 
   def sign_in_as(player)

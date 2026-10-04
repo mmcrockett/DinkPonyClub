@@ -1,7 +1,9 @@
 <% if signed_in? %>
   <div class="flex flex-col gap-6">
-    <%= link_to image_path('fall-2026-lineups.png'), class: 'block overflow-hidden rounded-lg border border-gray-200 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-dpc-navy', aria: { label: t('.banner_link') } do %>
-      <%= image_tag 'fall-2026-lineups.png', alt: t('.banner_alt'), width: 1536, height: 1024, class: 'block h-auto w-full', fetchpriority: 'high' %>
+    <% if @season&.name == 'Fall 2026' %>
+      <%= link_to image_path('fall-2026-lineups.webp'), class: 'block overflow-hidden rounded-lg border border-gray-200 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-dpc-navy', aria: { label: t('.banner_link') } do %>
+        <%= image_tag 'fall-2026-lineups.webp', alt: t('.banner_alt'), width: 1536, height: 1024, class: 'block h-auto w-full', fetchpriority: 'high' %>
+      <% end %>
     <% end %>
 
     <%= render 'match_nights/match_night', match_night: @next_match_night if @next_match_night %>
