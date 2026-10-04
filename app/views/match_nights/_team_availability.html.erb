@@ -24,7 +24,7 @@
                              data: { controller: 'availability' } do |form| %>
                 <%= form.select :status, availability_select_options(status),
                                  { selected: status.to_s, disabled: '' },
-                                 class: 'rounded-md border border-gray-300 px-2 py-1 text-sm',
+                                 class: "rounded-md border px-2 py-1 text-sm disabled:opacity-100 #{team_availability_classes(status)}",
                                  disabled: !editable,
                                  data: { action: 'change->availability#submit' } %>
               <% end %>
