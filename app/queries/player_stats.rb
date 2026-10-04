@@ -38,7 +38,9 @@ class PlayerStats
   def season_games
     return Game.all.to_a if @lifetime
 
-    Game.joins(:lineup).where(lineups: { match_id: season.matches.select(:id) }).to_a
+    Game.joins(:lineup)
+        .where(lineups: { match_id: season.matches.select(:id) })
+        .to_a
   end
 
   def row_for(player, team, captain)
