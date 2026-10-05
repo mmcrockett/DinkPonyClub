@@ -121,17 +121,6 @@ class LineupPlansControllerTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_content
   end
 
-  test 'scorecard edit is prefilled from the planned lineup' do
-    LineupPick.create!(match: @match, team: @home, player: players(:sc_home_player1), position: 1, seat: 1)
-    LineupPick.create!(match: @match, team: @home, player: players(:sc_home_player2), position: 1, seat: 2)
-
-    form = ScorecardForm.from_match(@match)
-
-    expected = [players(:sc_home_player1).id.to_s, players(:sc_home_player2).id.to_s]
-
-    assert_equal expected, form.lines.first.home_player_ids
-  end
-
   private
 
   def sign_in_as(player)

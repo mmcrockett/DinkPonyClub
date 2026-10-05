@@ -150,7 +150,32 @@ class ScorecardFormTest < ActiveSupport::TestCase
     assert_not lineup.complete?
   end
 
+  test 'from_match prefills both sides from the planned lineups when no lineups exist' do
+    pick_players(:sc_home, 1, :sc_home_player1, :sc_home_player2)
+    pick_players(:sc_away, 1, :sc_away_player1, :sc_away_player2)
+
+    line = ScorecardForm.from_match(@match).lines.first
+
+    assert_equal player_ids(:sc_home_player1, :sc_home_player2), line.home_player_ids
+    assert_equal player_ids(:sc_away_player1, :sc_away_player2), line.away_player_ids
+  end
+
+  test 'from_match ignores planned lineups once lineups exist' do
+    ScorecardForm.new(match: @match, lines: valid_lines).save
+    pick_players(:sc_home, 1, :sc_home_player12, :sc_home_player13)
+
+    line = ScorecardForm.from_match(@match.reload).lines.first
+
+    assert_equal player_ids(:sc_home_captain, :sc_home_player1), line.home_player_ids
+  end
+
   private
+
+  def pick_players(team, position, *names)
+    names.each_with_index do |name, index|
+      LineupPick.create!(match: @match, team: teams(team), player: players(name), position: position, seat: index + 1)
+    end
+  end
 
   def player_ids(*names)
     names.map { |name| players(name).id.to_s }
