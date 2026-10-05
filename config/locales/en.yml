@@ -222,7 +222,8 @@ en:
   match_nights:
     schedule:
       title: "The season schedule"
-      manage: "Manage schedule"
+      add_night: "Add night"
+      edit_night: "Edit night"
       team_availability: "Team availability"
       show_matchups: "Show matchups"
       empty: "No match nights are scheduled yet."

@@ -34,6 +34,12 @@
       <span class="rounded-full px-3 py-1 text-xs font-bold uppercase <%= match_night_status_classes(match_night) %>">
         <%= match_night_status_label(match_night) %>
       </span>
+      <% if admin? %>
+        <%= link_to edit_admin_match_night_path(match_night), class: 'text-gray-400 hover:text-dpc-navy',
+                    title: t('match_nights.schedule.edit_night'), aria: { label: t('match_nights.schedule.edit_night') } do %>
+          <%= render 'shared/icon', name: 'pencil-square', class: 'h-5 w-5' %>
+        <% end %>
+      <% end %>
     </div>
   </div>
 

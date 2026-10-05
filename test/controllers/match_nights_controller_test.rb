@@ -322,12 +322,14 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
     assert_select "#{frame} a[href=?]", edit_match_path(matches(:fall_alpha_bravo)), count: 0
   end
 
-  test 'links an admin to schedule management without cancel buttons' do
+  test 'links an admin to add and edit nights without cancel buttons' do
     sign_in_as(players(:zoe))
 
     get season_match_nights_path(seasons(:fall))
 
-    assert_select 'a[href=?]', admin_match_nights_path(season: seasons(:fall))
+    assert_select 'a[href=?]', new_admin_match_night_path(season: seasons(:fall))
+    assert_select "##{dom_id(match_nights(:fall_upcoming))} a[href=?]",
+                  edit_admin_match_night_path(match_nights(:fall_upcoming))
     assert_select 'button', text: 'Cancel night', count: 0
   end
 
