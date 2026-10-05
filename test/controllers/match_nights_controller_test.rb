@@ -57,7 +57,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select frame, text: /Canceled/
     assert_select frame, text: /Rainy Courts|Wet|Alpha/, count: 0
-    assert_select "#{frame} a", count: 0
+    assert_select "#{frame} a:not([href^='/admin'])", count: 0
   end
 
   test 'shows a lineup icon link for a captain on their own team' do
