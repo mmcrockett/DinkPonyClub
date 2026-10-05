@@ -112,6 +112,40 @@ class LineupPlansControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href*='/lineup/edit']", count: 0
   end
 
+  test 'edit offers eligible subs in the picker but not in the seat selects' do
+    sign_in_as players(:sc_home_captain)
+
+    get edit_match_team_lineup_path(@match, @home)
+
+    assert_select "select[data-lineup-subs-target='picker'] option", text: players(:ada).full_name
+    assert_select "select[data-lineup-subs-target='seat'] option", text: players(:ada).full_name, count: 0
+  end
+
+  test 'a saved sub shows in the roster panel and the seat selects' do
+    sign_in_as players(:sc_home_captain)
+    LineupPick.create!(match: @match, team: @home, player: players(:ada), position: 1, seat: 1)
+    LineupPick.create!(match: @match, team: @home, player: players(:sc_home_player1), position: 1, seat: 2)
+
+    get edit_match_team_lineup_path(@match, @home)
+
+    assert_select "select[data-lineup-subs-target='seat'] option[selected]", text: players(:ada).full_name
+    assert_select "select[data-lineup-subs-target='picker'] option", text: players(:ada).full_name, count: 0
+  end
+
+  test 'a player marked out is left out of the seat options unless already selected' do
+    sign_in_as players(:sc_home_captain)
+    MatchAvailability.create!(match_night: @match.match_night, player: players(:sc_home_player2), status: 'out')
+    MatchAvailability.create!(match_night: @match.match_night, player: players(:sc_home_player3), status: 'out')
+    LineupPick.create!(match: @match, team: @home, player: players(:sc_home_player3), position: 1, seat: 1)
+
+    get edit_match_team_lineup_path(@match, @home)
+
+    assert_select "select[data-lineup-subs-target='seat'] option", text: players(:sc_home_player2).full_name, count: 0
+    selected = Regexp.new(Regexp.escape(players(:sc_home_player3).full_name))
+
+    assert_select "select[data-lineup-subs-target='seat'] option[selected]", text: selected
+  end
+
   test 'invalid lineup re-renders with errors' do
     sign_in_as players(:sc_home_captain)
 

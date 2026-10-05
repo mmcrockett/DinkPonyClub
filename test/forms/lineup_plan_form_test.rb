@@ -42,6 +42,27 @@ class LineupPlanFormTest < ActiveSupport::TestCase
     assert_not form.valid?
   end
 
+  test 'an active player with no roster spot this season can be picked as a sub' do
+    form = LineupPlanForm.new(match: @match, team: @team, lines: { 1 => [players(:ada).id.to_s, ids(1).first] })
+
+    assert form.save
+    assert_equal [players(:ada)], form.subs
+  end
+
+  test 'an inactive player cannot be picked as a sub' do
+    form = LineupPlanForm.new(match: @match, team: @team, lines: { 1 => [players(:wade).id.to_s, ids(1).first] })
+
+    assert_not form.valid?
+  end
+
+  test 'a sub picked by the opponent is no longer eligible' do
+    LineupPick.create!(match: @match, team: teams(:sc_away), player: players(:ada), position: 1, seat: 1)
+    form = LineupPlanForm.new(match: @match, team: @team, lines: { 1 => [players(:ada).id.to_s, ids(1).first] })
+
+    assert_not_includes form.eligible_subs, players(:ada)
+    assert_not form.save
+  end
+
   test 'blank lines are allowed' do
     assert LineupPlanForm.new(match: @match, team: @team, lines: {}).save
   end

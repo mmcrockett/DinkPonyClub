@@ -203,6 +203,9 @@ en:
     edit:
       title: "%{team} lineup vs %{opponent}"
       roster: "Roster"
+      add_sub: "+ Sub"
+      choose_sub: "Choose a sub"
+      sub_tag: "Sub"
       line: "Line %{position}"
       player: "Player %{seat}"
       third: "Player 3 (optional)"

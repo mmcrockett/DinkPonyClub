@@ -17,10 +17,20 @@
     </div>
   <% end %>
 
-  <div class="grid gap-6 sm:grid-cols-3">
+  <% picker_subs = @form.pickable_subs(@statuses) %>
+
+  <div class="grid gap-6 sm:grid-cols-3" data-controller="lineup-subs">
     <div class="rounded-md bg-white px-4 py-3 shadow-sm sm:col-span-1">
-      <p class="mb-2 text-sm font-semibold text-dpc-navy"><%= t('.roster') %></p>
-      <ul class="flex flex-col gap-2">
+      <div class="mb-2 flex items-center justify-between">
+        <p class="text-sm font-semibold text-dpc-navy"><%= t('.roster') %></p>
+        <button type="button" class="text-xs font-semibold text-dpc-green hover:underline" <%= 'hidden' if picker_subs.empty? %>
+                data-lineup-subs-target="button" data-action="lineup-subs#open"><%= t('.add_sub') %></button>
+      </div>
+      <%= select_tag nil, options_from_collection_for_select(picker_subs, :id, :full_name),
+                     include_blank: t('.choose_sub'), hidden: true, aria: { label: t('.choose_sub') },
+                     class: 'mb-2 w-full rounded-md border border-gray-300 px-2 py-1 text-sm',
+                     data: { lineup_subs_target: 'picker', action: 'change->lineup-subs#add' } %>
+      <ul class="flex flex-col gap-2" data-lineup-subs-target="list">
         <% @form.roster.sort_by { |player| [order.fetch(@statuses[player.id]), player.full_name] }.each do |player| %>
           <% status = @statuses[player.id] %>
           <li class="flex items-center justify-between gap-2 text-sm">
@@ -30,22 +40,26 @@
             <% end %>
           </li>
         <% end %>
+        <% @form.subs.each do |player| %>
+          <%= render 'lineup_plans/sub_item', name: player.full_name, status: @statuses[player.id] %>
+        <% end %>
       </ul>
+      <template data-lineup-subs-target="item"><%= render 'lineup_plans/sub_item', name: '', status: nil %></template>
     </div>
 
     <%= form_with url: match_team_lineup_path(@match, @team), method: :patch, scope: :lineup,
                   class: 'flex flex-col gap-4 sm:col-span-2' do |form| %>
-      <% options = @form.roster.map { |player| [lineup_player_label(player, @statuses[player.id]), player.id] } %>
       <% @form.lines.each do |position, ids| %>
         <div class="rounded-md bg-white px-4 py-3 shadow-sm">
           <p class="mb-2 text-sm font-semibold text-dpc-navy"><%= t('.line', position: position) %></p>
           <div class="grid gap-2 sm:grid-cols-3">
             <% LineupPick::SEATS.each_with_index do |seat, index| %>
               <%= select_tag "lineup[lines][#{position}][]",
-                             options_for_select(options, ids[index]),
+                             lineup_seat_options(@form, @statuses, ids[index]),
                              include_blank: t(seat == 3 ? '.third' : '.player', seat: seat),
                              class: 'rounded-md border border-gray-300 px-2 py-1 text-sm',
-                             aria: { label: t('.seat_label', position: position, seat: seat) } %>
+                             aria: { label: t('.seat_label', position: position, seat: seat) },
+                             data: { lineup_subs_target: 'seat' } %>
             <% end %>
           </div>
         </div>
