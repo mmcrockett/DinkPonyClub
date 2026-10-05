@@ -29,7 +29,8 @@ class MatchNightsController < ApplicationController
     @can_enter_results = captain_or_admin?(@season)
     @team_view = params[:view] == 'availability' && @can_enter_results
     if @team_view
-      ActiveRecord::Associations::Preloader.new(records: [@match_night], associations: :match_availabilities).call
+      ActiveRecord::Associations::Preloader.new(records: [@match_night],
+                                                associations: %i[match_availabilities slot_availabilities]).call
       load_team_view(@season)
     end
     @availabilities = current_player_availabilities([@match_night])
@@ -42,7 +43,7 @@ class MatchNightsController < ApplicationController
     return [] unless season
 
     nights = season.match_nights.chronological.includes(MATCH_NIGHT_INCLUDES)
-    @team_view ? nights.includes(:match_availabilities) : nights
+    @team_view ? nights.includes(:match_availabilities, :slot_availabilities) : nights
   end
 
   def load_team_view(season)

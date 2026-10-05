@@ -1,4 +1,7 @@
 <% availabilities = match_night.match_availabilities.index_by(&:player_id) %>
+<% slots = match_night.match_slots %>
+<% slot_preferences = match_night.slot_availabilities.group_by(&:player_id)
+                                 .transform_values { |rows| rows.to_h { |row| [row.match_slot_id, row.preference] } } %>
 
 <%= turbo_frame_tag dom_id(match_night, :team_availability) do %>
   <div class="grid gap-6 border-t border-gray-100 p-4 sm:grid-cols-2">
@@ -19,15 +22,21 @@
             <li class="flex items-center justify-between gap-3">
               <span><%= player.full_name %></span>
 
-              <%= form_with url: match_night_player_availability_path(match_night, player, view: 'availability'),
-                             method: :patch, scope: :match_availability,
-                             data: { controller: 'availability' } do |form| %>
-                <%= form.select :status, availability_select_options(status),
-                                 { selected: status.to_s, disabled: '' },
-                                 class: "rounded-md border px-2 py-1 text-sm disabled:opacity-100 #{team_availability_classes(status)}",
-                                 disabled: !editable,
-                                 data: { action: 'change->availability#submit' } %>
-              <% end %>
+              <div class="flex items-center gap-3">
+                <% if status != 'out' && slot_preferences.key?(player.id) %>
+                  <span class="flex gap-1 text-sm"><%= slot_preference_marks(slots, slot_preferences[player.id]) %></span>
+                <% end %>
+
+                <%= form_with url: match_night_player_availability_path(match_night, player, view: 'availability'),
+                               method: :patch, scope: :match_availability,
+                               data: { controller: 'availability' } do |form| %>
+                  <%= form.select :status, availability_select_options(status),
+                                   { selected: status.to_s, disabled: '' },
+                                   class: "rounded-md border px-2 py-1 text-sm disabled:opacity-100 #{team_availability_classes(status)}",
+                                   disabled: !editable,
+                                   data: { action: 'change->availability#submit' } %>
+                <% end %>
+              </div>
             </li>
           <% end %>
         </ul>

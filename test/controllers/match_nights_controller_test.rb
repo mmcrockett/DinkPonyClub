@@ -191,6 +191,30 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
     assert_select "#{frame} select[disabled]", minimum: 1
   end
 
+  test 'team view shows each in player slot preferences in time order with ? for unanswered' do
+    sign_in_as_ada
+
+    get season_match_nights_path(seasons(:fall), view: 'availability')
+
+    frame = "##{dom_id(match_nights(:fall_upcoming), :team_availability)}"
+
+    assert_select "#{frame} li", text: /Ada.*7:00 PM: Prefer.*8:00 PM: Okay.*8:45 PM: No answer/m
+    assert_select "#{frame} li span[aria-hidden]", text: '?', count: 1
+  end
+
+  test 'team view hides slot preferences for a player who is out' do
+    sign_in_as_ada
+    match_slots(:fall_future_slot_one).slot_availabilities.create!(player: players(:grace), preference: 'thumbs_up')
+
+    get season_match_nights_path(seasons(:fall), view: 'availability')
+
+    frame = "##{dom_id(match_nights(:fall_upcoming), :team_availability)}"
+
+    assert_select "#{frame} li", text: /Grace/ do |rows|
+      assert_empty rows.first.css('.sr-only')
+    end
+  end
+
   test 'scopes the list to the requested season' do
     sign_in_as_ada
 
