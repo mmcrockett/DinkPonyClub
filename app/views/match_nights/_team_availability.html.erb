@@ -1,5 +1,5 @@
 <% availabilities = match_night.match_availabilities.index_by(&:player_id) %>
-<% slots = match_night.match_slots.sort_by(&:starts_at) %>
+<% slots = match_night.match_slots %>
 <% slot_preferences = match_night.slot_availabilities.group_by(&:player_id)
                                  .transform_values { |rows| rows.to_h { |row| [row.match_slot_id, row.preference] } } %>
 

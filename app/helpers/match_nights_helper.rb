@@ -66,9 +66,9 @@ module MatchNightsHelper
 
   def slot_preference_mark(slot, preference)
     glyph = preference ? slot_preference_label(preference) : '?'
-    description = slot_preference_aria_label(preference || 'none')
-    tag.span(class: preference ? nil : 'text-gray-400', title: "#{slot.label}: #{description}") do
-      safe_join([tag.span(glyph, aria: { hidden: true }), tag.span("#{slot.label}: #{description}", class: 'sr-only')])
+    description = "#{slot.label}: #{slot_preference_aria_label(preference || 'none')}"
+    tag.span(class: preference ? nil : 'text-gray-400', title: description) do
+      safe_join([tag.span(glyph, aria: { hidden: true }), tag.span(description, class: 'sr-only')])
     end
   end
 
