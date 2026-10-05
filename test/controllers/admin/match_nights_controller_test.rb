@@ -43,6 +43,16 @@ module Admin
       assert_select "##{dom_id(match_nights(:fall_upcoming))} button[aria-label^='Remove']", count: 3
     end
 
+    test 'lists matchups with team selects on live nights and plain text on played ones' do
+      sign_in_as players(:zoe)
+
+      get admin_match_nights_path(season: seasons(:fall))
+
+      assert_select "##{dom_id(match_nights(:fall_upcoming))} select[aria-label='Home team']", minimum: 2
+      assert_select "##{dom_id(match_nights(:fall_week_one))} select", count: 0
+      assert_select "##{dom_id(match_nights(:fall_week_one))} p", text: /Test Team Alpha\s+vs\s+Test Team Bravo/
+    end
+
     test 'locks the date, cancel, and times on a night with games' do
       sign_in_as players(:zoe)
 

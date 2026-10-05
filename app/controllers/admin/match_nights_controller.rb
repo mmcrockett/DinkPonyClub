@@ -10,6 +10,7 @@ module Admin
     def index
       @match_nights = season_nights
       @played_night_ids = @season.match_nights.with_games.ids.to_set
+      @teams = @season.teams.order(:name).to_a
     end
 
     def new
@@ -52,7 +53,8 @@ module Admin
     private
 
     def season_nights
-      @season.match_nights.chronological.includes(:match_slots, matches: { lineups: :games }).to_a
+      @season.match_nights.chronological
+             .includes(:match_slots, matches: [:home_team, :away_team, { lineups: :games }]).to_a
     end
 
     def require_season
