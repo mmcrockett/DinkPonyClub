@@ -10,11 +10,17 @@ module Admin
     def index
       @match_nights = season_nights
       @played_night_ids = @season.match_nights.with_games.ids.to_set
-      @teams = @season.teams.order(:name).to_a
     end
 
     def new
       @match_night = @season.match_nights.new
+    end
+
+    def edit
+      @match_night = MatchNight.includes(:match_slots, matches: %i[home_team away_team]).find(params.expect(:id))
+      @season = @match_night.season
+      @played = @match_night.played?
+      @teams = @season.teams.order(:name).to_a
     end
 
     def create
@@ -35,7 +41,7 @@ module Admin
                              [:alert, match_night.errors.full_messages.to_sentence]
                            end
 
-      redirect_to admin_match_nights_path(season: match_night.season), flash_key => message
+      redirect_to edit_admin_match_night_path(match_night), flash_key => message
     end
 
     def cancel

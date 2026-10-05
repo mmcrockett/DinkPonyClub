@@ -24,7 +24,7 @@ module Admin
              params: { match: { home_team_id: teams(:sc_other).id, away_team_id: teams(:sc_home).id } }
       end
 
-      assert_redirected_to admin_match_nights_path(season: @night.season)
+      assert_redirected_to edit_admin_match_night_path(@night)
       assert_equal @night.season, @night.matches.find_by!(home_team: teams(:sc_other)).season
     end
 

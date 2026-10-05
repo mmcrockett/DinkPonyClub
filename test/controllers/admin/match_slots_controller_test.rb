@@ -52,7 +52,7 @@ module Admin
 
       slot = @night.match_slots.find_by!(position: 4)
 
-      assert_redirected_to admin_match_nights_path(season: @night.season)
+      assert_redirected_to edit_admin_match_night_path(@night)
       assert_equal [@night.played_on, '18:15'], [slot.starts_at.to_date, slot.starts_at.strftime('%H:%M')]
     end
 
@@ -63,7 +63,7 @@ module Admin
         post admin_match_night_match_slots_path(@night), params: { match_slot: { starts_at: '' } }
       end
 
-      assert_redirected_to admin_match_nights_path(season: @night.season)
+      assert_redirected_to edit_admin_match_night_path(@night)
       assert_match(/Could not add time/, flash[:alert])
     end
 
@@ -106,7 +106,7 @@ module Admin
         delete admin_match_night_match_slot_path(@night, slot)
       end
 
-      assert_redirected_to admin_match_nights_path(season: @night.season)
+      assert_redirected_to edit_admin_match_night_path(@night)
     end
 
     private
