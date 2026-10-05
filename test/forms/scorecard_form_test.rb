@@ -20,6 +20,15 @@ class ScorecardFormTest < ActiveSupport::TestCase
     assert_predicate result, :complete?
   end
 
+  test 'a four-line night builds and saves four lineups' do
+    @match.match_night.update!(lines_count: 4)
+    form = ScorecardForm.new(match: @match, lines: valid_lines.except('5'))
+
+    assert_equal 4, form.lines.size
+    assert_difference('Lineup.count', 4) { assert form.save }
+    assert_predicate MatchResult.new(@match.reload), :complete?
+  end
+
   test 'rotates a three-player line through P1/P2, P1/P3, P2/P3' do
     home_ids = player_ids(:sc_home_player10, :sc_home_player11, :sc_home_player12)
     away_ids = player_ids(:sc_away_player10, :sc_away_player11, :sc_away_player12)

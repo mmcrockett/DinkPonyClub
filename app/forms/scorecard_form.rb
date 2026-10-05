@@ -3,8 +3,6 @@
 class ScorecardForm
   include ActiveModel::Model
 
-  POSITIONS = (1..5).to_a.freeze
-
   attr_reader :match, :lines
 
   class << self
@@ -19,11 +17,14 @@ class ScorecardForm
 
     def attrs_from_picks(match)
       picks = match.lineup_picks.ordered.group_by { |pick| [pick.team_id, pick.position] }
-      ids = ->(team_id, position) { picks.fetch([team_id, position], []).map { |pick| pick.player_id.to_s } }
-      POSITIONS.index_with do |position|
-        { home_player_ids: ids.call(match.home_team_id, position),
-          away_player_ids: ids.call(match.away_team_id, position) }
+      match.line_positions.index_with do |position|
+        { home_player_ids: pick_ids(picks, match.home_team_id, position),
+          away_player_ids: pick_ids(picks, match.away_team_id, position) }
       end
+    end
+
+    def pick_ids(picks, team_id, position)
+      picks.fetch([team_id, position], []).map { |pick| pick.player_id.to_s }
     end
 
     def attrs_from_lineup(lineup)
@@ -49,7 +50,9 @@ class ScorecardForm
 
   def initialize(match:, lines: {})
     @match = match
-    @lines = POSITIONS.map { |position| Line.new(self, position, lines[position] || lines[position.to_s] || {}) }
+    @lines = match.line_positions.map do |position|
+      Line.new(self, position, lines[position] || lines[position.to_s] || {})
+    end
   end
 
   validate :lines_are_valid

@@ -13,6 +13,13 @@ class LineupPlanFormTest < ActiveSupport::TestCase
     assert_equal ids(1, 2, 3), LineupPlanForm.from_match(@match, @team).lines[1]
   end
 
+  test 'a four-line night offers four lines' do
+    @match.match_night.update!(lines_count: 4)
+    form = LineupPlanForm.new(match: @match, team: @team, lines: { 5 => ids(1, 2) })
+
+    assert_equal [1, 2, 3, 4], form.lines.keys
+  end
+
   test 'save replaces only this teams picks' do
     LineupPick.create!(match: @match, team: teams(:sc_away), player: players(:sc_away_player1), position: 1, seat: 1)
     LineupPick.create!(match: @match, team: @team, player: players(:sc_home_player1), position: 1, seat: 1)

@@ -17,6 +17,43 @@ class MatchNightTest < ActiveSupport::TestCase
     assert_predicate night.errors[:played_on], :present?
   end
 
+  test 'line_count falls back to the season default' do
+    night = match_nights(:fall_upcoming)
+
+    assert_equal night.season.lines_per_match, night.line_count
+
+    night.lines_count = 4
+
+    assert_equal [1, 2, 3, 4], night.line_positions
+  end
+
+  test 'lines_count must be between 1 and the season default' do
+    night = match_nights(:fall_upcoming)
+
+    [0, night.season.lines_per_match + 1].each do |count|
+      night.lines_count = count
+
+      assert_not night.valid?
+    end
+  end
+
+  test 'lines_count cannot change once a game has been played' do
+    night = match_nights(:fall_week_one)
+
+    assert_not night.update(lines_count: 4)
+    assert_predicate night.errors[:lines_count], :present?
+  end
+
+  test 'reducing lines_count drops lineup picks beyond the new count' do
+    match = matches(:scorecard_match)
+    pick = LineupPick.create!(match: match, team: match.home_team, player: players(:sc_home_player1),
+                              position: 5, seat: 1)
+
+    match.match_night.update!(lines_count: 4)
+
+    assert_not LineupPick.exists?(pick.id)
+  end
+
   test 'label longer than 60 characters is invalid' do
     night = match_nights(:fall_week_one)
     night.label = 'x' * 61

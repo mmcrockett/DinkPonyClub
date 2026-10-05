@@ -14,7 +14,7 @@ class LineupPlanForm
   def initialize(match:, team:, lines: {})
     @match = match
     @team = team
-    @lines = ScorecardForm::POSITIONS.index_with { |position| clean_ids(lines[position] || lines[position.to_s]) }
+    @lines = match.line_positions.index_with { |position| clean_ids(lines[position] || lines[position.to_s]) }
   end
 
   validate :lines_have_enough_players
