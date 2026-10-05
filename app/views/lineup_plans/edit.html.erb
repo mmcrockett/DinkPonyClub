@@ -1,0 +1,60 @@
+<% order = { 'in' => 0, 'maybe' => 1, nil => 2, 'out' => 3 } %>
+<% opponent = @team.id == @match.home_team_id ? @match.away_team : @match.home_team %>
+
+<div class="mx-auto flex max-w-3xl flex-col gap-6">
+  <div>
+    <p class="text-sm font-medium text-gray-500"><%= @match.match_night.label %> &middot; <%= @match.played_on.strftime('%A, %B %-d') %></p>
+    <h1 class="text-2xl font-extrabold text-dpc-navy">
+      <%= t('.title', team: @team.name, opponent: opponent.name) %>
+    </h1>
+  </div>
+
+  <% if @form.errors.any? %>
+    <div class="rounded-md bg-red-50 px-4 py-3 text-sm text-red-700">
+      <% @form.errors.full_messages.each do |message| %>
+        <p><%= message %></p>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div class="grid gap-6 sm:grid-cols-3">
+    <div class="rounded-md bg-white px-4 py-3 shadow-sm sm:col-span-1">
+      <p class="mb-2 text-sm font-semibold text-dpc-navy"><%= t('.roster') %></p>
+      <ul class="flex flex-col gap-2">
+        <% @form.roster.sort_by { |player| [order.fetch(@statuses[player.id]), player.full_name] }.each do |player| %>
+          <% status = @statuses[player.id] %>
+          <li class="flex items-center justify-between gap-2 text-sm">
+            <span class="rounded-md border px-2 py-0.5 <%= team_availability_classes(status) %>"><%= player.full_name %></span>
+            <% if status != 'out' && @slot_preferences.key?(player.id) %>
+              <span class="flex gap-1"><%= slot_preference_marks(@slots, @slot_preferences[player.id]) %></span>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+
+    <%= form_with url: match_team_lineup_path(@match, @team), method: :patch, scope: :lineup,
+                  class: 'flex flex-col gap-4 sm:col-span-2' do |form| %>
+      <% options = @form.roster.map { |player| [lineup_player_label(player, @statuses[player.id]), player.id] } %>
+      <% @form.lines.each do |position, ids| %>
+        <div class="rounded-md bg-white px-4 py-3 shadow-sm">
+          <p class="mb-2 text-sm font-semibold text-dpc-navy"><%= t('.line', position: position) %></p>
+          <div class="grid gap-2 sm:grid-cols-3">
+            <% LineupPick::SEATS.each_with_index do |seat, index| %>
+              <%= select_tag "lineup[lines][#{position}][]",
+                             options_for_select(options, ids[index]),
+                             include_blank: t(seat == 3 ? '.third' : '.player', seat: seat),
+                             class: 'rounded-md border border-gray-300 px-2 py-1 text-sm',
+                             aria: { label: t('.seat_label', position: position, seat: seat) } %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <div class="flex items-center gap-4">
+        <%= form.submit t('.save'), class: 'btn btn-primary' %>
+        <%= link_to t('.back'), match_path(@match), class: 'text-sm font-semibold text-dpc-green hover:underline' %>
+      </div>
+    <% end %>
+  </div>
+</div>

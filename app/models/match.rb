@@ -7,6 +7,7 @@ class Match < ApplicationRecord
   belongs_to :away_team, class_name: 'Team'
   has_many :lineups, -> { order(:position) }, dependent: :destroy, inverse_of: :match
   has_many :games, through: :lineups
+  has_many :lineup_picks, dependent: :destroy
 
   delegate :played_on, to: :match_night
 

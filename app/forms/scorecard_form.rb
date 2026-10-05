@@ -11,10 +11,20 @@ class ScorecardForm
     def from_match(match)
       lines_attrs = {}
       match.lineups.includes(:games).find_each { |lineup| lines_attrs[lineup.position] = attrs_from_lineup(lineup) }
+      lines_attrs = attrs_from_picks(match) if lines_attrs.empty?
       new(match: match, lines: lines_attrs)
     end
 
     private
+
+    def attrs_from_picks(match)
+      picks = match.lineup_picks.ordered.group_by { |pick| [pick.team_id, pick.position] }
+      ids = ->(team_id, position) { picks.fetch([team_id, position], []).map { |pick| pick.player_id.to_s } }
+      POSITIONS.index_with do |position|
+        { home_player_ids: ids.call(match.home_team_id, position),
+          away_player_ids: ids.call(match.away_team_id, position) }
+      end
+    end
 
     def attrs_from_lineup(lineup)
       games = lineup.games.to_a
