@@ -3,7 +3,7 @@
 <div class="mx-auto flex max-w-2xl flex-col gap-6">
   <div class="flex flex-wrap items-start justify-between gap-4">
     <h1 class="text-2xl font-extrabold text-dpc-navy"><%= t('.title') %> - <%= @season.name %></h1>
-    <%= link_to t('.back'), admin_match_nights_path(season: @season), class: 'text-sm text-dpc-navy underline' %>
+    <%= link_to t('.back'), season_match_nights_path(@season), class: 'text-sm text-dpc-navy underline' %>
   </div>
 
   <%= form_with model: [:admin, @match_night], url: admin_match_nights_path(season: @season),
@@ -46,7 +46,7 @@
     </div>
 
     <div class="flex items-center justify-end gap-3">
-      <%= link_to t('.cancel'), admin_match_nights_path(season: @season), class: 'btn btn-secondary' %>
+      <%= link_to t('.cancel'), season_match_nights_path(@season), class: 'btn btn-secondary' %>
       <%= form.submit t('.title'), class: 'btn btn-primary' %>
     </div>
   <% end %>

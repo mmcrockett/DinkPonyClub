@@ -98,18 +98,6 @@ en:
         remove_time: "Remove %{time}"
         confirm_remove_time: "Remove %{time}? This also deletes every player's preference for it."
         no_times: "No times yet - players can't pick time preferences."
-      index:
-        title: "Schedule"
-        edit: "Edit"
-        cancel_night: "Cancel night"
-        locked: "Locked"
-        complete: "Complete"
-        confirm_cancel: "Cancel this match night? Players will see it as canceled."
-        empty: "No match nights for this season yet."
-        add: "Add night"
-        vs: "vs"
-        no_times: "No times yet."
-        no_matchups: "No matchups yet."
       matchups:
         vs: "vs"
         home_team: "Home team"

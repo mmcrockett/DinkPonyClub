@@ -8,7 +8,6 @@ class MatchNightTest < ActiveSupport::TestCase
   test 'played? is true only for nights with games' do
     assert_predicate match_nights(:fall_week_one), :played?
     assert_not match_nights(:fall_upcoming).played?
-    assert_equal [match_nights(:fall_week_one)], seasons(:fall).match_nights.with_games.to_a
   end
 
   test 'played_on cannot change once a game has been played' do
