@@ -11,7 +11,8 @@ class MatchNight < ApplicationRecord
   validates :played_on, presence: true
   validates :label, presence: true, length: { maximum: 60 }
   validate :played_on_unchanged_once_played, on: :update
-  validate :lines_count_within_season, if: :lines_count
+  before_validation :clear_default_lines_count
+  validate :lines_count_within_season, if: -> { lines_count && lines_count_changed? }
   validate :lines_count_unchanged_once_played, on: :update
 
   after_update :move_slots_to_played_on, if: :saved_change_to_played_on?
@@ -65,6 +66,10 @@ class MatchNight < ApplicationRecord
     return unless played_on_changed? && played?
 
     errors.add(:played_on, 'cannot change after a game has been played')
+  end
+
+  def clear_default_lines_count
+    self.lines_count = nil if lines_count == season&.lines_per_match
   end
 
   def lines_count_within_season

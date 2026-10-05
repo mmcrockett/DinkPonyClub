@@ -37,6 +37,21 @@ class MatchNightTest < ActiveSupport::TestCase
     end
   end
 
+  test 'lines_count equal to the season default is stored as nil' do
+    night = match_nights(:fall_upcoming)
+    night.update!(lines_count: night.season.lines_per_match)
+
+    assert_nil night.reload.lines_count
+  end
+
+  test 'lowering the season default does not block unrelated edits' do
+    night = match_nights(:fall_upcoming)
+    night.update!(lines_count: 4)
+    night.season.update!(lines_per_match: 3)
+
+    assert night.reload.update(label: 'Renamed')
+  end
+
   test 'lines_count cannot change once a game has been played' do
     night = match_nights(:fall_week_one)
 

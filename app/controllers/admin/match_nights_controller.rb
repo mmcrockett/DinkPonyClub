@@ -32,7 +32,7 @@ module Admin
 
     def update
       match_night = MatchNight.find(params.expect(:id))
-      flash_key, message = if match_night.update(update_params(match_night))
+      flash_key, message = if match_night.update(params.expect(match_night: %i[label played_on lines_count]))
                              [:notice, t('.updated', label: match_night.label)]
                            else
                              [:alert, match_night.errors.full_messages.to_sentence]
@@ -58,12 +58,6 @@ module Admin
     def require_season
       @season = current_season
       redirect_to admin_players_path, alert: t('admin.match_nights.no_season') unless @season
-    end
-
-    def update_params(match_night)
-      attrs = params.expect(match_night: %i[label played_on lines_count])
-      attrs[:lines_count] = nil if attrs[:lines_count].to_i == match_night.season.lines_per_match
-      attrs
     end
 
     def match_night_params
