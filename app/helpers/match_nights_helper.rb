@@ -93,6 +93,17 @@ module MatchNightsHelper
     status ? options : [[t('match_nights.schedule.availability.unanswered'), ''], *options]
   end
 
+  def lineup_teams_for(match, night)
+    return [] if night.canceled? || match.lineups.any?
+
+    captain_ids = captain_team_ids_in(night.season_id)
+    [match.home_team, match.away_team].select { |team| admin? || captain_ids.include?(team.id) }
+  end
+
+  def lineup_player_label(player, status)
+    status == 'out' ? "#{player.full_name} (#{availability_status_label(status).downcase})" : player.full_name
+  end
+
   def availability_checked_classes(status)
     AVAILABILITY_CHECKED_CLASSES.fetch(status)
   end

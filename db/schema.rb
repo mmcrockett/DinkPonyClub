@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_02_220929) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_05_120000) do
   create_table "charges", force: :cascade do |t|
     t.integer "amount_cents", null: false
     t.datetime "created_at", null: false
@@ -50,6 +50,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_02_220929) do
     t.index ["home_player_a_id"], name: "index_games_on_home_player_a_id"
     t.index ["home_player_b_id"], name: "index_games_on_home_player_b_id"
     t.index ["lineup_id", "number"], name: "index_games_on_lineup_id_and_number", unique: true
+  end
+
+  create_table "lineup_picks", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "match_id", null: false
+    t.integer "player_id", null: false
+    t.integer "position", null: false
+    t.integer "seat", null: false
+    t.integer "team_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["match_id", "player_id"], name: "index_lineup_picks_on_match_id_and_player_id", unique: true
+    t.index ["match_id", "team_id", "position", "seat"], name: "index_lineup_picks_on_slot", unique: true
+    t.index ["match_id"], name: "index_lineup_picks_on_match_id"
+    t.index ["player_id"], name: "index_lineup_picks_on_player_id"
+    t.index ["team_id"], name: "index_lineup_picks_on_team_id"
   end
 
   create_table "lineups", force: :cascade do |t|
@@ -175,6 +190,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_02_220929) do
   add_foreign_key "games", "players", column: "away_player_b_id"
   add_foreign_key "games", "players", column: "home_player_a_id"
   add_foreign_key "games", "players", column: "home_player_b_id"
+  add_foreign_key "lineup_picks", "matches"
+  add_foreign_key "lineup_picks", "players"
+  add_foreign_key "lineup_picks", "teams"
   add_foreign_key "lineups", "matches"
   add_foreign_key "match_availabilities", "match_nights"
   add_foreign_key "match_availabilities", "players"

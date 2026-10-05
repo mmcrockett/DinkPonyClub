@@ -47,6 +47,10 @@
             <%= link_to t('match_nights.schedule.enter_results'), edit_match_path(match),
                         class: 'text-xs font-semibold text-dpc-green hover:underline' %>
           <% end %>
+          <% lineup_teams_for(match, match_night).each do |team| %>
+            <%= link_to t('match_nights.schedule.set_lineup', team: team.name), edit_match_team_lineup_path(match, team),
+                        class: 'text-xs font-semibold text-dpc-green hover:underline' %>
+          <% end %>
         </div>
         <span class="flex-1 font-semibold"><%= team_link(match.away_team, match.season_id) %></span>
       </div>

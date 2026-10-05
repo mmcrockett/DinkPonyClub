@@ -18,6 +18,8 @@ Rails.application.routes.draw do
     resources :teams, only: %i[index show]
   end
   resources :matches, only: %i[show edit update]
+  get   'matches/:match_id/teams/:team_id/lineup/edit', to: 'lineup_plans#edit', as: :edit_match_team_lineup
+  patch 'matches/:match_id/teams/:team_id/lineup', to: 'lineup_plans#update', as: :match_team_lineup
   resources :players, only: %i[index show]
   get 'rules', to: 'rules#show', as: :rules
   get 'standings', to: 'standings#show', as: :standings

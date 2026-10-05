@@ -5,7 +5,7 @@ module Authentication
 
   included do
     before_action :set_current_player
-    helper_method :current_player, :signed_in?, :admin?, :captain_or_admin?
+    helper_method :current_player, :signed_in?, :admin?, :captain_or_admin?, :captain_team_ids_in
   end
 
   private
@@ -28,6 +28,11 @@ module Authentication
 
   def captain_or_admin?(season)
     admin? || current_player&.captain_in?(season)
+  end
+
+  def captain_team_ids_in(season_id)
+    @captain_team_ids_in ||= {}
+    @captain_team_ids_in[season_id] ||= current_player.roster_spots.captains.where(season_id: season_id).pluck(:team_id)
   end
 
   def sign_in(player)

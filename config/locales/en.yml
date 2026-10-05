@@ -186,6 +186,20 @@ en:
       saved: "%{name}'s availability was saved."
       invalid_status: "That availability status wasn't recognized. Please try again."
       not_on_roster: "That player isn't on this season's roster."
+  lineup_plans:
+    forbidden: "Only the captain of this team can set its lineup."
+    locked: "The lineup can't be changed once results are entered or the night is canceled."
+    edit:
+      title: "%{team} lineup vs %{opponent}"
+      roster: "Roster"
+      line: "Line %{position}"
+      player: "Player %{seat}"
+      third: "Player 3 (optional)"
+      seat_label: "Line %{position} player %{seat}"
+      save: "Save lineup"
+      back: "Back to match"
+    update:
+      saved: "Lineup saved."
   matches:
     forbidden: "Only captains of the two teams in this match can enter results."
     update:
@@ -221,6 +235,7 @@ en:
       playoffs: "Playoffs"
       scorecard: "Scorecard"
       enter_results: "Enter results"
+      set_lineup: "Set %{team} lineup"
       final: "Final"
       scheduled: "Scheduled"
       vs: "vs"

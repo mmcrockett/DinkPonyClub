@@ -36,6 +36,11 @@
     <% end %>
   </div>
 
+  <% lineup_teams_for(@match, @match.match_night).each do |team| %>
+    <%= link_to t('match_nights.schedule.set_lineup', team: team.name), edit_match_team_lineup_path(@match, team),
+                class: 'btn self-start' %>
+  <% end %>
+
   <% if captain_or_admin?(@match.season) %>
     <%= link_to (@match.lineups.any? ? 'Edit scorecard' : 'Enter results'), edit_match_path(@match), class: 'btn btn-primary self-start' %>
   <% end %>

@@ -17,6 +17,16 @@ class MatchTest < ActiveSupport::TestCase
     end
   end
 
+  test 'swapping a team drops its lineup picks and keeps the other teams' do
+    match = matches(:scorecard_match)
+    LineupPick.create!(match: match, team: teams(:sc_home), player: players(:sc_home_player1), position: 1, seat: 1)
+    LineupPick.create!(match: match, team: teams(:sc_away), player: players(:sc_away_player1), position: 1, seat: 1)
+
+    match.update!(away_team: teams(:sc_other))
+
+    assert_equal [teams(:sc_home).id], match.lineup_picks.pluck(:team_id)
+  end
+
   test 'rejects a match night from a different season' do
     match = Match.new(season: seasons(:spring), match_night: match_nights(:fall_week_one),
                       home_team: teams(:alpha), away_team: teams(:bravo))
