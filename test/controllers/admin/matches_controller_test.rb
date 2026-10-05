@@ -53,17 +53,24 @@ module Admin
       end
     end
 
-    test 'refuses every change on a night with games' do
+    test 'refuses to remove a matchup on a night with games' do
       sign_in_as players(:zoe)
-      night = match_nights(:fall_week_one)
       match = matches(:fall_alpha_bravo)
 
       assert_no_difference 'Match.count' do
-        delete admin_match_night_match_path(night, match)
-        post admin_match_night_matches_path(night),
+        delete admin_match_night_match_path(match.match_night, match)
+      end
+      assert_match(/games on record/, flash[:alert])
+    end
+
+    test 'refuses to add a matchup to a night with games' do
+      sign_in_as players(:zoe)
+
+      assert_no_difference 'Match.count' do
+        post admin_match_night_matches_path(match_nights(:fall_week_one)),
              params: { match: { home_team_id: teams(:alpha).id, away_team_id: teams(:bravo).id } }
       end
-      assert_predicate flash[:alert], :present?
+      assert_match(/games on record/, flash[:alert])
     end
 
     test 'refuses to update a matchup on a night with games' do
@@ -83,6 +90,17 @@ module Admin
         post admin_match_night_matches_path(match_nights(:fall_canceled)),
              params: { match: { home_team_id: teams(:alpha).id, away_team_id: teams(:bravo).id } }
       end
+      assert_match(/is canceled/, flash[:alert])
+    end
+
+    test 'refuses to update a matchup on a canceled night' do
+      sign_in_as players(:zoe)
+      night = match_nights(:fall_canceled)
+      match = night.matches.create!(season: night.season, home_team: teams(:alpha), away_team: teams(:bravo))
+
+      patch admin_match_night_match_path(night, match), params: { match: { away_team_id: teams(:alpha).id } }
+
+      assert_equal teams(:bravo), match.reload.away_team
       assert_match(/is canceled/, flash[:alert])
     end
 

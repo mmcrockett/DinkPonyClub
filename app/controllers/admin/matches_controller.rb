@@ -57,7 +57,7 @@ module Admin
     end
 
     def matchup(match)
-      "#{match.home_team&.name} vs #{match.away_team&.name}"
+      "#{match.home_team.name} vs #{match.away_team.name}"
     end
 
     def redirect_back_to_schedule(**flash)

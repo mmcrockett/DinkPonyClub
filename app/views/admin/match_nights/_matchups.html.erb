@@ -6,7 +6,7 @@
       </p>
     <% else %>
       <div class="flex flex-wrap items-center gap-2">
-        <%= form_with model: [:admin, night, match], method: :patch, class: 'flex flex-wrap items-center gap-2' do |match_form| %>
+        <%= form_with model: [:admin, night, match], class: 'flex flex-wrap items-center gap-2' do |match_form| %>
           <%= match_form.collection_select :home_team_id, teams, :id, :name, {}, class: 'form-input',
                                            aria: { label: t('.home_team') } %>
           <span class="text-gray-400"><%= t('.vs') %></span>
