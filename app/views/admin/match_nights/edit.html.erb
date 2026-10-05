@@ -28,6 +28,7 @@
   </section>
 
   <% unless @match_night.canceled? %>
+    <% if !@played || @match_night.match_slots.any? %>
     <section class="flex flex-col gap-3 rounded-md bg-white p-5 shadow-sm">
       <h2 class="font-semibold text-dpc-navy"><%= t('.times') %></h2>
       <div class="flex flex-wrap items-center gap-2">
@@ -60,6 +61,7 @@
         <% end %>
       </div>
     </section>
+    <% end %>
 
     <section class="flex flex-col gap-3 rounded-md bg-white p-5 shadow-sm">
       <h2 class="font-semibold text-dpc-navy"><%= t('.matchups') %></h2>

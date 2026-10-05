@@ -17,7 +17,9 @@ module Admin
     end
 
     def edit
-      @match_night = MatchNight.includes(:match_slots, matches: %i[home_team away_team]).find(params.expect(:id))
+      @match_night = MatchNight.includes(:match_slots,
+                                         matches: [:home_team, :away_team,
+                                                   { lineups: :games }]).find(params.expect(:id))
       @season = @match_night.season
       @played = @match_night.played?
       @teams = @season.teams.order(:name).to_a
