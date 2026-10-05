@@ -44,12 +44,13 @@ class LineupPlansController < ApplicationController
   def load_availability
     night = @match.match_night
     @slots = night.match_slots.ordered.to_a
-    @statuses = night.match_availabilities.where(player: @form.roster).to_h { |row| [row.player_id, row.status] }
+    everyone = @form.roster + @form.eligible_subs
+    @statuses = night.match_availabilities.where(player: everyone).to_h { |row| [row.player_id, row.status] }
     @slot_preferences = slot_preferences_by_player
   end
 
   def slot_preferences_by_player
-    rows = SlotAvailability.where(match_slot: @slots, player: @form.roster).group_by(&:player_id)
+    rows = SlotAvailability.where(match_slot: @slots, player: @form.roster + @form.subs).group_by(&:player_id)
     rows.transform_values { |list| list.to_h { |row| [row.match_slot_id, row.preference] } }
   end
 

@@ -18,7 +18,7 @@ class LineupPlanForm
   end
 
   validate :lines_have_enough_players
-  validate :players_are_on_roster
+  validate :players_are_eligible
   validate :players_appear_once
 
   def save
@@ -38,7 +38,22 @@ class LineupPlanForm
     @roster ||= team.roster_for(match.season).to_a
   end
 
+  def eligible_subs
+    @eligible_subs ||= Player.active.by_name.where.not(id: unavailable_player_ids).to_a
+  end
+
+  def subs
+    picked = lines.values.flatten
+    eligible_subs.select { |player| picked.include?(player.id.to_s) }
+  end
+
   private
+
+  def unavailable_player_ids
+    rostered = RosterSpot.where(season: match.season).select(:player_id)
+    opponent_picks = match.lineup_picks.where.not(team: team).select(:player_id)
+    [rostered, opponent_picks].flat_map { |scope| scope.map(&:player_id) }
+  end
 
   def create_picks(position, ids)
     ids.each_with_index do |id, index|
@@ -56,9 +71,9 @@ class LineupPlanForm
     end
   end
 
-  def players_are_on_roster
-    unknown = lines.values.flatten - roster.map { |player| player.id.to_s }
-    errors.add(:base, "That player isn't on this season's roster.") if unknown.any?
+  def players_are_eligible
+    unknown = lines.values.flatten - (roster + eligible_subs).map { |player| player.id.to_s }
+    errors.add(:base, "That player isn't on this season's roster or sub list.") if unknown.any?
   end
 
   def players_appear_once

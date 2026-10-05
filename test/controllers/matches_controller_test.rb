@@ -169,6 +169,16 @@ class MatchesControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{edit_match_path(@match)}']", count: 0
   end
 
+  test 'edit lists a planned sub in the dropdowns and keeps them selected' do
+    sign_in_as players(:sc_home_captain)
+    LineupPick.create!(match: @match, team: teams(:sc_home), player: players(:ada), position: 1, seat: 1)
+    LineupPick.create!(match: @match, team: teams(:sc_home), player: players(:sc_home_player1), position: 1, seat: 2)
+
+    get edit_match_path(@match)
+
+    assert_select 'option[selected]', text: players(:ada).full_name
+  end
+
   private
 
   def sign_in_as(player)

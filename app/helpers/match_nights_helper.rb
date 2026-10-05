@@ -100,6 +100,14 @@ module MatchNightsHelper
     [match.home_team, match.away_team].select { |team| admin? || captain_ids.include?(team.id) }
   end
 
+  def lineup_seat_options(form, statuses, selected_id)
+    players = (form.roster + form.subs).reject do |player|
+      statuses[player.id] == 'out' && player.id.to_s != selected_id.to_s
+    end
+    labeled = players.map { |player| [lineup_player_label(player, statuses[player.id]), player.id] }
+    options_for_select(labeled, selected_id)
+  end
+
   def lineup_player_label(player, status)
     status == 'out' ? "#{player.full_name} (#{availability_status_label(status).downcase})" : player.full_name
   end
