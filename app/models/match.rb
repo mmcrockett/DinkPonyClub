@@ -9,7 +9,7 @@ class Match < ApplicationRecord
   has_many :games, through: :lineups
   has_many :lineup_picks, dependent: :destroy
 
-  delegate :played_on, to: :match_night
+  delegate :played_on, :results_locked?, to: :match_night
 
   validate :teams_are_different
   validate :teams_rostered_in_season

@@ -3,6 +3,7 @@ require 'test_helper'
 class MatchesControllerTest < ActionDispatch::IntegrationTest
   setup do
     @match = matches(:scorecard_match)
+    travel_to @match.played_on.in_time_zone.change(hour: 20)
   end
 
   test 'show redirects to root when signed out' do
@@ -114,6 +115,58 @@ class MatchesControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_response :unprocessable_entity
+  end
+
+  test 'edit redirects a captain once results are locked' do
+    sign_in_as players(:sc_home_captain)
+
+    travel_to @match.match_night.results_locked_at + 1.minute do
+      get edit_match_path(@match)
+    end
+
+    assert_redirected_to match_path(@match)
+    assert_equal I18n.t('matches.locked'), flash[:alert]
+  end
+
+  test 'update is rejected for a captain once results are locked' do
+    sign_in_as players(:sc_home_captain)
+
+    travel_to @match.match_night.results_locked_at + 1.minute do
+      patch match_path(@match), params: { scorecard: { lines: valid_lines } }
+    end
+
+    assert_redirected_to match_path(@match)
+    assert_equal I18n.t('matches.locked'), flash[:alert]
+  end
+
+  test 'edit still renders for a captain just before the lock' do
+    sign_in_as players(:sc_home_captain)
+
+    travel_to @match.match_night.results_locked_at - 1.minute do
+      get edit_match_path(@match)
+    end
+
+    assert_response :success
+  end
+
+  test 'edit still renders for an admin once results are locked' do
+    sign_in_as players(:zoe)
+
+    travel_to @match.match_night.results_locked_at + 1.day do
+      get edit_match_path(@match)
+    end
+
+    assert_response :success
+  end
+
+  test 'show hides the edit link from a captain once results are locked' do
+    sign_in_as players(:sc_home_captain)
+
+    travel_to @match.match_night.results_locked_at + 1.minute do
+      get match_path(@match)
+    end
+
+    assert_select "a[href='#{edit_match_path(@match)}']", count: 0
   end
 
   private

@@ -122,4 +122,11 @@ class MatchNightTest < ActiveSupport::TestCase
 
     assert_not night.complete?
   end
+
+  test 'results lock at the end of the day after played_on' do
+    night = MatchNight.new(played_on: Date.new(2026, 1, 10))
+
+    travel_to(Time.zone.local(2026, 1, 11, 23, 59)) { assert_not night.results_locked? }
+    travel_to(Time.zone.local(2026, 1, 12, 0, 1)) { assert_predicate night, :results_locked? }
+  end
 end
