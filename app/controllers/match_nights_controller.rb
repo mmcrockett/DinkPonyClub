@@ -8,7 +8,7 @@ class MatchNightsController < ApplicationController
   before_action :require_sign_in
   before_action :redirect_to_season_scope, only: :index
 
-  RESULT_INCLUDES = { matches: [:home_team, :away_team, { lineups: :games }] }.freeze
+  RESULT_INCLUDES = { matches: [:season, :home_team, :away_team, { lineups: :games }] }.freeze
   MATCH_NIGHT_INCLUDES = RESULT_INCLUDES.merge(match_slots: []).freeze
 
   def index

@@ -259,6 +259,24 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
     assert_select "##{dom_id(match_nights(:fall_upcoming))} a[href=?]", edit_match_path(matches(:fall_future))
   end
 
+  test 'hides the enter results link from a captain once the match night is locked' do
+    sign_in_as_ada
+    night = match_nights(:fall_upcoming)
+
+    travel_to(night.results_locked_at + 1.minute) { get season_match_nights_path(seasons(:fall)) }
+
+    assert_select "##{dom_id(night)} a[href=?]", edit_match_path(matches(:fall_future)), count: 0
+  end
+
+  test 'keeps the enter results link for an admin once the match night is locked' do
+    sign_in_as(players(:zoe))
+    night = match_nights(:fall_upcoming)
+
+    travel_to(night.results_locked_at + 1.minute) { get season_match_nights_path(seasons(:fall)) }
+
+    assert_select "##{dom_id(night)} a[href=?]", edit_match_path(matches(:fall_future))
+  end
+
   test 'hides the enter results link from a plain player' do
     sign_in_as(players(:grace))
 

@@ -41,7 +41,7 @@
                 class: 'btn self-start' %>
   <% end %>
 
-  <% if captain_or_admin?(@match.season) %>
+  <% if can_edit_scorecard?(@match) %>
     <%= link_to (@match.lineups.any? ? 'Edit scorecard' : 'Enter results'), edit_match_path(@match), class: 'btn btn-primary self-start' %>
   <% end %>
 </div>

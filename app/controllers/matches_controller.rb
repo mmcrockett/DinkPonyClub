@@ -44,9 +44,10 @@ class MatchesController < ApplicationController
   end
 
   def require_match_captain_or_admin
-    return if captain_or_admin?(@match.season)
+    return if can_edit_scorecard?(@match)
 
-    redirect_to match_path(@match), alert: t('matches.forbidden')
+    alert_key = captain_or_admin?(@match.season) ? 'matches.locked' : 'matches.forbidden'
+    redirect_to match_path(@match), alert: t(alert_key)
   end
 
   # filter is dynamic per line position; params.expect can't describe that shape.

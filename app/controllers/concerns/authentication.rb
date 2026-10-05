@@ -5,7 +5,7 @@ module Authentication
 
   included do
     before_action :set_current_player
-    helper_method :current_player, :signed_in?, :admin?, :captain_or_admin?, :captain_team_ids_in
+    helper_method :current_player, :signed_in?, :admin?, :captain_or_admin?, :captain_team_ids_in, :can_edit_scorecard?
   end
 
   private
@@ -27,7 +27,14 @@ module Authentication
   end
 
   def captain_or_admin?(season)
-    admin? || current_player&.captain_in?(season)
+    @captain_or_admin_in ||= {}
+    @captain_or_admin_in.fetch(season.id) do
+      @captain_or_admin_in[season.id] = admin? || current_player&.captain_in?(season)
+    end
+  end
+
+  def can_edit_scorecard?(match)
+    admin? || (captain_or_admin?(match.season) && !match.results_locked?)
   end
 
   def captain_team_ids_in(season_id)
