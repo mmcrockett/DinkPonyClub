@@ -24,36 +24,59 @@ module Admin
       assert_select "##{dom_id(match_nights(:fall_canceled))} button", count: 0
     end
 
-    test 'hides the cancel button while the edit form is open' do
+    test 'lists times and matchups as plain text with an edit link' do
       sign_in_as players(:zoe)
 
       get admin_match_nights_path(season: seasons(:fall))
 
-      night = "##{dom_id(match_nights(:fall_upcoming))}.group"
+      night = "##{dom_id(match_nights(:fall_upcoming))}"
 
-      assert_select "#{night} form[class*='group-has'] button[aria-label='Cancel night']"
-    end
-
-    test 'lists slot times with a remove button on live nights' do
-      sign_in_as players(:zoe)
-
-      get admin_match_nights_path(season: seasons(:fall))
-
-      assert_select "##{dom_id(match_nights(:fall_upcoming))} span", text: /7:00 PM/
-      assert_select "##{dom_id(match_nights(:fall_upcoming))} button[aria-label^='Remove']", count: 3
-    end
-
-    test 'lists matchups with team selects on live nights and plain text on played ones' do
-      sign_in_as players(:zoe)
-
-      get admin_match_nights_path(season: seasons(:fall))
-
-      assert_select "##{dom_id(match_nights(:fall_upcoming))} select[aria-label='Home team']", minimum: 2
-      assert_select "##{dom_id(match_nights(:fall_week_one))} select", count: 0
+      assert_select "#{night} a[href='#{edit_admin_match_night_path(match_nights(:fall_upcoming))}']"
+      assert_select "#{night} p", text: /7:00 PM/
+      assert_select "#{night} select", count: 0
       assert_select "##{dom_id(match_nights(:fall_week_one))} p", text: /Test Team Alpha\s+vs\s+Test Team Bravo/
     end
 
-    test 'locks the date, cancel, and times on a night with games' do
+    test 'edit redirects a non-admin' do
+      sign_in_as players(:ada)
+
+      get edit_admin_match_night_path(match_nights(:fall_upcoming))
+
+      assert_redirected_to root_path
+    end
+
+    test 'edit shows slot and matchup forms on a live night' do
+      sign_in_as players(:zoe)
+
+      get edit_admin_match_night_path(match_nights(:fall_upcoming))
+
+      assert_select "button[aria-label^='Remove']", count: 3
+      assert_select "select[aria-label='Home team']", minimum: 2
+      assert_select 'input[type=date]', count: 1
+    end
+
+    test 'edit locks the date, times, and matchups on a night with games' do
+      sign_in_as players(:zoe)
+
+      get edit_admin_match_night_path(match_nights(:fall_week_one))
+
+      assert_select 'input[type=date]', count: 0
+      assert_select 'input[type=time]', count: 0
+      assert_select 'select', count: 0
+      assert_select 'p', text: /Test Team Alpha\s+vs\s+Test Team Bravo/
+    end
+
+    test 'edit hides times and matchups on a canceled night' do
+      sign_in_as players(:zoe)
+
+      get edit_admin_match_night_path(match_nights(:fall_canceled))
+
+      assert_response :success
+      assert_select 'input[type=time]', count: 0
+      assert_select 'select', count: 0
+    end
+
+    test 'the index hides cancel on played nights' do
       sign_in_as players(:zoe)
 
       get admin_match_nights_path(season: seasons(:fall))
@@ -61,10 +84,7 @@ module Admin
       played = "##{dom_id(match_nights(:fall_week_one))}"
 
       assert_select "#{played} button", count: 0
-      assert_select "#{played} input[type=date]", count: 0
-      assert_select "#{played} input[type=time]", count: 0
       assert_select played, text: /Complete/
-      assert_select "##{dom_id(match_nights(:fall_upcoming))} input[type=date]", count: 1
     end
 
     test 'new renders the add night form' do
@@ -159,7 +179,7 @@ module Admin
 
       patch admin_match_night_path(match_nights(:fall_upcoming)), params: { match_night: { label: 'Week 3' } }
 
-      assert_redirected_to admin_match_nights_path(season: seasons(:fall))
+      assert_redirected_to edit_admin_match_night_path(match_nights(:fall_upcoming))
       assert_equal 'Week 3 updated.', flash[:notice]
       assert_equal 'Week 3', match_nights(:fall_upcoming).reload.label
     end
@@ -171,7 +191,7 @@ module Admin
 
       patch admin_match_night_path(night), params: { match_night: { label: night.label, played_on: new_date } }
 
-      assert_redirected_to admin_match_nights_path(season: seasons(:fall))
+      assert_redirected_to edit_admin_match_night_path(night)
       assert_equal new_date, night.reload.played_on
       assert_equal [new_date], night.match_slots.map { |slot| slot.starts_at.in_time_zone.to_date }.uniq
     end
@@ -192,7 +212,7 @@ module Admin
 
       patch admin_match_night_path(match_nights(:fall_upcoming)), params: { match_night: { label: '' } }
 
-      assert_redirected_to admin_match_nights_path(season: seasons(:fall))
+      assert_redirected_to edit_admin_match_night_path(match_nights(:fall_upcoming))
       assert_predicate flash[:alert], :present?
       assert_equal 'Week 2', match_nights(:fall_upcoming).reload.label
     end

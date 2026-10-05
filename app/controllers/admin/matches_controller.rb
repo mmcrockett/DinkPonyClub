@@ -11,9 +11,9 @@ module Admin
       match = @match_night.matches.new(season: @match_night.season, **match_params)
 
       if match.save
-        redirect_back_to_schedule notice: t('.created', matchup: matchup(match), label: @match_night.label)
+        redirect_back_to_night notice: t('.created', matchup: matchup(match), label: @match_night.label)
       else
-        redirect_back_to_schedule alert: t('admin.matches.invalid', errors: match.errors.full_messages.to_sentence)
+        redirect_back_to_night alert: t('admin.matches.invalid', errors: match.errors.full_messages.to_sentence)
       end
     end
 
@@ -21,9 +21,9 @@ module Admin
       match = @match_night.matches.find(params.expect(:id))
 
       if match.update(match_params)
-        redirect_back_to_schedule notice: t('.updated', matchup: matchup(match), label: @match_night.label)
+        redirect_back_to_night notice: t('.updated', matchup: matchup(match), label: @match_night.label)
       else
-        redirect_back_to_schedule alert: t('admin.matches.invalid', errors: match.errors.full_messages.to_sentence)
+        redirect_back_to_night alert: t('admin.matches.invalid', errors: match.errors.full_messages.to_sentence)
       end
     end
 
@@ -31,7 +31,7 @@ module Admin
       match = @match_night.matches.find(params.expect(:id))
       match.destroy!
 
-      redirect_back_to_schedule notice: t('.removed', matchup: matchup(match), label: @match_night.label)
+      redirect_back_to_night notice: t('.removed', matchup: matchup(match), label: @match_night.label)
     end
 
     private
@@ -43,13 +43,13 @@ module Admin
     def reject_canceled_night
       return unless @match_night.canceled?
 
-      redirect_back_to_schedule alert: t('admin.matches.canceled', label: @match_night.label)
+      redirect_back_to_night alert: t('admin.matches.canceled', label: @match_night.label)
     end
 
     def reject_played_night
       return unless @match_night.played?
 
-      redirect_back_to_schedule alert: t('admin.matches.played', label: @match_night.label)
+      redirect_back_to_night alert: t('admin.matches.played', label: @match_night.label)
     end
 
     def match_params
@@ -60,8 +60,8 @@ module Admin
       "#{match.home_team.name} vs #{match.away_team.name}"
     end
 
-    def redirect_back_to_schedule(**flash)
-      redirect_to admin_match_nights_path(season: @match_night.season), **flash
+    def redirect_back_to_night(**flash)
+      redirect_to edit_admin_match_night_path(@match_night), **flash
     end
   end
 end

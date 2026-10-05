@@ -17,28 +17,15 @@
     <ul class="flex flex-col gap-2">
       <% @match_nights.each do |night| %>
         <% played = @played_night_ids.include?(night.id) %>
-        <li id="<%= dom_id(night) %>" class="group flex flex-col gap-3 rounded-md bg-white px-4 py-3 shadow-sm">
+        <li id="<%= dom_id(night) %>" class="flex flex-col gap-3 rounded-md bg-white px-4 py-3 shadow-sm">
           <div class="flex items-center justify-between gap-3">
             <div class="min-w-0">
-              <details class="inline-block align-top">
-                <summary class="flex cursor-pointer list-none items-center gap-1">
-                  <span class="font-semibold"><%= night.label %></span>
-                  <span class="text-gray-400" title="<%= t('.edit') %>">
-                    <%= render 'shared/icon', name: 'pencil-square', class: 'h-4 w-4' %>
-                    <span class="sr-only"><%= t('.edit') %></span>
-                  </span>
-                  <span class="text-gray-500">- <%= night.played_on.strftime('%b %-d, %Y') %></span>
-                </summary>
-                <%= form_with model: [:admin, night], method: :patch, class: 'mt-2 flex flex-wrap items-center gap-2' do |edit_form| %>
-                  <%= edit_form.text_field :label, maxlength: 60, required: true, class: 'form-input',
-                                           aria: { label: t('.label') } %>
-                  <% unless played %>
-                    <%= edit_form.date_field :played_on, required: true, class: 'form-input',
-                                             aria: { label: t('.date') } %>
-                  <% end %>
-                  <%= edit_form.submit t('.save'), class: 'btn btn-secondary' %>
-                <% end %>
-              </details>
+              <span class="font-semibold"><%= night.label %></span>
+              <span class="text-gray-500">- <%= night.played_on.strftime('%b %-d, %Y') %></span>
+              <%= link_to edit_admin_match_night_path(night), class: 'ml-1 inline-block align-middle text-gray-400 hover:text-dpc-navy',
+                          title: t('.edit'), aria: { label: t('.edit') } do %>
+                <%= render 'shared/icon', name: 'pencil-square', class: 'h-4 w-4' %>
+              <% end %>
               <% if night.venue.present? %>
                 <span class="text-gray-500">&middot; <%= night.venue %></span>
               <% end %>
@@ -54,43 +41,24 @@
               <%= button_to cancel_admin_match_night_path(night), method: :patch,
                             class: 'rounded-md p-2 text-red-700 hover:bg-red-50',
                             title: t('.cancel_night'), aria: { label: t('.cancel_night') },
-                            form: { class: 'group-has-[details[open]]:hidden', data: { turbo_confirm: t('.confirm_cancel') } } do %>
+                            form: { data: { turbo_confirm: t('.confirm_cancel') } } do %>
                 <%= render 'shared/icon', name: 'x-mark', class: 'h-5 w-5' %>
               <% end %>
             <% end %>
           </div>
 
           <% unless night.canceled? %>
-            <div class="flex flex-wrap items-center gap-2 border-t border-gray-100 pt-3">
-              <% night.match_slots.each do |slot| %>
-                <% time = slot.label %>
-                <span class="flex items-center gap-2 rounded-md border border-gray-300 px-2 py-1 text-sm">
-                  <%= time %>
-                  <% unless played %>
-                    <%= button_to admin_match_night_match_slot_path(night, slot), method: :delete,
-                                  class: 'text-gray-400 hover:text-red-700',
-                                  title: t('.remove_time', time: time), aria: { label: t('.remove_time', time: time) },
-                                  form: { class: 'inline', data: { turbo_confirm: t('.confirm_remove_time', time: time) } } do %>
-                      <%= render 'shared/icon', name: 'x-mark', class: 'h-4 w-4' %>
-                    <% end %>
-                  <% end %>
-                </span>
+            <div class="flex flex-col gap-1 border-t border-gray-100 pt-3 text-sm">
+              <p class="text-gray-500">
+                <%= night.match_slots.any? ? night.match_slots.map(&:label).to_sentence : t('.no_times') %>
+              </p>
+              <% night.matches.each do |match| %>
+                <p><%= match.home_team.name %> <span class="text-gray-400"><%= t('.vs') %></span> <%= match.away_team.name %></p>
               <% end %>
-              <% if night.match_slots.empty? && !played %>
-                <span class="text-sm text-gray-500"><%= t('.no_times') %></span>
-              <% end %>
-              <% unless played %>
-                <%= form_with scope: :match_slot, url: admin_match_night_match_slots_path(night), class: 'ml-auto flex items-center gap-2' do |slot_form| %>
-                  <%= slot_form.time_field :starts_at, step: 900, required: true, class: 'form-input',
-                                           aria: { label: t('.add_time') } %>
-                  <%= slot_form.button type: :submit, title: t('.add_time'), aria: { label: t('.add_time') },
-                                       class: 'rounded-md border border-gray-300 p-2 text-dpc-navy hover:bg-gray-50' do %>
-                    <%= render 'shared/icon', name: 'plus', class: 'h-5 w-5' %>
-                  <% end %>
-                <% end %>
+              <% if night.matches.empty? %>
+                <p class="text-gray-500"><%= t('.no_matchups') %></p>
               <% end %>
             </div>
-            <%= render 'matchups', night: night, played: played, teams: @teams %>
           <% end %>
         </li>
       <% end %>
