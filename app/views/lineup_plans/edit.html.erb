@@ -17,7 +17,7 @@
     </div>
   <% end %>
 
-  <% picker_subs = (@form.eligible_subs - @form.subs).reject { |player| @statuses[player.id] == 'out' } %>
+  <% picker_subs = @form.pickable_subs(@statuses) %>
 
   <div class="grid gap-6 sm:grid-cols-3" data-controller="lineup-subs">
     <div class="rounded-md bg-white px-4 py-3 shadow-sm sm:col-span-1">

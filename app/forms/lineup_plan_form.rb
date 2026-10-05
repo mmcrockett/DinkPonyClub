@@ -47,6 +47,10 @@ class LineupPlanForm
     eligible_subs.select { |player| picked.include?(player.id.to_s) }
   end
 
+  def pickable_subs(statuses)
+    (eligible_subs - subs).reject { |player| statuses[player.id] == 'out' }
+  end
+
   private
 
   def unavailable_player_ids
