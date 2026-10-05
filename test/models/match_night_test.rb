@@ -34,6 +34,7 @@ class MatchNightTest < ActiveSupport::TestCase
       night.lines_count = count
 
       assert_not night.valid?
+      assert_predicate night.errors[:lines_count], :present?
     end
   end
 
