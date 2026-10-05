@@ -84,6 +84,8 @@ en:
       edit:
         title: "Edit %{label}"
         back: "Back to schedule"
+        cancel_night: "Cancel night"
+        confirm_cancel: "Cancel this match night? Players will see it as canceled."
         details: "Details"
         times: "Times"
         matchups: "Matchups"

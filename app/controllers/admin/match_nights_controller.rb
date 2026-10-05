@@ -55,7 +55,7 @@ module Admin
                              [:notice, t('.canceled', label: match_night.label)]
                            end
 
-      redirect_to admin_match_nights_path(season: match_night.season), flash_key => message
+      redirect_to season_match_nights_path(match_night.season), flash_key => message
     end
 
     private

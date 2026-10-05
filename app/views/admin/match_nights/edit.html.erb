@@ -13,7 +13,14 @@
         <% end %>
       </p>
     </div>
-    <%= link_to t('.back'), admin_match_nights_path(season: @season), class: 'text-sm text-dpc-navy underline' %>
+    <div class="flex items-center gap-3">
+      <% unless @match_night.canceled? || @played %>
+        <%= button_to t('.cancel_night'), cancel_admin_match_night_path(@match_night), method: :patch,
+                      class: 'btn border border-red-700 text-red-700 hover:bg-red-50',
+                      form: { data: { turbo_confirm: t('.confirm_cancel') } } %>
+      <% end %>
+      <%= link_to t('.back'), season_match_nights_path(@season), class: 'text-sm text-dpc-navy underline' %>
+    </div>
   </div>
 
   <section class="flex flex-col gap-3 rounded-md bg-white p-5 shadow-sm">

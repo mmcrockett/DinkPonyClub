@@ -96,6 +96,18 @@ module Admin
       assert_select "input[name='match_night[played_on]']"
     end
 
+    test 'edit offers cancel on a live night only' do
+      sign_in_as players(:zoe)
+
+      get edit_admin_match_night_path(match_nights(:fall_upcoming))
+
+      assert_select 'button', text: 'Cancel night'
+
+      get edit_admin_match_night_path(match_nights(:fall_week_one))
+
+      assert_select 'button', text: 'Cancel night', count: 0
+    end
+
     test 'refuses to cancel a night with games' do
       sign_in_as players(:zoe)
 
@@ -169,7 +181,7 @@ module Admin
 
       patch cancel_admin_match_night_path(match_nights(:fall_upcoming))
 
-      assert_redirected_to admin_match_nights_path(season: seasons(:fall))
+      assert_redirected_to season_match_nights_path(seasons(:fall))
       assert_equal 'Week 2 canceled.', flash[:notice]
       assert_predicate match_nights(:fall_upcoming).reload, :canceled?
     end
