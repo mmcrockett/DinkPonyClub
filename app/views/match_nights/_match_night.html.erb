@@ -43,7 +43,7 @@
           <% if match.complete? %>
             <%= link_to t('match_nights.schedule.scorecard'), match_path(match),
                         class: 'text-xs font-semibold text-dpc-green hover:underline' %>
-          <% elsif @can_enter_results && (admin? || !match_night.results_locked?) %>
+          <% elsif can_edit_scorecard?(match) %>
             <%= link_to t('match_nights.schedule.enter_results'), edit_match_path(match),
                         class: 'text-xs font-semibold text-dpc-green hover:underline' %>
           <% end %>

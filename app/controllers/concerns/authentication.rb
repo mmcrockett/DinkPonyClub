@@ -27,7 +27,10 @@ module Authentication
   end
 
   def captain_or_admin?(season)
-    admin? || current_player&.captain_in?(season)
+    @captain_or_admin_in ||= {}
+    @captain_or_admin_in.fetch(season.id) do
+      @captain_or_admin_in[season.id] = admin? || current_player&.captain_in?(season)
+    end
   end
 
   def can_edit_scorecard?(match)
