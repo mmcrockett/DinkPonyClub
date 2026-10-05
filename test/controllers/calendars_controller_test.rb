@@ -11,14 +11,14 @@ class CalendarsControllerTest < ActionDispatch::IntegrationTest
     assert_equal %i[fall_week_one fall_upcoming fall_canceled fall_playoff].map { |name| uid_for(name) }, uids
   end
 
-  test 'a night with no matches yet is an all-day event titled with its label' do
+  test 'a night with no matches yet is a 7 PM event titled with its label' do
     get schedule_calendar_path(token: players(:ada).calendar_token)
 
     event = event_for(:fall_playoff)
 
     assert_equal 'Semifinal', event.summary.to_s
-    assert_equal match_nights(:fall_playoff).played_on, event.dtstart.value
-    assert_equal match_nights(:fall_playoff).played_on + 1, event.dtend.value
+    assert_equal seven_pm_utc(:fall_playoff), event.dtstart.to_time.utc
+    assert_equal seven_pm_utc(:fall_playoff) + 1.hour, event.dtend.to_time.utc
   end
 
   test 'serves the feed without a browser user agent or session' do
@@ -64,15 +64,14 @@ class CalendarsControllerTest < ActionDispatch::IntegrationTest
     assert_match(/DTSTART:\d{8}T\d{6}Z/, response.body)
   end
 
-  test 'emits an all-day event with notes when the night has no slots' do
+  test 'emits a 7 PM event with notes when the night has no slots' do
     match_nights(:fall_week_one).update!(notes: 'Lines 2 & 4 at 7:15 PM', venue: 'Court House')
 
     get schedule_calendar_path(token: players(:ada).calendar_token)
 
     event = event_for(:fall_week_one)
 
-    assert_instance_of Icalendar::Values::Date, event.dtstart
-    assert_equal match_nights(:fall_week_one).played_on, event.dtstart.value
+    assert_equal seven_pm_utc(:fall_week_one), event.dtstart.to_time.utc
     assert_equal 'Court House', event.location.to_s
     assert_includes event.description.to_s, 'Lines 2 & 4 at 7:15 PM'
     assert_includes event.description.to_s, match_night_url(match_nights(:fall_week_one))
@@ -166,6 +165,11 @@ class CalendarsControllerTest < ActionDispatch::IntegrationTest
 
   def events
     calendars.first.events
+  end
+
+  def seven_pm_utc(night_name)
+    date = match_nights(night_name).played_on
+    Time.zone.local(date.year, date.month, date.day, 19).utc
   end
 
   def event_for(night_name)
