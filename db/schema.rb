@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_05_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_05_130000) do
   create_table "charges", force: :cascade do |t|
     t.integer "amount_cents", null: false
     t.datetime "created_at", null: false
@@ -89,6 +89,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_05_120000) do
     t.boolean "canceled", default: false, null: false
     t.datetime "created_at", null: false
     t.string "label", limit: 60, null: false
+    t.integer "lines_count"
     t.text "notes"
     t.date "played_on", null: false
     t.boolean "playoff", default: false, null: false
@@ -156,6 +157,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_05_120000) do
   create_table "seasons", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.date "ends_on"
+    t.integer "lines_per_match", default: 5, null: false
     t.string "name", limit: 100, null: false
     t.text "rules"
     t.date "starts_on"

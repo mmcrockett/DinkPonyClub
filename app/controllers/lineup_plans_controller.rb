@@ -56,7 +56,7 @@ class LineupPlansController < ApplicationController
 
   # filter is dynamic per line position; params.expect can't describe that shape.
   def lines_params
-    filter = ScorecardForm::POSITIONS.to_h { |position| [position.to_s, []] }
+    filter = @match.line_positions.to_h { |position| [position.to_s, []] }
     params.fetch(:lineup, {}).permit(lines: filter).fetch(:lines, {})
   end
 end

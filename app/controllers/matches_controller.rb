@@ -58,7 +58,7 @@ class MatchesController < ApplicationController
 
   # filter is dynamic per line position; params.expect can't describe that shape.
   def lines_params
-    filter = ScorecardForm::POSITIONS.to_h { |position| [position.to_s, LINE_KEYS] }
+    filter = @match.line_positions.to_h { |position| [position.to_s, LINE_KEYS] }
     params.require(:scorecard).permit(lines: filter).fetch(:lines, {}) # rubocop:disable Rails/StrongParametersExpect
   end
 end

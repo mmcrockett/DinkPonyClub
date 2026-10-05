@@ -8,7 +8,10 @@ class Season < ApplicationRecord
   has_many :match_nights, dependent: :destroy
   has_many :fees, dependent: :destroy
 
+  MAX_LINES = 5
+
   validates :name, presence: true, uniqueness: true
+  validates :lines_per_match, numericality: { only_integer: true, in: 1..MAX_LINES }
 
   scope :chronological, -> { order(:starts_on) }
   scope :current, -> { where(starts_on: ..Date.current).where(ends_on: Date.current..).order(:starts_on) }
