@@ -45,6 +45,31 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
     assert_select "##{dom_id(match_nights(:fall_playoff))}", text: /Playoffs/
   end
 
+  test 'canceled night shows only its label and pill' do
+    night = match_nights(:fall_canceled)
+    night.update!(venue: 'Rainy Courts', notes: 'Wet')
+    Match.create!(season: seasons(:fall), match_night: night, home_team: teams(:alpha), away_team: teams(:bravo))
+    sign_in_as(players(:zoe))
+
+    get season_match_nights_path(seasons(:fall))
+
+    frame = "##{dom_id(night)}"
+
+    assert_select frame, text: /Canceled/
+    assert_select frame, text: /Rainy Courts|Wet|Alpha/, count: 0
+    assert_select "#{frame} a:not([href^='/admin'])", count: 0
+  end
+
+  test 'shows a lineup icon link for a captain on their own team' do
+    sign_in_as_ada
+    match = matches(:fall_future)
+
+    get season_match_nights_path(seasons(:fall))
+
+    assert_select "##{dom_id(match_nights(:fall_upcoming))} a[href=?][title=?]",
+                  edit_match_team_lineup_path(match, match.home_team), "Set #{match.home_team.name} lineup"
+  end
+
   test 'hides team availability for a non-captain' do
     sign_in_as(players(:grace))
 
@@ -297,12 +322,14 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
     assert_select "#{frame} a[href=?]", edit_match_path(matches(:fall_alpha_bravo)), count: 0
   end
 
-  test 'links an admin to schedule management without cancel buttons' do
+  test 'links an admin to add and edit nights without cancel buttons' do
     sign_in_as(players(:zoe))
 
     get season_match_nights_path(seasons(:fall))
 
-    assert_select 'a[href=?]', admin_match_nights_path(season: seasons(:fall))
+    assert_select 'a[href=?]', new_admin_match_night_path(season: seasons(:fall))
+    assert_select "##{dom_id(match_nights(:fall_upcoming))} a[href=?]",
+                  edit_admin_match_night_path(match_nights(:fall_upcoming))
     assert_select 'button', text: 'Cancel night', count: 0
   end
 
@@ -314,12 +341,13 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
     assert_select "##{dom_id(match_nights(:fall_canceled), :my_availability)}", count: 0
   end
 
-  test 'hides the manage link from a captain' do
+  test 'hides the add and edit night links from a captain' do
     sign_in_as_ada
 
     get season_match_nights_path(seasons(:fall))
 
-    assert_select 'a[href=?]', admin_match_nights_path(season: seasons(:fall)), count: 0
+    assert_select 'a[href=?]', new_admin_match_night_path(season: seasons(:fall)), count: 0
+    assert_select 'a[href=?]', edit_admin_match_night_path(match_nights(:fall_upcoming)), count: 0
   end
 
   test 'treats a player deactivated mid-session as signed out' do

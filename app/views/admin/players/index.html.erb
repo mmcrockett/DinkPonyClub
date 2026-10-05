@@ -4,7 +4,6 @@
     <div class="flex items-center gap-3">
       <%= link_to t('admin.rosters.show.title'), admin_roster_path, class: 'btn btn-secondary' %>
       <%= link_to t('admin.fees.index.title'), admin_fees_path, class: 'btn btn-secondary' %>
-      <%= link_to t('admin.match_nights.index.title'), admin_match_nights_path, class: 'btn btn-secondary' %>
       <% if current_season %>
         <%= button_to t('admin.payment_requests.button'), admin_payment_requests_path(season: current_season),
                       class: 'btn btn-secondary',

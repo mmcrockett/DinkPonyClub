@@ -2,10 +2,10 @@ require 'test_helper'
 
 module Admin
   class MatchNightsControllerTest < ActionDispatch::IntegrationTest
-    test 'redirects a non-admin away from the index and create' do
+    test 'redirects a non-admin away from new and create' do
       sign_in_as players(:ada)
 
-      get admin_match_nights_path
+      get new_admin_match_night_path
 
       assert_redirected_to root_path
 
@@ -13,28 +13,6 @@ module Admin
         post admin_match_nights_path, params: { match_night: { played_on: '2026-11-01', label: 'Week 9' } }
       end
       assert_redirected_to root_path
-    end
-
-    test 'lists the season nights with a cancel button on live ones only' do
-      sign_in_as players(:zoe)
-
-      get admin_match_nights_path(season: seasons(:fall))
-
-      assert_select "##{dom_id(match_nights(:fall_upcoming))} button[aria-label='Cancel night']"
-      assert_select "##{dom_id(match_nights(:fall_canceled))} button", count: 0
-    end
-
-    test 'lists times and matchups as plain text with an edit link' do
-      sign_in_as players(:zoe)
-
-      get admin_match_nights_path(season: seasons(:fall))
-
-      night = "##{dom_id(match_nights(:fall_upcoming))}"
-
-      assert_select "#{night} a[href='#{edit_admin_match_night_path(match_nights(:fall_upcoming))}']"
-      assert_select "#{night} p", text: /7:00 PM/
-      assert_select "#{night} select", count: 0
-      assert_select "##{dom_id(match_nights(:fall_week_one))} p", text: /Test Team Alpha\s+vs\s+Test Team Bravo/
     end
 
     test 'edit redirects a non-admin' do
@@ -76,17 +54,6 @@ module Admin
       assert_select 'select', count: 0
     end
 
-    test 'the index hides cancel on played nights' do
-      sign_in_as players(:zoe)
-
-      get admin_match_nights_path(season: seasons(:fall))
-
-      played = "##{dom_id(match_nights(:fall_week_one))}"
-
-      assert_select "#{played} button", count: 0
-      assert_select played, text: /Complete/
-    end
-
     test 'new renders the add night form' do
       sign_in_as players(:zoe)
 
@@ -94,6 +61,18 @@ module Admin
 
       assert_response :success
       assert_select "input[name='match_night[played_on]']"
+    end
+
+    test 'edit offers cancel on a live night only' do
+      sign_in_as players(:zoe)
+
+      get edit_admin_match_night_path(match_nights(:fall_upcoming))
+
+      assert_select 'button', text: 'Cancel night'
+
+      get edit_admin_match_night_path(match_nights(:fall_week_one))
+
+      assert_select 'button', text: 'Cancel night', count: 0
     end
 
     test 'refuses to cancel a night with games' do
@@ -128,7 +107,7 @@ module Admin
              params: { match_night: { played_on: '2026-11-01', label: 'Week 9', venue: 'Rec Center', playoff: '1' } }
       end
 
-      assert_redirected_to admin_match_nights_path(season: seasons(:fall))
+      assert_redirected_to season_match_nights_path(seasons(:fall))
       assert_equal 'Week 9 added.', flash[:notice]
       assert_predicate seasons(:fall).match_nights.find_by!(label: 'Week 9'), :playoff?
     end
@@ -149,7 +128,7 @@ module Admin
       sign_in_as players(:zoe)
       Season.destroy_all
 
-      get admin_match_nights_path
+      get new_admin_match_night_path
 
       assert_redirected_to admin_players_path
       assert_equal 'No seasons exist yet.', flash[:alert]
@@ -169,7 +148,7 @@ module Admin
 
       patch cancel_admin_match_night_path(match_nights(:fall_upcoming))
 
-      assert_redirected_to admin_match_nights_path(season: seasons(:fall))
+      assert_redirected_to season_match_nights_path(seasons(:fall))
       assert_equal 'Week 2 canceled.', flash[:notice]
       assert_predicate match_nights(:fall_upcoming).reload, :canceled?
     end

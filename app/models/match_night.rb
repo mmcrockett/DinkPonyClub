@@ -17,7 +17,6 @@ class MatchNight < ApplicationRecord
   scope :chronological, -> { order(:played_on) }
   scope :upcoming, -> { where(played_on: Date.current..) }
   scope :without_matches, -> { where.not(id: Match.select(:match_night_id)) }
-  scope :with_games, -> { where(id: Match.joins(:games).select(:match_night_id)) }
 
   AVAILABILITY_CUTOFF_HOUR = 12
 

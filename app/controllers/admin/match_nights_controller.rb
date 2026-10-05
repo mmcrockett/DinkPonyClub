@@ -5,12 +5,7 @@ module Admin
     include SeasonScoped
 
     before_action :require_admin
-    before_action :require_season, only: %i[index new create]
-
-    def index
-      @match_nights = season_nights
-      @played_night_ids = @season.match_nights.with_games.ids.to_set
-    end
+    before_action :require_season, only: %i[new create]
 
     def new
       @match_night = @season.match_nights.new
@@ -29,7 +24,7 @@ module Admin
       @match_night = @season.match_nights.new(match_night_params)
 
       if @match_night.save
-        redirect_to admin_match_nights_path(season: @season), notice: t('.created', label: @match_night.label)
+        redirect_to season_match_nights_path(@season), notice: t('.created', label: @match_night.label)
       else
         render :new, status: :unprocessable_content
       end
@@ -55,15 +50,10 @@ module Admin
                              [:notice, t('.canceled', label: match_night.label)]
                            end
 
-      redirect_to admin_match_nights_path(season: match_night.season), flash_key => message
+      redirect_to season_match_nights_path(match_night.season), flash_key => message
     end
 
     private
-
-    def season_nights
-      @season.match_nights.chronological
-             .includes(:match_slots, matches: [:home_team, :away_team, { lineups: :games }]).to_a
-    end
 
     def require_season
       @season = current_season
