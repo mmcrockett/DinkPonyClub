@@ -15,6 +15,8 @@ class Match < ApplicationRecord
   validate :teams_rostered_in_season
   validate :season_matches_night
 
+  after_update :drop_stale_lineup_picks, if: -> { saved_change_to_home_team_id? || saved_change_to_away_team_id? }
+
   scope :chronological, -> { joins(:match_night).merge(MatchNight.chronological) }
 
   def complete?
@@ -22,6 +24,10 @@ class Match < ApplicationRecord
   end
 
   private
+
+  def drop_stale_lineup_picks
+    lineup_picks.where.not(team_id: [home_team_id, away_team_id]).delete_all
+  end
 
   def teams_are_different
     return if home_team_id != away_team_id
