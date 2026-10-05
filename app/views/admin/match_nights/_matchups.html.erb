@@ -1,0 +1,44 @@
+<div class="flex flex-col gap-2 border-t border-gray-100 pt-3">
+  <% night.matches.each do |match| %>
+    <% if played %>
+      <p class="text-sm">
+        <%= match.home_team.name %> <span class="text-gray-400"><%= t('.vs') %></span> <%= match.away_team.name %>
+      </p>
+    <% else %>
+      <div class="flex flex-wrap items-center gap-2">
+        <%= form_with model: [:admin, night, match], method: :patch, class: 'flex flex-wrap items-center gap-2' do |match_form| %>
+          <%= match_form.collection_select :home_team_id, teams, :id, :name, {}, class: 'form-input',
+                                           aria: { label: t('.home_team') } %>
+          <span class="text-gray-400"><%= t('.vs') %></span>
+          <%= match_form.collection_select :away_team_id, teams, :id, :name, {}, class: 'form-input',
+                                           aria: { label: t('.away_team') } %>
+          <%= match_form.submit t('.save'), class: 'btn btn-secondary' %>
+        <% end %>
+        <%= button_to admin_match_night_match_path(night, match), method: :delete,
+                      class: 'text-gray-400 hover:text-red-700',
+                      title: t('.remove'), aria: { label: t('.remove') },
+                      form: { class: 'inline', data: { turbo_confirm: t('.confirm_remove') } } do %>
+          <%= render 'shared/icon', name: 'x-mark', class: 'h-5 w-5' %>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+
+  <% if night.matches.empty? && !played %>
+    <p class="text-sm text-gray-500"><%= t('.none') %></p>
+  <% end %>
+
+  <% unless played %>
+    <%= form_with scope: :match, url: admin_match_night_matches_path(night), class: 'flex flex-wrap items-center gap-2' do |match_form| %>
+      <%= match_form.collection_select :home_team_id, teams, :id, :name, { prompt: t('.home_team') }, required: true,
+                                       class: 'form-input', aria: { label: t('.home_team') } %>
+      <span class="text-gray-400"><%= t('.vs') %></span>
+      <%= match_form.collection_select :away_team_id, teams, :id, :name, { prompt: t('.away_team') }, required: true,
+                                       class: 'form-input', aria: { label: t('.away_team') } %>
+      <%= match_form.button type: :submit, title: t('.add'), aria: { label: t('.add') },
+                            class: 'rounded-md border border-gray-300 p-2 text-dpc-navy hover:bg-gray-50' do %>
+        <%= render 'shared/icon', name: 'plus', class: 'h-5 w-5' %>
+      <% end %>
+    <% end %>
+  <% end %>
+</div>

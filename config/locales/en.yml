@@ -97,6 +97,25 @@ en:
         remove_time: "Remove %{time}"
         confirm_remove_time: "Remove %{time}? This also deletes every player's preference for it."
         no_times: "No times yet - players can't pick time preferences."
+      matchups:
+        vs: "vs"
+        home_team: "Home team"
+        away_team: "Away team"
+        save: "Save"
+        add: "Add matchup"
+        remove: "Delete matchup"
+        confirm_remove: "Delete this matchup?"
+        none: "No matchups yet."
+    matches:
+      played: "%{label} has games on record - matchups can't be changed."
+      canceled: "%{label} is canceled - matchups can't be changed."
+      invalid: "Could not save matchup: %{errors}"
+      create:
+        created: "%{matchup} added to %{label}."
+      update:
+        updated: "%{label} is now %{matchup}."
+      destroy:
+        removed: "%{matchup} removed from %{label}."
     match_slots:
       played: "%{label} has games on record - times can't be changed."
       create:
