@@ -21,7 +21,7 @@ class LineupPlanForm
   validate :players_are_on_roster
   validate :players_appear_once
 
-  def save # rubocop:disable Naming/PredicateMethod
+  def save
     return false unless valid?
 
     ActiveRecord::Base.transaction do
@@ -29,6 +29,9 @@ class LineupPlanForm
       lines.each { |position, ids| create_picks(position, ids) }
     end
     true
+  rescue ActiveRecord::RecordInvalid => e
+    errors.add(:base, e.record.errors.full_messages.to_sentence)
+    false
   end
 
   def roster
