@@ -60,6 +60,18 @@ module MatchNightsHelper
     t("match_nights.schedule.slot_preference_aria.#{preference}")
   end
 
+  def slot_preference_marks(slots, preferences)
+    safe_join(slots.map { |slot| slot_preference_mark(slot, preferences[slot.id]) })
+  end
+
+  def slot_preference_mark(slot, preference)
+    glyph = preference ? slot_preference_label(preference) : '?'
+    description = slot_preference_aria_label(preference || 'none')
+    tag.span(class: preference ? nil : 'text-gray-400', title: "#{slot.label}: #{description}") do
+      safe_join([tag.span(glyph, aria: { hidden: true }), tag.span("#{slot.label}: #{description}", class: 'sr-only')])
+    end
+  end
+
   def slot_preference_checked_classes(preference)
     SLOT_PREFERENCE_CHECKED_CLASSES.fetch(preference)
   end

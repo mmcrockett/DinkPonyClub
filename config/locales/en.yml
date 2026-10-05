@@ -197,6 +197,7 @@ en:
         thumbs_up: "Prefer"
         meh: "Okay"
         thumbs_down: "Rather not"
+        none: "No answer"
       canceled: "Canceled"
       playoffs: "Playoffs"
       scorecard: "Scorecard"

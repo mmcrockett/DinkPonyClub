@@ -24,6 +24,16 @@ module Admin
       assert_select "##{dom_id(match_nights(:fall_canceled))} button", count: 0
     end
 
+    test 'hides the cancel button while the edit form is open' do
+      sign_in_as players(:zoe)
+
+      get admin_match_nights_path(season: seasons(:fall))
+
+      night = "##{dom_id(match_nights(:fall_upcoming))}.group"
+
+      assert_select "#{night} form[class*='group-has'] button[aria-label='Cancel night']"
+    end
+
     test 'lists slot times with a remove button on live nights' do
       sign_in_as players(:zoe)
 
