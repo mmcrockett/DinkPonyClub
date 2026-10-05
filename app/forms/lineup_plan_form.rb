@@ -54,9 +54,9 @@ class LineupPlanForm
   private
 
   def unavailable_player_ids
-    rostered = RosterSpot.where(season: match.season).select(:player_id)
-    opponent_picks = match.lineup_picks.where.not(team: team).select(:player_id)
-    [rostered, opponent_picks].flat_map { |scope| scope.map(&:player_id) }
+    rostered = RosterSpot.where(season: match.season).pluck(:player_id)
+    opponent_picks = match.lineup_picks.where.not(team: team).pluck(:player_id)
+    rostered + opponent_picks
   end
 
   def create_picks(position, ids)
