@@ -1,5 +1,6 @@
+<% canceled = match_night.canceled? %>
 <div id="<%= dom_id(match_night) %>" class="rounded-md bg-white shadow-sm">
-  <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 p-4">
+  <div class="flex flex-wrap items-center justify-between gap-3 p-4 <%= 'border-b border-gray-100' unless canceled %>">
     <div class="flex items-center gap-4">
       <div class="flex flex-col items-center rounded-md border border-gray-200 px-3 py-1 text-center">
         <span class="text-xs font-bold uppercase text-gray-500"><%= match_night.played_on.strftime('%b') %></span>
@@ -15,14 +16,16 @@
             </span>
           <% end %>
         </div>
-        <p class="text-sm text-gray-500">
-          <% if match_night.match_slots.any? %>
-            <%= match_night.match_slots.first.label %> &middot;
+        <% unless canceled %>
+          <p class="text-sm text-gray-500">
+            <% if match_night.match_slots.any? %>
+              <%= match_night.match_slots.first.label %> &middot;
+            <% end %>
+            <%= match_night.venue %>
+          </p>
+          <% if match_night.notes.present? %>
+            <p class="text-sm text-gray-500"><%= match_night.notes %></p>
           <% end %>
-          <%= match_night.venue %>
-        </p>
-        <% if match_night.notes.present? %>
-          <p class="text-sm text-gray-500"><%= match_night.notes %></p>
         <% end %>
       </div>
     </div>
@@ -34,32 +37,34 @@
     </div>
   </div>
 
-  <div class="flex flex-col divide-y divide-gray-100 px-4">
-    <% match_night.matches.each do |match| %>
-      <div class="flex items-center justify-between gap-3 py-3">
-        <span class="flex-1 text-right font-semibold"><%= team_link(match.home_team, match.season_id) %></span>
-        <div class="flex w-28 flex-col items-center">
-          <span class="font-bold text-dpc-navy"><%= match_score_label(match) %></span>
-          <% if match.complete? %>
-            <%= link_to t('match_nights.schedule.scorecard'), match_path(match),
-                        class: 'text-xs font-semibold text-dpc-green hover:underline' %>
-          <% elsif can_edit_scorecard?(match) %>
-            <%= link_to t('match_nights.schedule.enter_results'), edit_match_path(match),
-                        class: 'text-xs font-semibold text-dpc-green hover:underline' %>
-          <% end %>
-          <% lineup_teams_for(match, match_night).each do |team| %>
-            <%= link_to t('match_nights.schedule.set_lineup', team: team.name), edit_match_team_lineup_path(match, team),
-                        class: 'text-xs font-semibold text-dpc-green hover:underline' %>
+  <% unless canceled %>
+    <div class="flex flex-col divide-y divide-gray-100 px-4">
+      <% match_night.matches.each do |match| %>
+        <% lineup_teams = lineup_teams_for(match, match_night) %>
+        <% home_icon = lineup_icon_link(match, match.home_team, lineup_teams) %>
+        <% away_icon = lineup_icon_link(match, match.away_team, lineup_teams) %>
+        <% score_icon = scorecard_icon_link(match) %>
+        <div class="py-3">
+          <div class="flex items-center justify-between gap-3">
+            <span class="flex-1 text-right font-semibold"><%= team_link(match.home_team, match.season_id) %></span>
+            <span class="w-28 text-center font-bold text-dpc-navy"><%= match_score_label(match) %></span>
+            <span class="flex-1 font-semibold"><%= team_link(match.away_team, match.season_id) %></span>
+          </div>
+          <% if home_icon || away_icon || score_icon %>
+            <div class="mt-2 flex items-center justify-between gap-3">
+              <span class="flex flex-1 justify-end"><%= home_icon %></span>
+              <span class="flex w-28 justify-center"><%= score_icon %></span>
+              <span class="flex flex-1 justify-start"><%= away_icon %></span>
+            </div>
           <% end %>
         </div>
-        <span class="flex-1 font-semibold"><%= team_link(match.away_team, match.season_id) %></span>
-      </div>
-    <% end %>
-  </div>
+      <% end %>
+    </div>
 
-  <% if @team_view %>
-    <%= render 'match_nights/team_availability', match_night: match_night unless match_night.past? || match_night.canceled? %>
-  <% elsif !match_night.canceled? %>
-    <%= render 'match_nights/availability_control', match_night: match_night %>
+    <% if @team_view %>
+      <%= render 'match_nights/team_availability', match_night: match_night unless match_night.past? %>
+    <% else %>
+      <%= render 'match_nights/availability_control', match_night: match_night %>
+    <% end %>
   <% end %>
 </div>
