@@ -208,6 +208,18 @@ class MatchesControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-scorecard-target='scores']:not([hidden])"
   end
 
+  test 'a score error re-renders with the scores still visible' do
+    sign_in_as players(:sc_home_captain)
+    lines = valid_lines
+    lines['1'][:away_score1] = '11'
+
+    patch match_path(@match), params: { scorecard: { lines: lines } }
+
+    assert_response :unprocessable_entity
+    assert_select "[data-scorecard-target='scores']:not([hidden])"
+    assert_select 'li', text: /cannot end in a tie/
+  end
+
   test 'json update saves and returns a fresh fingerprint' do
     sign_in_as players(:sc_home_captain)
 

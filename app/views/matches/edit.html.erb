@@ -21,7 +21,7 @@
       </div>
     <% end %>
 
-    <% ready = @form.lineup_ready? && @form.errors.none? %>
+    <% ready = @form.lineup_ready? %>
 
     <div class="rounded-md bg-white px-4 py-3 shadow-sm" data-scorecard-target="summary" <%= 'hidden' unless ready %>>
       <div class="flex items-center justify-between">
