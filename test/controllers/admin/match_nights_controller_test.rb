@@ -163,6 +163,20 @@ module Admin
       assert_equal 'Week 3', match_nights(:fall_upcoming).reload.label
     end
 
+    test 'sets and clears a lower line count for an admin' do
+      sign_in_as players(:zoe)
+      night = match_nights(:fall_upcoming)
+
+      patch admin_match_night_path(night), params: { match_night: { label: night.label, lines_count: 4 } }
+
+      assert_equal 4, night.reload.lines_count
+
+      patch admin_match_night_path(night),
+            params: { match_night: { label: night.label, lines_count: night.season.lines_per_match } }
+
+      assert_nil night.reload.lines_count
+    end
+
     test 'changes the date for an admin and moves its slots' do
       sign_in_as players(:zoe)
       night = match_nights(:fall_upcoming)

@@ -91,6 +91,10 @@ en:
         matchups: "Matchups"
         label: "Label"
         date: "Date"
+        lines: "Lines"
+        lines_option:
+          one: "%{count} line"
+          other: "%{count} lines"
         save: "Save"
         locked: "Locked"
         complete: "Complete"
