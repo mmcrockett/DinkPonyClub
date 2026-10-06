@@ -166,6 +166,22 @@ en:
           one: "Payment request sent to 1 player."
           other: "Payment requests sent to %{count} players."
         no_email: "No email on file for %{names}."
+    announcements:
+      no_season: "No seasons exist yet."
+      new:
+        title: "Email the league"
+        subtitle: "Sends one email per player; replies go to you."
+        audience: "Send to"
+        audience_roster: "%{season} roster (%{count})"
+        audience_all: "All active players (%{count})"
+        submit: "Send email"
+        confirm: "Send this email now?"
+      create:
+        sent:
+          zero: "No emails sent."
+          one: "Email sent to 1 player."
+          other: "Email sent to %{count} players."
+        no_email: "No email on file for %{names}."
     rosters:
       show:
         title: "Roster & captains"
