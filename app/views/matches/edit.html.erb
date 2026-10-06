@@ -7,7 +7,8 @@
   </div>
 
   <%= form_with url: match_path(@match), method: :patch, class: 'flex flex-col gap-6',
-        data: { controller: 'scorecard', scorecard_url_value: match_path(@match, format: :json) } do |form| %>
+        data: { controller: 'scorecard', action: 'submit->scorecard#finish',
+                scorecard_url_value: match_path(@match, format: :json) } do |form| %>
     <%= hidden_field_tag :fingerprint, @form.fingerprint, data: { scorecard_target: 'fingerprint' } %>
 
     <% if @form.errors.any? %>

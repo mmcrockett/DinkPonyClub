@@ -161,6 +161,22 @@ export default class extends Controller {
     }
     this.saving = true
     this.again = false
+    this.inFlight = this.request()
+    await this.inFlight
+  }
+
+  async finish(event) {
+    event.preventDefault()
+    if (this.submitting) return
+    this.submitting = true
+    clearTimeout(this.timer)
+    if (this.inFlight) await this.inFlight
+    clearTimeout(this.timer)
+    this.dirty = false
+    this.element.submit()
+  }
+
+  async request() {
     try {
       const response = await fetch(this.urlValue, {
         method: "PATCH",

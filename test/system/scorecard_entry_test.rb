@@ -23,6 +23,18 @@ class ScorecardEntryTest < ApplicationSystemTestCase
     assert_equal '11', score_field('home').value
   end
 
+  test 'pressing Done right after typing saves once without a conflict' do
+    score_field('home').set('11')
+    score_field('away').set('7')
+    click_on 'Done'
+
+    assert_text 'Scorecard saved.'
+
+    visit edit_match_path(@match)
+
+    assert_equal '11', score_field('home').value
+  end
+
   test 'a half-filled row holds the save and says what is missing' do
     score_field('home').set('1')
 
