@@ -1,4 +1,4 @@
-<div class="mx-auto flex max-w-2xl flex-col gap-6">
+<div class="mx-auto flex max-w-2xl flex-col gap-6 pb-16">
   <div>
     <p class="text-sm font-medium text-gray-500"><%= @match.match_night.label %> &middot; <%= @match.played_on.strftime('%A, %B %-d') %></p>
     <h1 class="text-2xl font-extrabold text-dpc-navy">
@@ -6,7 +6,10 @@
     </h1>
   </div>
 
-  <%= form_with url: match_path(@match), method: :patch, class: 'flex flex-col gap-6' do |form| %>
+  <%= form_with url: match_path(@match), method: :patch, class: 'flex flex-col gap-6',
+        data: { controller: 'scorecard', scorecard_url_value: match_path(@match, format: :json) } do |form| %>
+    <%= hidden_field_tag :fingerprint, @form.fingerprint, data: { scorecard_target: 'fingerprint' } %>
+
     <% if @form.errors.any? %>
       <div class="rounded-md bg-red-50 px-4 py-3 text-sm text-red-700">
         <ul class="list-disc pl-4">
@@ -17,14 +20,25 @@
       </div>
     <% end %>
 
-    <% @form.lines.each do |line| %>
-      <%= render 'line_fields', line: line %>
+    <details class="flex flex-col gap-3" <%= 'open' if @form.errors.any? || @form.lines.any? { |line| line.home_player_ids.size < 2 || line.away_player_ids.size < 2 } %>>
+      <summary class="cursor-pointer rounded-md bg-white px-4 py-3 text-sm font-semibold text-dpc-navy shadow-sm">Players</summary>
+      <div class="mt-3 flex flex-col gap-3">
+        <% @form.lines.each do |line| %>
+          <%= render 'line_players', line: line %>
+        <% end %>
+      </div>
+      <p class="text-xs italic text-gray-500">
+        Three players rotate P1/P2, P1/P3, P2/P3. Two players play all three games.
+      </p>
+    </details>
+
+    <% (1..Lineup::GAMES_PER_LINEUP).each do |number| %>
+      <%= render 'game_scores', number: number %>
     <% end %>
 
-    <p class="text-xs italic text-gray-500">
-      Three players rotate P1/P2, P1/P3, P2/P3. Two players play all three games.
-    </p>
+    <%= form.submit 'Done', class: 'btn btn-primary w-full sm:w-auto sm:self-start' %>
 
-    <%= form.submit 'Save scorecard', class: 'btn btn-primary self-start' %>
+    <div class="fixed inset-x-0 bottom-0 bg-white px-4 py-2 text-center text-sm text-gray-600 shadow-[0_-1px_3px_rgba(0,0,0,0.1)]"
+         data-scorecard-target="status" role="status" aria-live="polite">Changes save automatically.</div>
   <% end %>
 </div>

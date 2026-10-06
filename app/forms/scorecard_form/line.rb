@@ -31,15 +31,18 @@ class ScorecardForm
       scores.each_with_index { |pair, index| persist_game!(lineup, pair, index) }
     end
 
+    def game_player_ids(side, game_index)
+      rotate(side == :home ? home_player_ids : away_player_ids, game_index)
+    end
+
     private
 
     def persist_game!(lineup, pair, index)
       home_score, away_score = pair
       return unless home_score.present? && away_score.present?
 
-      home_pair = rotate(home_player_ids, index)
-      away_pair = rotate(away_player_ids, index)
-      lineup.games.create!(game_attrs(index, home_score, away_score, home_pair, away_pair))
+      lineup.games.create!(game_attrs(index, home_score, away_score,
+                                      game_player_ids(:home, index), game_player_ids(:away, index)))
     end
 
     def game_attrs(index, home_score, away_score, home_pair, away_pair)

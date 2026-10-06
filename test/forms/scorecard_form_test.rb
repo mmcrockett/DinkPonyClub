@@ -20,6 +20,24 @@ class ScorecardFormTest < ActiveSupport::TestCase
     assert_predicate result, :complete?
   end
 
+  test 'fingerprint changes after a save and is stable without one' do
+    form = ScorecardForm.new(match: @match, lines: valid_lines)
+    before = form.fingerprint
+
+    assert_equal before, form.fingerprint
+    assert form.save
+    assert_not_equal before, form.fingerprint
+  end
+
+  test 'game_player_ids rotates three players and repeats two' do
+    ids = %w[1 2 3]
+    line = ScorecardForm::Line.new(ScorecardForm.new(match: @match), 1, home_player_ids: ids, away_player_ids: %w[4 5])
+
+    assert_equal %w[1 2], line.game_player_ids(:home, 0)
+    assert_equal %w[2 3], line.game_player_ids(:home, 2)
+    assert_equal %w[4 5], line.game_player_ids(:away, 2)
+  end
+
   test 'a four-line night builds and saves four lineups' do
     @match.match_night.update!(lines_count: 4)
     form = ScorecardForm.new(match: @match, lines: valid_lines.except('5'))

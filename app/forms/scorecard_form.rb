@@ -58,6 +58,11 @@ class ScorecardForm
   validate :lines_are_valid
   validate :players_appear_on_one_line_only
 
+  def fingerprint
+    rows = match.games.reload.order(:id).pluck(:id, :number, :home_score, :away_score, :updated_at)
+    Digest::SHA1.hexdigest([match.lineups.reload.pluck(:id).sort, rows].to_json)
+  end
+
   def save
     return false unless valid?
 

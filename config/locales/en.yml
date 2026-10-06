@@ -211,6 +211,7 @@ en:
   matches:
     forbidden: "Only captains of the two teams in this match can enter results."
     locked: "This match is locked. Ask an admin to make changes."
+    stale: "Scores were changed on another device - reload to see them."
     update:
       saved: "Scorecard saved."
   match_nights:
