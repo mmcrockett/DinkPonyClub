@@ -179,12 +179,12 @@ class MatchesControllerTest < ActionDispatch::IntegrationTest
     assert_select 'option[selected]', text: players(:ada).full_name
   end
 
-  test 'edit renders a score row per line in each of the three game blocks' do
+  test 'edit renders a block per line with a score row for each of the three games' do
     sign_in_as players(:sc_home_captain)
 
     get edit_match_path(@match)
 
-    assert_select 'section', count: 3
+    assert_select 'section', count: @match.line_positions.size
     assert_select "[data-scorecard-target='row']", count: 3 * @match.line_positions.size
   end
 

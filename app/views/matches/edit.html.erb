@@ -32,8 +32,8 @@
       </p>
     </details>
 
-    <% (1..Lineup::GAMES_PER_LINEUP).each do |number| %>
-      <%= render 'game_scores', number: number %>
+    <% @form.lines.each do |line| %>
+      <%= render 'line_scores', line: line %>
     <% end %>
 
     <%= form.submit 'Done', class: 'btn btn-primary w-full sm:w-auto sm:self-start' %>
