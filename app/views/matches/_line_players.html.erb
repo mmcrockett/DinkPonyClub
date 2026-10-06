@@ -3,15 +3,21 @@
 
   <div class="grid grid-cols-2 gap-4">
     <% { home: [@match.home_team, @home_roster], away: [@match.away_team, @away_roster] }.each do |side, (team, roster)| %>
+      <% selected_ids = line.public_send(:"#{side}_player_ids") %>
       <div class="flex flex-col gap-2">
         <p class="text-xs font-semibold uppercase text-gray-500"><%= team.name %></p>
         <% (0..2).each do |slot| %>
+          <% third_hidden = slot == 2 && selected_ids[2].blank? %>
           <%= select_tag "scorecard[lines][#{line.position}][#{side}_player_ids][]",
-                roster_options(roster, line.public_send(:"#{side}_player_ids")[slot]),
-                include_blank: true, class: 'form-input',
+                roster_options(roster, selected_ids[slot]),
+                include_blank: true, class: 'form-input', hidden: third_hidden,
                 'aria-label': "Line #{line.position} #{side} player #{slot + 1}",
                 data: { scorecard_target: 'player', line: line.position, side: side, slot: slot,
                         action: 'scorecard#playersChanged' } %>
+        <% end %>
+        <% if selected_ids[2].blank? %>
+          <button type="button" class="self-start text-sm font-semibold text-dpc-green underline"
+                  data-action="scorecard#addThirdPlayer">+ 3rd player</button>
         <% end %>
       </div>
     <% end %>

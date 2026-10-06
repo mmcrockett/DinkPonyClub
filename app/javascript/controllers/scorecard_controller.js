@@ -59,6 +59,14 @@ export default class extends Controller {
     this.scoresTarget.hidden = false
   }
 
+  addThirdPlayer(event) {
+    const button = event.currentTarget
+    const select = button.parentElement.querySelector("select[hidden]")
+    select.hidden = false
+    select.focus()
+    button.remove()
+  }
+
   lineupReady() {
     const lines = new Set(this.playerTargets.map((select) => select.dataset.line))
     return Array.from(lines).every((line) => ["home", "away"].every((side) => this.names(line, side).length >= 2))

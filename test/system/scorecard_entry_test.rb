@@ -46,6 +46,16 @@ class ScorecardEntryTest < ApplicationSystemTestCase
     assert_no_selector 'h2', text: /set the lineup/i
   end
 
+  test 'the third player select stays hidden until + 3rd player is tapped' do
+    click_on 'Edit'
+
+    assert_no_selector "select[aria-label='Line 1 home player 3']"
+
+    first('button', text: '+ 3rd player').click
+
+    assert_selector "select[aria-label='Line 1 home player 3']"
+  end
+
   private
 
   def score_field(side)
