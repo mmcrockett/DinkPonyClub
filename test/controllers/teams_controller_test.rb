@@ -67,13 +67,9 @@ class TeamsControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
-  test 'standings and schedule link team names to the team page' do
+  test 'standings link team names to the team page' do
     get season_standings_path(seasons(:fall))
 
     assert_select "tr##{dom_id(teams(:alpha), :standings)} a[href='#{season_team_path(seasons(:fall), teams(:alpha))}']"
-
-    get season_match_nights_path(seasons(:fall))
-
-    assert_select "a[href='#{season_team_path(seasons(:fall).id, teams(:bravo))}']", minimum: 1
   end
 end

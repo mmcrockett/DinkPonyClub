@@ -3,6 +3,7 @@
 class PlayerCalendar
   UID_DOMAIN = 'dinkponyclub.org'
   LAST_SLOT_DURATION = 1.hour
+  DEFAULT_HOUR = 19
   NIGHT_INCLUDES = [:match_slots, { matches: %i[home_team away_team] }].freeze
 
   attr_reader :player, :season
@@ -22,7 +23,8 @@ class PlayerCalendar
   end
 
   def cache_key
-    [season&.id, team&.id, match_nights.map { |n| [n.id, n.match_slots.size, n.matches.size] }, last_modified&.to_i]
+    nights = match_nights.map { |n| [n.id, n.match_slots.size, n.matches.size] }
+    [DEFAULT_HOUR, season&.id, team&.id, nights, last_modified&.to_i]
   end
 
   def to_ical
@@ -87,16 +89,12 @@ class PlayerCalendar
   end
 
   def assign_times(event, night)
-    starts = night.match_slots.map(&:starts_at)
-    event.dtstart, event.dtend = starts.any? ? timed_span(starts) : all_day_span(night.played_on)
+    starts = night.match_slots.map(&:starts_at).presence || [night.played_on.in_time_zone.change(hour: DEFAULT_HOUR)]
+    event.dtstart, event.dtend = timed_span(starts)
   end
 
   def timed_span(starts)
     [utc(starts.min), utc(starts.max + LAST_SLOT_DURATION)]
-  end
-
-  def all_day_span(date)
-    [Icalendar::Values::Date.new(date), Icalendar::Values::Date.new(date + 1)]
   end
 
   def summary_for(night)
