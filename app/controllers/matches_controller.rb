@@ -41,21 +41,19 @@ class MatchesController < ApplicationController
   end
 
   def render_invalid
-    @form.errors.full_messages.then { |messages| render_errors(messages, :unprocessable_content) }
+    respond_to do |format|
+      format.html do
+        load_rosters
+        render :edit, status: :unprocessable_content
+      end
+      format.json { render json: { errors: @form.errors.full_messages }, status: :unprocessable_content }
+    end
   end
 
   def render_stale
-    render_errors([t('matches.stale')], :conflict)
-  end
-
-  def render_errors(messages, status)
     respond_to do |format|
-      format.html do
-        messages.each { |message| @form.errors.add(:base, message) } if status == :conflict
-        load_rosters
-        render :edit, status: status
-      end
-      format.json { render json: { errors: messages }, status: status }
+      format.html { redirect_to edit_match_path(@match), alert: t('matches.stale') }
+      format.json { render json: { errors: [t('matches.stale')] }, status: :conflict }
     end
   end
 

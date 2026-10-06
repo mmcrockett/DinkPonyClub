@@ -238,13 +238,15 @@ class MatchesControllerTest < ActionDispatch::IntegrationTest
     assert_response :conflict
   end
 
-  test 'html update with a stale fingerprint re-renders the edit page' do
+  test 'html update with a stale fingerprint redirects to the saved data and changes nothing' do
     sign_in_as players(:sc_home_captain)
 
-    patch match_path(@match), params: { fingerprint: 'stale', scorecard: { lines: valid_lines } }
+    assert_no_difference('Lineup.count') do
+      patch match_path(@match), params: { fingerprint: 'stale', scorecard: { lines: valid_lines } }
+    end
 
-    assert_response :conflict
-    assert_select 'li', text: I18n.t('matches.stale')
+    assert_redirected_to edit_match_path(@match)
+    assert_equal I18n.t('matches.stale'), flash[:alert]
   end
 
   test 'json update is forbidden for a captain once results are locked' do
