@@ -8,11 +8,11 @@ module ScheduleActionsHelper
     end
   end
 
-  def scorecard_icon_link(match)
+  def scorecard_target(match)
     if match.complete?
-      schedule_icon_link('document-text', t('match_nights.schedule.scorecard'), match_path(match))
+      [match_path(match), t('match_nights.schedule.scorecard')]
     elsif can_edit_scorecard?(match)
-      schedule_icon_link('pencil-square', t('match_nights.schedule.enter_results'), edit_match_path(match))
+      [edit_match_path(match), t('match_nights.schedule.enter_results')]
     end
   end
 

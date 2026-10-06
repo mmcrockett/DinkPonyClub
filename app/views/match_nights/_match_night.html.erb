@@ -49,20 +49,22 @@
         <% lineup_teams = lineup_teams_for(match, match_night) %>
         <% home_icon = lineup_icon_link(match, match.home_team, lineup_teams) %>
         <% away_icon = lineup_icon_link(match, match.away_team, lineup_teams) %>
-        <% score_icon = scorecard_icon_link(match) %>
-        <div class="py-3">
-          <div class="flex items-center justify-between gap-3">
-            <span class="flex-1 text-right font-semibold"><%= team_link(match.home_team, match.season_id) %></span>
-            <span class="w-28 text-center font-bold text-dpc-navy"><%= match_score_label(match) %></span>
-            <span class="flex-1 font-semibold"><%= team_link(match.away_team, match.season_id) %></span>
-          </div>
-          <% if home_icon || away_icon || score_icon %>
-            <div class="mt-2 flex items-center justify-between gap-3">
-              <span class="flex flex-1 justify-end"><%= home_icon %></span>
-              <span class="flex w-28 justify-center"><%= score_icon %></span>
-              <span class="flex flex-1 justify-start"><%= away_icon %></span>
-            </div>
+        <% path, label = scorecard_target(match) %>
+        <% matchup = capture do %>
+          <span class="flex-1 text-right font-semibold"><%= path ? match.home_team.name : team_link(match.home_team, match.season_id) %></span>
+          <span class="w-24 shrink-0 whitespace-nowrap text-center font-bold text-dpc-navy"><%= match_score_label(match) %></span>
+          <span class="flex-1 font-semibold"><%= path ? match.away_team.name : team_link(match.away_team, match.season_id) %></span>
+          <% if path %><span class="sr-only"><%= label %></span><% end %>
+        <% end %>
+        <div class="flex items-center gap-2 py-2">
+          <span class="w-8 shrink-0"><%= home_icon %></span>
+          <% if path %>
+            <%= link_to matchup, path, title: label,
+                        class: 'flex flex-1 items-center gap-3 rounded-md py-1 hover:bg-gray-50' %>
+          <% else %>
+            <div class="flex flex-1 items-center gap-3 py-1"><%= matchup %></div>
           <% end %>
+          <span class="w-8 shrink-0"><%= away_icon %></span>
         </div>
       <% end %>
     </div>
