@@ -7,13 +7,19 @@ class ScorecardForm
 
   class << self
     def from_match(match)
-      lines_attrs = {}
-      match.lineups.includes(:games).find_each { |lineup| lines_attrs[lineup.position] = attrs_from_lineup(lineup) }
-      lines_attrs = attrs_from_picks(match) if lines_attrs.empty?
+      lines_attrs = attrs_from_picks(match)
+      match.lineups.includes(:games).find_each do |lineup|
+        picked = lines_attrs.fetch(lineup.position, {})
+        lines_attrs[lineup.position] = picked.merge(attrs_from_lineup(lineup)) { |_key, old, new| merge_ids(old, new) }
+      end
       new(match: match, lines: lines_attrs)
     end
 
     private
+
+    def merge_ids(picked, played)
+      picked.present? && (played - picked).empty? ? picked : played.presence || picked
+    end
 
     def attrs_from_picks(match)
       picks = match.lineup_picks.ordered.group_by { |pick| [pick.team_id, pick.position] }
@@ -58,6 +64,11 @@ class ScorecardForm
   validate :lines_are_valid
   validate :players_appear_on_one_line_only
 
+  def fingerprint
+    rows = match.games.reload.order(:id).pluck(:id, :number, :home_score, :away_score, :updated_at)
+    Digest::SHA1.hexdigest([match.lineups.reload.pluck(:id).sort, rows].to_json)
+  end
+
   def save
     return false unless valid?
 
@@ -65,6 +76,7 @@ class ScorecardForm
       match.lineups.destroy_all
       match.reload
       lines.each(&:persist!)
+      sync_picks!
     end
     true
   rescue ActiveRecord::RecordInvalid => e
@@ -72,7 +84,16 @@ class ScorecardForm
     false
   end
 
+  def lineup_ready?
+    lines.all? { |line| line.home_player_ids.size >= 2 && line.away_player_ids.size >= 2 }
+  end
+
   private
+
+  def sync_picks!
+    match.lineup_picks.destroy_all
+    lines.each(&:persist_picks!)
+  end
 
   def lines_are_valid
     lines.each do |line|

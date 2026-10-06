@@ -31,15 +31,26 @@ class ScorecardForm
       scores.each_with_index { |pair, index| persist_game!(lineup, pair, index) }
     end
 
+    def persist_picks!
+      { form.match.home_team => home_player_ids, form.match.away_team => away_player_ids }.each do |team, ids|
+        ids.each_with_index do |id, index|
+          form.match.lineup_picks.create!(team: team, player_id: id, position: position, seat: index + 1)
+        end
+      end
+    end
+
+    def game_player_ids(side, game_index)
+      rotate(side == :home ? home_player_ids : away_player_ids, game_index)
+    end
+
     private
 
     def persist_game!(lineup, pair, index)
       home_score, away_score = pair
       return unless home_score.present? && away_score.present?
 
-      home_pair = rotate(home_player_ids, index)
-      away_pair = rotate(away_player_ids, index)
-      lineup.games.create!(game_attrs(index, home_score, away_score, home_pair, away_pair))
+      lineup.games.create!(game_attrs(index, home_score, away_score,
+                                      game_player_ids(:home, index), game_player_ids(:away, index)))
     end
 
     def game_attrs(index, home_score, away_score, home_pair, away_pair)

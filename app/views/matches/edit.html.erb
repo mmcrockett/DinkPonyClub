@@ -1,4 +1,4 @@
-<div class="mx-auto flex max-w-2xl flex-col gap-6">
+<div class="mx-auto flex max-w-2xl flex-col gap-6 pb-16">
   <div>
     <p class="text-sm font-medium text-gray-500"><%= @match.match_night.label %> &middot; <%= @match.played_on.strftime('%A, %B %-d') %></p>
     <h1 class="text-2xl font-extrabold text-dpc-navy">
@@ -6,7 +6,11 @@
     </h1>
   </div>
 
-  <%= form_with url: match_path(@match), method: :patch, class: 'flex flex-col gap-6' do |form| %>
+  <%= form_with url: match_path(@match), method: :patch, class: 'flex flex-col gap-6',
+        data: { controller: 'scorecard', action: 'submit->scorecard#finish',
+                scorecard_url_value: match_path(@match, format: :json) } do |form| %>
+    <%= hidden_field_tag :fingerprint, @form.fingerprint, data: { scorecard_target: 'fingerprint' } %>
+
     <% if @form.errors.any? %>
       <div class="rounded-md bg-red-50 px-4 py-3 text-sm text-red-700">
         <ul class="list-disc pl-4">
@@ -17,14 +21,44 @@
       </div>
     <% end %>
 
-    <% @form.lines.each do |line| %>
-      <%= render 'line_fields', line: line %>
-    <% end %>
+    <% ready = @form.lineup_ready? %>
 
-    <p class="text-xs italic text-gray-500">
-      Three players rotate P1/P2, P1/P3, P2/P3. Two players play all three games.
-    </p>
+    <div class="rounded-md bg-white px-4 py-3 shadow-sm" data-scorecard-target="summary" <%= 'hidden' unless ready %>>
+      <div class="flex items-center justify-between">
+        <h2 class="text-sm font-bold uppercase text-dpc-navy">Lineup</h2>
+        <button type="button" class="text-sm font-semibold text-dpc-green underline" data-action="scorecard#editLineup">Edit</button>
+      </div>
+      <ul class="mt-2 flex flex-col gap-1 text-xs text-gray-700">
+        <% @form.lines.each do |line| %>
+          <li data-summary-line="<%= line.position %>">
+            <span class="font-semibold">Line <%= line.position %></span>
+            <span data-summary-side="home"><%= side_names(line.home_player_ids, @players_by_id) %></span> vs
+            <span data-summary-side="away"><%= side_names(line.away_player_ids, @players_by_id) %></span>
+          </li>
+        <% end %>
+      </ul>
+    </div>
 
-    <%= form.submit 'Save scorecard', class: 'btn btn-primary self-start' %>
+    <div class="flex flex-col gap-3" data-scorecard-target="editor" <%= 'hidden' if ready %>>
+      <h2 class="text-sm font-bold uppercase text-dpc-navy">Set the lineup</h2>
+      <% @form.lines.each do |line| %>
+        <%= render 'line_players', line: line %>
+      <% end %>
+      <p class="text-xs italic text-gray-500">
+        Three players rotate P1/P2, P1/P3, P2/P3. Two players play all three games.
+      </p>
+      <button type="button" class="btn btn-primary w-full sm:w-auto sm:self-start" data-action="scorecard#setLineup">Set lineup</button>
+    </div>
+
+    <div class="flex flex-col gap-6" data-scorecard-target="scores" <%= 'hidden' unless ready %>>
+      <% @form.lines.each do |line| %>
+        <%= render 'line_scores', line: line %>
+      <% end %>
+
+      <%= form.submit 'Done', class: 'btn btn-primary w-full sm:w-auto sm:self-start' %>
+    </div>
+
+    <div class="fixed inset-x-0 bottom-0 bg-white px-4 py-2 text-center text-sm text-gray-600 shadow-[0_-1px_3px_rgba(0,0,0,0.1)]"
+         data-scorecard-target="status" role="status" aria-live="polite">Changes save automatically.</div>
   <% end %>
 </div>

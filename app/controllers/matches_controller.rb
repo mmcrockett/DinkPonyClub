@@ -18,15 +18,44 @@ class MatchesController < ApplicationController
 
   def update
     @form = ScorecardForm.new(match: @match, lines: lines_params)
+    return render_stale if stale?
+
     if @form.save
-      redirect_to match_path(@match), notice: t('.saved')
+      render_saved
     else
-      load_rosters
-      render :edit, status: :unprocessable_content
+      render_invalid
     end
   end
 
   private
+
+  def stale?
+    params[:fingerprint].present? && params[:fingerprint] != @form.fingerprint
+  end
+
+  def render_saved
+    respond_to do |format|
+      format.html { redirect_to match_path(@match), notice: t('matches.update.saved') }
+      format.json { render json: { fingerprint: @form.fingerprint, saved_at: Time.current.iso8601 } }
+    end
+  end
+
+  def render_invalid
+    respond_to do |format|
+      format.html do
+        load_rosters
+        render :edit, status: :unprocessable_content
+      end
+      format.json { render json: { errors: @form.errors.full_messages }, status: :unprocessable_content }
+    end
+  end
+
+  def render_stale
+    respond_to do |format|
+      format.html { redirect_to edit_match_path(@match), alert: t('matches.stale') }
+      format.json { render json: { errors: [t('matches.stale')] }, status: :conflict }
+    end
+  end
 
   def set_match
     @match = Match.find(params.expect(:id))
@@ -53,7 +82,10 @@ class MatchesController < ApplicationController
     return if can_edit_scorecard?(@match)
 
     alert_key = captain_or_admin?(@match.season) ? 'matches.locked' : 'matches.forbidden'
-    redirect_to match_path(@match), alert: t(alert_key)
+    respond_to do |format|
+      format.html { redirect_to match_path(@match), alert: t(alert_key) }
+      format.json { render json: { errors: [t(alert_key)] }, status: :forbidden }
+    end
   end
 
   # filter is dynamic per line position; params.expect can't describe that shape.

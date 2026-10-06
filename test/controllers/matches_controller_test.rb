@@ -179,6 +179,98 @@ class MatchesControllerTest < ActionDispatch::IntegrationTest
     assert_select 'option[selected]', text: players(:ada).full_name
   end
 
+  test 'edit renders a block per line with a score row for each of the three games' do
+    sign_in_as players(:sc_home_captain)
+
+    get edit_match_path(@match)
+
+    assert_select 'section', count: @match.line_positions.size
+    assert_select "[data-scorecard-target='row']", count: 3 * @match.line_positions.size
+  end
+
+  test 'edit shows the lineup editor and hides scores when the lineup is incomplete' do
+    sign_in_as players(:sc_home_captain)
+
+    get edit_match_path(@match)
+
+    assert_select "[data-scorecard-target='editor']:not([hidden])"
+    assert_select "[data-scorecard-target='scores'][hidden]"
+  end
+
+  test 'edit shows the lineup summary and scores when every line has players' do
+    sign_in_as players(:sc_home_captain)
+    patch match_path(@match), params: { scorecard: { lines: valid_lines } }
+
+    get edit_match_path(@match)
+
+    assert_select "[data-scorecard-target='summary']:not([hidden])"
+    assert_select "[data-scorecard-target='editor'][hidden]"
+    assert_select "[data-scorecard-target='scores']:not([hidden])"
+  end
+
+  test 'a score error re-renders with the scores still visible' do
+    sign_in_as players(:sc_home_captain)
+    lines = valid_lines
+    lines['1'][:away_score1] = '11'
+
+    patch match_path(@match), params: { scorecard: { lines: lines } }
+
+    assert_response :unprocessable_entity
+    assert_select "[data-scorecard-target='scores']:not([hidden])"
+    assert_select 'li', text: /cannot end in a tie/
+  end
+
+  test 'json update saves and returns a fresh fingerprint' do
+    sign_in_as players(:sc_home_captain)
+
+    patch match_path(@match, format: :json), params: { scorecard: { lines: valid_lines } }
+
+    assert_response :success
+    assert_equal ScorecardForm.from_match(@match.reload).fingerprint, response.parsed_body['fingerprint']
+  end
+
+  test 'json update returns errors for a tie' do
+    sign_in_as players(:sc_home_captain)
+    lines = valid_lines
+    lines['1'][:away_score1] = '11'
+
+    patch match_path(@match, format: :json), params: { scorecard: { lines: lines } }
+
+    assert_response :unprocessable_entity
+    assert_match 'tie', response.parsed_body['errors'].to_sentence
+  end
+
+  test 'json update with a stale fingerprint conflicts and changes nothing' do
+    sign_in_as players(:sc_home_captain)
+
+    assert_no_difference('Lineup.count') do
+      patch match_path(@match, format: :json), params: { fingerprint: 'stale', scorecard: { lines: valid_lines } }
+    end
+
+    assert_response :conflict
+  end
+
+  test 'html update with a stale fingerprint redirects to the saved data and changes nothing' do
+    sign_in_as players(:sc_home_captain)
+
+    assert_no_difference('Lineup.count') do
+      patch match_path(@match), params: { fingerprint: 'stale', scorecard: { lines: valid_lines } }
+    end
+
+    assert_redirected_to edit_match_path(@match)
+    assert_equal I18n.t('matches.stale'), flash[:alert]
+  end
+
+  test 'json update is forbidden for a captain once results are locked' do
+    sign_in_as players(:sc_home_captain)
+
+    travel_to @match.match_night.results_locked_at + 1.minute do
+      patch match_path(@match, format: :json), params: { scorecard: { lines: valid_lines } }
+    end
+
+    assert_response :forbidden
+  end
+
   private
 
   def sign_in_as(player)

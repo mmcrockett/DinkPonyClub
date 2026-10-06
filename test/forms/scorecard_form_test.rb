@@ -20,6 +20,47 @@ class ScorecardFormTest < ActiveSupport::TestCase
     assert_predicate result, :complete?
   end
 
+  test 'players saved without scores survive a reload through lineup picks' do
+    lines = valid_lines.transform_values do |attrs|
+      attrs.except(:home_score1, :away_score1, :home_score2, :away_score2, :home_score3, :away_score3)
+    end
+    ScorecardForm.new(match: @match, lines: lines).save
+
+    reloaded = ScorecardForm.from_match(@match.reload)
+
+    assert_predicate reloaded, :lineup_ready?
+    assert_equal lines['1'][:home_player_ids], reloaded.lines.first.home_player_ids
+  end
+
+  test 'a third player survives a reload when only game 1 is scored' do
+    lines = valid_lines
+    lines['1'][:home_player_ids] << players(:sc_home_player12).id.to_s
+    lines['1'].merge!(home_score2: '', away_score2: '', home_score3: '', away_score3: '')
+    ScorecardForm.new(match: @match, lines: lines).save
+
+    reloaded = ScorecardForm.from_match(@match.reload)
+
+    assert_equal lines['1'][:home_player_ids], reloaded.lines.first.home_player_ids
+  end
+
+  test 'fingerprint changes after a save and is stable without one' do
+    form = ScorecardForm.new(match: @match, lines: valid_lines)
+    before = form.fingerprint
+
+    assert_equal before, form.fingerprint
+    assert form.save
+    assert_not_equal before, form.fingerprint
+  end
+
+  test 'game_player_ids rotates three players and repeats two' do
+    ids = %w[1 2 3]
+    line = ScorecardForm::Line.new(ScorecardForm.new(match: @match), 1, home_player_ids: ids, away_player_ids: %w[4 5])
+
+    assert_equal %w[1 2], line.game_player_ids(:home, 0)
+    assert_equal %w[2 3], line.game_player_ids(:home, 2)
+    assert_equal %w[4 5], line.game_player_ids(:away, 2)
+  end
+
   test 'a four-line night builds and saves four lineups' do
     @match.match_night.update!(lines_count: 4)
     form = ScorecardForm.new(match: @match, lines: valid_lines.except('5'))
@@ -171,7 +212,8 @@ class ScorecardFormTest < ActiveSupport::TestCase
 
   test 'from_match ignores planned lineups once lineups exist' do
     ScorecardForm.new(match: @match, lines: valid_lines).save
-    pick_players(:sc_home, 1, :sc_home_player12, :sc_home_player13)
+    pick = @match.lineup_picks.find_by!(team: teams(:sc_home), position: 1, seat: 1)
+    pick.update!(player: players(:sc_home_player12))
 
     line = ScorecardForm.from_match(@match.reload).lines.first
 

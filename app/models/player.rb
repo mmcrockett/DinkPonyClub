@@ -66,6 +66,10 @@ class Player < ApplicationRecord
     "#{first_name} #{last_name}"
   end
 
+  def short_name
+    "#{first_name} #{last_name.first}".strip
+  end
+
   def initials
     "#{first_name.first}#{last_name.first}".upcase
   end
