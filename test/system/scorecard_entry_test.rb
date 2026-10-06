@@ -35,6 +35,17 @@ class ScorecardEntryTest < ApplicationSystemTestCase
     assert_equal 'Line 1 game 2 away score', page.evaluate_script('document.activeElement.getAttribute("aria-label")')
   end
 
+  test 'editing the lineup swaps the summary for the editor until it is set again' do
+    click_on 'Edit'
+
+    assert_selector 'h2', text: /set the lineup/i
+
+    click_on 'Set lineup'
+
+    assert_selector 'h2', text: /\Alineup\z/i
+    assert_no_selector 'h2', text: /set the lineup/i
+  end
+
   private
 
   def score_field(side)

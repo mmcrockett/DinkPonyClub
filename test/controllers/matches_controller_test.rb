@@ -188,22 +188,24 @@ class MatchesControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-scorecard-target='row']", count: 3 * @match.line_positions.size
   end
 
-  test 'edit opens the players section when the lineup is incomplete' do
+  test 'edit shows the lineup editor and hides scores when the lineup is incomplete' do
     sign_in_as players(:sc_home_captain)
 
     get edit_match_path(@match)
 
-    assert_select 'details[open]'
+    assert_select "[data-scorecard-target='editor']:not([hidden])"
+    assert_select "[data-scorecard-target='scores'][hidden]"
   end
 
-  test 'edit collapses the players section when every line has players' do
+  test 'edit shows the lineup summary and scores when every line has players' do
     sign_in_as players(:sc_home_captain)
     patch match_path(@match), params: { scorecard: { lines: valid_lines } }
 
     get edit_match_path(@match)
 
-    assert_select 'details'
-    assert_select 'details[open]', count: 0
+    assert_select "[data-scorecard-target='summary']:not([hidden])"
+    assert_select "[data-scorecard-target='editor'][hidden]"
+    assert_select "[data-scorecard-target='scores']:not([hidden])"
   end
 
   test 'json update saves and returns a fresh fingerprint' do

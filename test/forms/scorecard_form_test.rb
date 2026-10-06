@@ -20,6 +20,18 @@ class ScorecardFormTest < ActiveSupport::TestCase
     assert_predicate result, :complete?
   end
 
+  test 'players saved without scores survive a reload through lineup picks' do
+    lines = valid_lines.transform_values do |attrs|
+      attrs.except(:home_score1, :away_score1, :home_score2, :away_score2, :home_score3, :away_score3)
+    end
+    ScorecardForm.new(match: @match, lines: lines).save
+
+    reloaded = ScorecardForm.from_match(@match.reload)
+
+    assert_predicate reloaded, :lineup_ready?
+    assert_equal lines['1'][:home_player_ids], reloaded.lines.first.home_player_ids
+  end
+
   test 'fingerprint changes after a save and is stable without one' do
     form = ScorecardForm.new(match: @match, lines: valid_lines)
     before = form.fingerprint
@@ -189,7 +201,8 @@ class ScorecardFormTest < ActiveSupport::TestCase
 
   test 'from_match ignores planned lineups once lineups exist' do
     ScorecardForm.new(match: @match, lines: valid_lines).save
-    pick_players(:sc_home, 1, :sc_home_player12, :sc_home_player13)
+    pick = @match.lineup_picks.find_by!(team: teams(:sc_home), position: 1, seat: 1)
+    pick.update!(player: players(:sc_home_player12))
 
     line = ScorecardForm.from_match(@match.reload).lines.first
 

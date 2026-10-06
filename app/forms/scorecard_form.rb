@@ -7,9 +7,11 @@ class ScorecardForm
 
   class << self
     def from_match(match)
-      lines_attrs = {}
-      match.lineups.includes(:games).find_each { |lineup| lines_attrs[lineup.position] = attrs_from_lineup(lineup) }
-      lines_attrs = attrs_from_picks(match) if lines_attrs.empty?
+      lines_attrs = attrs_from_picks(match)
+      match.lineups.includes(:games).find_each do |lineup|
+        picked = lines_attrs.fetch(lineup.position, {})
+        lines_attrs[lineup.position] = picked.merge(attrs_from_lineup(lineup)) { |_key, old, new| new.presence || old }
+      end
       new(match: match, lines: lines_attrs)
     end
 
@@ -70,6 +72,7 @@ class ScorecardForm
       match.lineups.destroy_all
       match.reload
       lines.each(&:persist!)
+      sync_picks!
     end
     true
   rescue ActiveRecord::RecordInvalid => e
@@ -77,7 +80,25 @@ class ScorecardForm
     false
   end
 
+  def lineup_ready?
+    lines.all? { |line| line.home_player_ids.size >= 2 && line.away_player_ids.size >= 2 }
+  end
+
   private
+
+  def sync_picks!
+    match.lineup_picks.destroy_all
+    lines.each do |line|
+      create_picks!(match.home_team, line, line.home_player_ids)
+      create_picks!(match.away_team, line, line.away_player_ids)
+    end
+  end
+
+  def create_picks!(team, line, ids)
+    ids.each_with_index do |id, index|
+      match.lineup_picks.create!(team: team, player_id: id, position: line.position, seat: index + 1)
+    end
+  end
 
   def lines_are_valid
     lines.each do |line|

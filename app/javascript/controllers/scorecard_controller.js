@@ -5,7 +5,7 @@ const DEBOUNCE_MS = 600
 const WINNING_SCORE = 11
 
 export default class extends Controller {
-  static targets = ["score", "row", "player", "fingerprint", "status"]
+  static targets = ["score", "row", "player", "fingerprint", "status", "summary", "editor", "scores"]
   static values = { url: String }
 
   connect() {
@@ -38,6 +38,39 @@ export default class extends Controller {
     if (!next) return
     event.preventDefault()
     next.focus()
+  }
+
+  editLineup() {
+    this.summaryTarget.hidden = true
+    this.editorTarget.hidden = false
+  }
+
+  async setLineup() {
+    if (!this.lineupReady()) {
+      this.status("Every line needs at least two players per team", true)
+      return
+    }
+    clearTimeout(this.timer)
+    await this.save()
+    if (this.dirty) return
+    this.renderSummary()
+    this.editorTarget.hidden = true
+    this.summaryTarget.hidden = false
+    this.scoresTarget.hidden = false
+  }
+
+  lineupReady() {
+    const lines = new Set(this.playerTargets.map((select) => select.dataset.line))
+    return Array.from(lines).every((line) => ["home", "away"].every((side) => this.names(line, side).length >= 2))
+  }
+
+  renderSummary() {
+    this.summaryTarget.querySelectorAll("[data-summary-line]").forEach((item) => {
+      const line = item.dataset.summaryLine
+      item.querySelectorAll("[data-summary-side]").forEach((cell) => {
+        cell.textContent = this.names(line, cell.dataset.summarySide).join(" & ")
+      })
+    })
   }
 
   playersChanged(event) {
@@ -100,6 +133,10 @@ export default class extends Controller {
     if (this.stopped) return
     this.dirty = true
     clearTimeout(this.timer)
+    if (!this.lineupReady()) {
+      this.status("Not saved - every line needs at least two players per team", true)
+      return
+    }
     const half = this.halfFilledRow()
     if (half) {
       this.status(`Not saved - finish Line ${half.dataset.line} Game ${half.dataset.game}`, true)
