@@ -273,6 +273,8 @@ en:
     owes: "Owes money"
     pupr:
       short: "PUPR"
+      help: "What is PUPR?"
+      blurb_html: "Dink Pony has evaluated all your tape and given you a <strong>P</strong>ony <strong>U</strong>niversal <strong>P</strong>ickleball <strong>R</strong>ating!"
       meaning: "Pony Universal Pickleball Rating - this league's own rating on the DUPR scale, worked out from games played in the league."
     elo:
       short: "Elo"

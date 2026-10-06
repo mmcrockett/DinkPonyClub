@@ -86,6 +86,15 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
     assert_select 'p', text: /\A\s*\d\.\d{2}\s*\z/
   end
 
+  test 'the pupr help button opens a popover explaining the name' do
+    sign_in_as(players(:grace))
+
+    get season_player_path(seasons(:fall), players(:ada))
+
+    assert_select 'button[popovertarget="pupr-info"]'
+    assert_select '#pupr-info[popover] strong', count: 4
+  end
+
   test 'a player sees their own elo on their profile' do
     sign_in_as(players(:grace))
 

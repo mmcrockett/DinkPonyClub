@@ -19,8 +19,14 @@
       </div>
       <% if @rating %>
         <div class="text-right">
-          <p class="text-xs font-semibold uppercase text-gray-500">
+          <p class="flex items-center justify-end gap-1 text-xs font-semibold uppercase text-gray-500">
             <span class="cursor-help" title="<%= t('players.pupr.meaning') %>" aria-label="<%= t('players.pupr.meaning') %>"><%= t('players.pupr.short') %></span>
+            <button type="button" popovertarget="pupr-info" class="text-gray-400 hover:text-dpc-navy" aria-label="<%= t('players.pupr.help') %>">
+              <%= render 'shared/icon', name: 'question-mark-circle', class: 'h-4 w-4' %>
+            </button>
+            <span id="pupr-info" popover class="m-0 w-64 rounded-md bg-white p-3 text-left text-sm font-normal normal-case text-gray-700 shadow-lg">
+              <%= t('players.pupr.blurb_html') %>
+            </span>
           </p>
           <p class="text-2xl font-extrabold text-dpc-navy"><%= number_with_precision(@rating.pupr, precision: 2) %></p>
           <% if @show_elo %>
