@@ -21,12 +21,17 @@ class PlayersController < ApplicationController
     @season = current_season
     @career = PlayerCareer.new(@player)
     @row = @career.rows.find { |row| row.season == @season }
-    @rating = PlayerRatings.new(@season).for(@player.id) if @season
     @show_contacts = @season.present? && captain_or_admin?(@season)
+    assign_rating
     @line_results = @season ? line_results : []
   end
 
   private
+
+  def assign_rating
+    @rating = PlayerRatings.new(@season).for(@player.id) if @season
+    @show_elo = @rating.present? && (@player == current_player || @show_contacts)
+  end
 
   def stats_rows
     return [] unless @season

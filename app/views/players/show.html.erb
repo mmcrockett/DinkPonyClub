@@ -23,6 +23,13 @@
             <span class="cursor-help" title="<%= t('players.pupr.meaning') %>" aria-label="<%= t('players.pupr.meaning') %>"><%= t('players.pupr.short') %></span>
           </p>
           <p class="text-2xl font-extrabold text-dpc-navy"><%= number_with_precision(@rating.pupr, precision: 2) %></p>
+          <% if @show_elo %>
+            <p class="text-xs text-gray-500">
+              <span class="cursor-help" title="<%= t('players.elo.meaning') %>" aria-label="<%= t('players.elo.meaning') %>"><%= t('players.elo.short') %></span>
+              <span id="<%= dom_id(@player, :elo) %>"><%= @rating.elo.round %></span>
+              - <%= t('players.rated_games', count: @rating.games) %>
+            </p>
+          <% end %>
         </div>
       <% end %>
       <% if @row&.captain %>

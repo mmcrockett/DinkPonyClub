@@ -86,6 +86,31 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
     assert_select 'p', text: /\A\s*\d\.\d{2}\s*\z/
   end
 
+  test 'a player sees their own elo on their profile' do
+    sign_in_as(players(:grace))
+
+    get season_player_path(seasons(:fall), players(:grace))
+
+    assert_select "##{dom_id(players(:grace), :elo)}", text: /\A\d+\z/
+  end
+
+  test 'captains see a player elo on their profile' do
+    sign_in_as(players(:ada))
+
+    get season_player_path(seasons(:fall), players(:grace))
+
+    assert_select "##{dom_id(players(:grace), :elo)}"
+  end
+
+  test 'regular players do not see another player elo' do
+    sign_in_as(players(:grace))
+
+    get season_player_path(seasons(:fall), players(:ada))
+
+    assert_select "##{dom_id(players(:ada), :elo)}", count: 0
+    assert_select 'span', text: 'PUPR'
+  end
+
   test 'links each name to the player profile' do
     sign_in_as(players(:ada))
 
