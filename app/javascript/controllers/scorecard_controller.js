@@ -50,7 +50,7 @@ export default class extends Controller {
       this.status("Every line needs at least two players per team", true)
       return
     }
-    clearTimeout(this.timer)
+    await this.settled()
     await this.save()
     if (this.dirty) return
     this.renderSummary()
@@ -169,11 +169,15 @@ export default class extends Controller {
     event.preventDefault()
     if (this.submitting) return
     this.submitting = true
+    await this.settled()
+    this.dirty = false
+    this.element.submit()
+  }
+
+  async settled() {
     clearTimeout(this.timer)
     if (this.inFlight) await this.inFlight
     clearTimeout(this.timer)
-    this.dirty = false
-    this.element.submit()
   }
 
   async request() {
@@ -193,7 +197,7 @@ export default class extends Controller {
   }
 
   async handle(response) {
-    const data = await response.json()
+    const data = await response.json().catch(() => ({ errors: [`server error (${response.status})`] }))
     if (response.ok) {
       this.fingerprintTarget.value = data.fingerprint
       this.dirty = this.again === true
