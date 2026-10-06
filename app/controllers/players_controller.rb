@@ -30,7 +30,7 @@ class PlayersController < ApplicationController
 
   def assign_rating
     @rating = PlayerRatings.new(@season).for(@player.id) if @season
-    @show_elo = @rating.present? && (@player == current_player || @show_contacts)
+    @show_elo = @rating.present? && (@player == current_player || captain_or_admin?(@season))
   end
 
   def stats_rows
