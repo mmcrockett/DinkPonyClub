@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_05_130000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_06_120000) do
   create_table "charges", force: :cascade do |t|
     t.integer "amount_cents", null: false
     t.datetime "created_at", null: false
@@ -125,7 +125,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_05_130000) do
     t.boolean "admin", default: false, null: false
     t.string "avatar_url", limit: 512
     t.string "calendar_token", limit: 64, null: false
-    t.string "contact_email", limit: 254
     t.datetime "created_at", null: false
     t.string "email", limit: 255
     t.string "first_name", limit: 100, null: false
