@@ -55,6 +55,10 @@ class PlayerCalendarTest < ActiveSupport::TestCase
     assert_not_equal before, build(players(:ada), seasons(:fall)).cache_key
   end
 
+  test 'cache_key includes the default start hour so a change to it busts subscriber caches' do
+    assert_includes build(players(:ada), seasons(:fall)).cache_key, PlayerCalendar::DEFAULT_HOUR
+  end
+
   test 'last_modified follows a team rename' do
     calendar_before = build(players(:ada), seasons(:fall)).last_modified
 
