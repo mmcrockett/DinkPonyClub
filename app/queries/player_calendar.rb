@@ -23,7 +23,8 @@ class PlayerCalendar
   end
 
   def cache_key
-    [season&.id, team&.id, match_nights.map { |n| [n.id, n.match_slots.size, n.matches.size] }, last_modified&.to_i]
+    nights = match_nights.map { |n| [n.id, n.match_slots.size, n.matches.size] }
+    [DEFAULT_HOUR, season&.id, team&.id, nights, last_modified&.to_i]
   end
 
   def to_ical
