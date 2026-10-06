@@ -44,5 +44,5 @@ Run `bin/rubocop` and `bin/rails test` before declaring work done; CI fails on e
 
 - Work on a feature branch; do not commit directly to `main`.
 - Commit messages: one terse line stating intent.
-- PRs are squash-merged; title format is `PR <n> - <what changed>`.
+- PRs are squash-merged; title states what changed.
 - Never commit secrets, `config/*.key`, `.env*`, `storage/`, `log/`, `tmp/`, or the spreadsheets at the repo root.

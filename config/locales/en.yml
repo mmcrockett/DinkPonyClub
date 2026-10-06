@@ -171,6 +171,7 @@ en:
       new:
         title: "Email the league"
         subtitle: "Sends one email per player; replies go to you."
+        greeting: "Hi <first name>,"
         audience: "Send to"
         audience_roster: "%{season} roster (%{count})"
         audience_all: "All active players (%{count})"

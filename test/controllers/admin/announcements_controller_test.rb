@@ -39,6 +39,7 @@ module Admin
 
       assert_response :success
       assert_select 'input[name="announcement[subject]"]'
+      assert_select 'p', text: 'Hi <first name>,'
     end
 
     test 'emails each emailed roster player' do
