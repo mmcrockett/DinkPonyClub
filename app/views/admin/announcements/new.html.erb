@@ -1,0 +1,51 @@
+<% content_for :title, t('.title') %>
+
+<div class="mx-auto flex max-w-2xl flex-col gap-6">
+  <div class="flex flex-wrap items-start justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-extrabold text-dpc-navy"><%= t('.title') %></h1>
+      <p class="text-gray-500"><%= t('.subtitle') %></p>
+    </div>
+
+    <%= render 'shared/admin_season_switcher', url: new_admin_announcement_path, season: @season %>
+  </div>
+
+  <%= form_with model: @form, scope: :announcement, url: admin_announcement_path(season: @season),
+                class: 'flex flex-col gap-4' do |form| %>
+    <% if @form.errors.any? %>
+      <div class="rounded-md bg-red-50 px-4 py-3 text-sm text-red-700">
+        <ul class="list-disc pl-4">
+          <% @form.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="flex flex-col gap-4 rounded-md bg-white p-5 shadow-sm">
+      <div class="flex flex-col gap-1">
+        <%= form.label :subject, class: 'text-sm font-semibold text-dpc-navy' %>
+        <%= form.text_field :subject, class: 'form-input' %>
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <%= form.label :body, class: 'text-sm font-semibold text-dpc-navy' %>
+        <%= form.text_area :body, rows: 10, class: 'form-input' %>
+      </div>
+
+      <fieldset class="flex flex-col gap-2">
+        <legend class="text-sm font-semibold text-dpc-navy"><%= t('.audience') %></legend>
+        <% AnnouncementForm::AUDIENCES.each do |audience| %>
+          <label class="flex items-center gap-2 text-sm text-dpc-navy">
+            <%= form.radio_button :audience, audience %>
+            <%= t(".audience_#{audience}", season: @season.name, count: @form.recipients(@season, audience: audience).count) %>
+          </label>
+        <% end %>
+      </fieldset>
+    </div>
+
+    <div class="flex items-center justify-end">
+      <%= form.submit t('.submit'), class: 'btn btn-primary', data: { turbo_confirm: t('.confirm') } %>
+    </div>
+  <% end %>
+</div>

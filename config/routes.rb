@@ -53,6 +53,7 @@ Rails.application.routes.draw do
       resources :matches, only: %i[create update destroy]
     end
     resource :payment_requests, only: %i[create]
+    resource :announcement, only: %i[new create]
     resources :fees, only: %i[index create destroy]
     resource :roster, only: %i[show update]
   end
