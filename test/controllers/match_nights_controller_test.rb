@@ -263,8 +263,26 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
 
     get season_match_nights_path(seasons(:fall))
 
-    assert_select "##{dom_id(match_nights(:fall_week_one))} a[href=?]", match_path(matches(:fall_alpha_bravo)),
-                  text: 'Scorecard'
+    assert_select "##{dom_id(match_nights(:fall_week_one))} a[href=?][title=?]", match_path(matches(:fall_alpha_bravo)),
+                  'Scorecard'
+  end
+
+  test 'does not nest team page links inside a scorecard link' do
+    sign_in_as(players(:grace))
+
+    get season_match_nights_path(seasons(:fall))
+
+    assert_select "##{dom_id(match_nights(:fall_week_one))} a[href=?]",
+                  season_team_path(seasons(:fall).id, teams(:alpha)), count: 0
+  end
+
+  test 'links team names to the team page on an unplayed match for a plain player' do
+    sign_in_as(players(:grace))
+
+    get season_match_nights_path(seasons(:fall))
+
+    assert_select "##{dom_id(match_nights(:fall_upcoming))} a[href=?]",
+                  season_team_path(seasons(:fall).id, teams(:bravo))
   end
 
   test 'shows an enter results link on an unplayed match for a captain' do
@@ -272,8 +290,8 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
 
     get season_match_nights_path(seasons(:fall))
 
-    assert_select "##{dom_id(match_nights(:fall_upcoming))} a[href=?]", edit_match_path(matches(:fall_future)),
-                  text: 'Enter results'
+    assert_select "##{dom_id(match_nights(:fall_upcoming))} a[href=?][title=?]", edit_match_path(matches(:fall_future)),
+                  'Enter results'
   end
 
   test 'shows an enter results link on an unplayed match for an admin' do
