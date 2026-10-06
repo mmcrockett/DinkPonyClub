@@ -85,8 +85,8 @@ export default class extends Controller {
   }
 
   pair(names, game) {
-    if (names.length === 2) return names.join("/")
-    return ROTATION[game].map((index) => names[index]).filter(Boolean).join("/")
+    if (names.length === 2) return names.join(" & ")
+    return ROTATION[game].map((index) => names[index]).filter(Boolean).join(" & ")
   }
 
   halfFilledRow() {
