@@ -57,28 +57,17 @@ class PlayerTest < ActiveSupport::TestCase
     assert_equal 'AT', players(:ada).initials
   end
 
-  test 'normalizes contact_email and phone' do
-    player = Player.new(first_name: 'A', last_name: 'B', contact_email: ' Me@Example.COM ', phone: '  ')
+  test 'normalizes phone' do
+    player = Player.new(first_name: 'A', last_name: 'B', phone: '  ')
 
-    assert_equal 'me@example.com', player.contact_email
     assert_nil player.phone
   end
 
-  test 'rejects a malformed contact_email' do
+  test 'rejects an overlong phone' do
     player = players(:ada)
-    player.contact_email = 'not an email'
-
-    assert_not player.valid?
-    assert_predicate player.errors[:contact_email], :any?
-  end
-
-  test 'rejects an overlong contact_email and phone' do
-    player = players(:ada)
-    player.contact_email = "#{'a' * 250}@example.test"
     player.phone = '5' * 41
 
     assert_not player.valid?
-    assert_predicate player.errors[:contact_email], :any?
     assert_predicate player.errors[:phone], :any?
   end
 

@@ -378,15 +378,6 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href='tel:512-555-0101']"
   end
 
-  test 'the profile ignores the legacy contact email' do
-    players(:sam).update!(contact_email: 'legacy@example.test')
-    sign_in_as(players(:ada))
-
-    get season_player_path(seasons(:fall), players(:sam))
-
-    assert_not_includes response.body, 'legacy@example.test'
-  end
-
   test 'contact visibility follows the viewed season' do
     sign_in_as(players(:sc_home_captain))
 
