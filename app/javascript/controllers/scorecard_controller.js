@@ -2,6 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 
 const ROTATION = [[0, 1], [0, 2], [1, 2]]
 const DEBOUNCE_MS = 600
+const WINNING_SCORE = 11
 
 export default class extends Controller {
   static targets = ["score", "row", "player", "fingerprint", "status"]
@@ -56,12 +57,13 @@ export default class extends Controller {
   highlight(row) {
     const inputs = Array.from(row.querySelectorAll("[data-scorecard-target='score']"))
     const [home, away] = inputs.map((input) => input.value)
-    inputs.forEach((input) => input.classList.remove("font-extrabold", "ring-2", "ring-green-500", "ring-red-500"))
+    inputs.forEach((input) => input.classList.remove("font-extrabold", "ring-2", "ring-red-500"))
     if (home === "" || away === "") return
     if (Number(home) === Number(away)) {
       inputs.forEach((input) => input.classList.add("ring-2", "ring-red-500"))
     } else {
-      inputs[Number(home) > Number(away) ? 0 : 1].classList.add("font-extrabold", "ring-2", "ring-green-500")
+      const winner = inputs[Number(home) > Number(away) ? 0 : 1]
+      if (Number(winner.value) >= WINNING_SCORE) winner.classList.add("font-extrabold")
     }
   }
 
@@ -78,13 +80,13 @@ export default class extends Controller {
   names(line, side) {
     return this.playerTargets
       .filter((select) => select.dataset.line === line && select.dataset.side === side)
-      .map((select) => (select.value ? select.selectedOptions[0].text : null))
+      .map((select) => (select.value ? select.selectedOptions[0].dataset.short : null))
       .filter(Boolean)
   }
 
   pair(names, game) {
-    if (names.length === 2) return names.join(" / ")
-    return ROTATION[game].map((index) => names[index]).filter(Boolean).join(" / ")
+    if (names.length === 2) return names.join("/")
+    return ROTATION[game].map((index) => names[index]).filter(Boolean).join("/")
   }
 
   halfFilledRow() {

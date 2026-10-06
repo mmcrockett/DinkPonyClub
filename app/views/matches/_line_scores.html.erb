@@ -1,22 +1,28 @@
-<section class="rounded-md bg-white px-4 py-3 shadow-sm">
+<section class="rounded-md bg-white px-3 py-3 shadow-sm">
   <h2 class="text-sm font-bold uppercase text-dpc-navy">Line <%= line.position %></h2>
 
+  <div class="mt-2 grid grid-cols-[2.5rem_1fr_1.25rem_1fr] items-end gap-x-2 text-xs font-semibold uppercase text-gray-500">
+    <span></span>
+    <span class="truncate"><%= @match.home_team.name %></span>
+    <span></span>
+    <span class="truncate"><%= @match.away_team.name %></span>
+  </div>
+
   <% (1..Lineup::GAMES_PER_LINEUP).each do |number| %>
-    <div class="mt-3 border-t border-gray-100 pt-3" data-scorecard-target="row" data-line="<%= line.position %>" data-game="<%= number %>">
-      <p class="mb-1 text-xs font-bold uppercase text-gray-500">Game <%= number %></p>
-      <% [[:home, @match.home_team], [:away, @match.away_team]].each_with_index do |(side, team), index| %>
-        <div class="flex items-center justify-between gap-3 <%= 'mt-2' if index == 1 %>">
-          <div class="min-w-0">
-            <p class="text-[0.65rem] font-semibold uppercase text-gray-500"><%= team.name %></p>
-            <p class="text-sm font-medium text-gray-900" data-pair="<%= side %>"><%= pair_names(line, side, number - 1, @players_by_id) %></p>
-          </div>
+    <div class="mt-2 grid grid-cols-[2.5rem_1fr_1.25rem_1fr] items-end gap-x-2 border-t border-gray-100 pt-2"
+         data-scorecard-target="row" data-line="<%= line.position %>" data-game="<%= number %>">
+      <span class="pb-3 text-xs font-bold uppercase text-gray-500">G<%= number %></span>
+      <% %i[home away].each_with_index do |side, index| %>
+        <div class="flex min-w-0 flex-col gap-1">
+          <span class="text-xs leading-tight text-gray-700" data-pair="<%= side %>"><%= pair_names(line, side, number - 1, @players_by_id) %></span>
           <%= text_field_tag "scorecard[lines][#{line.position}][#{side}_score#{number}]", line.scores[number - 1][index],
-                class: 'form-input !h-12 !w-20 shrink-0 text-center text-2xl', inputmode: 'numeric', pattern: '[0-9]*',
+                class: 'form-input !h-12 !w-full text-center text-2xl', inputmode: 'numeric', pattern: '[0-9]*',
                 maxlength: 2, autocomplete: 'off', enterkeyhint: 'next',
                 'aria-label': "Line #{line.position} game #{number} #{side} score",
                 data: { scorecard_target: 'score', side: side,
                         action: 'input->scorecard#scoreChanged keydown->scorecard#scoreKeydown' } %>
         </div>
+        <%= tag.span('vs', class: 'pb-3 text-center text-xs text-gray-400') if index.zero? %>
       <% end %>
     </div>
   <% end %>

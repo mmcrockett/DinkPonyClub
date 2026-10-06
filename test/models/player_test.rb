@@ -49,6 +49,10 @@ class PlayerTest < ActiveSupport::TestCase
     assert_equal 'Ada Testerson', players(:ada).full_name
   end
 
+  test 'short_name is first name plus last initial' do
+    assert_equal 'Ada T', players(:ada).short_name
+  end
+
   test 'initials combine first and last initial' do
     assert_equal 'AT', players(:ada).initials
   end

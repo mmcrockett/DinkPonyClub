@@ -7,7 +7,7 @@
         <p class="text-xs font-semibold uppercase text-gray-500"><%= team.name %></p>
         <% (0..2).each do |slot| %>
           <%= select_tag "scorecard[lines][#{line.position}][#{side}_player_ids][]",
-                options_for_select(roster.map { |player| [player.full_name, player.id] }, line.public_send(:"#{side}_player_ids")[slot]),
+                roster_options(roster, line.public_send(:"#{side}_player_ids")[slot]),
                 include_blank: true, class: 'form-input',
                 'aria-label': "Line #{line.position} #{side} player #{slot + 1}",
                 data: { scorecard_target: 'player', line: line.position, side: side, slot: slot,
