@@ -22,6 +22,16 @@ module Admin
       assert_redirected_to root_path
     end
 
+    test 'redirects to players when no season exists' do
+      sign_in_as players(:zoe)
+      Season.destroy_all
+
+      get new_admin_announcement_path
+
+      assert_redirected_to admin_players_path
+      assert_equal 'No seasons exist yet.', flash[:alert]
+    end
+
     test 'shows the form to an admin' do
       sign_in_as players(:zoe)
 
