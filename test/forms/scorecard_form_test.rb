@@ -32,6 +32,17 @@ class ScorecardFormTest < ActiveSupport::TestCase
     assert_equal lines['1'][:home_player_ids], reloaded.lines.first.home_player_ids
   end
 
+  test 'a third player survives a reload when only game 1 is scored' do
+    lines = valid_lines
+    lines['1'][:home_player_ids] << players(:sc_home_player12).id.to_s
+    lines['1'].merge!(home_score2: '', away_score2: '', home_score3: '', away_score3: '')
+    ScorecardForm.new(match: @match, lines: lines).save
+
+    reloaded = ScorecardForm.from_match(@match.reload)
+
+    assert_equal lines['1'][:home_player_ids], reloaded.lines.first.home_player_ids
+  end
+
   test 'fingerprint changes after a save and is stable without one' do
     form = ScorecardForm.new(match: @match, lines: valid_lines)
     before = form.fingerprint
