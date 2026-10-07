@@ -20,7 +20,6 @@ class ScorecardForm
     validate :enough_players
     validate :no_duplicate_players_on_a_side
     validate :no_overlap_between_sides
-    validate :players_exist
     validate :scores_are_valid
 
     def all_player_ids
@@ -33,8 +32,11 @@ class ScorecardForm
     end
 
     def persist_picks!
-      rows = pick_rows(form.match.home_team_id, home_player_ids) + pick_rows(form.match.away_team_id, away_player_ids)
-      LineupPick.insert_all!(rows) if rows.any? # rubocop:disable Rails/SkipsModelValidations
+      { form.match.home_team => home_player_ids, form.match.away_team => away_player_ids }.each do |team, ids|
+        ids.each_with_index do |id, index|
+          form.match.lineup_picks.create!(team: team, player_id: id, position: position, seat: index + 1)
+        end
+      end
     end
 
     def game_player_ids(side, game_index)
@@ -42,12 +44,6 @@ class ScorecardForm
     end
 
     private
-
-    def pick_rows(team_id, ids)
-      ids.each_with_index.map do |id, index|
-        { match_id: form.match.id, team_id: team_id, player_id: id, position: position, seat: index + 1 }
-      end
-    end
 
     def persist_game!(lineup, pair, index)
       home_score, away_score = pair
@@ -98,12 +94,6 @@ class ScorecardForm
       return unless home_player_ids.intersect?(away_player_ids)
 
       errors.add(:base, 'a player cannot play both sides of a line')
-    end
-
-    def players_exist
-      return if Player.where(id: all_player_ids).count == all_player_ids.uniq.size
-
-      errors.add(:base, 'unknown player')
     end
 
     def scores_are_valid
