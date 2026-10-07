@@ -58,7 +58,8 @@ class MatchesController < ApplicationController
   end
 
   def set_match
-    @match = Match.find(params.expect(:id))
+    scope = action_name == 'update' ? Match : Match.includes(:season, :home_team, :away_team, lineups: :games)
+    @match = scope.find(params.expect(:id))
   end
 
   def load_form_and_rosters
