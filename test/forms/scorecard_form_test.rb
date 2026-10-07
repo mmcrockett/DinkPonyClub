@@ -127,6 +127,15 @@ class ScorecardFormTest < ActiveSupport::TestCase
     assert_includes form.errors[:base], 'Line 1: a player cannot play both sides of a line'
   end
 
+  test 'rejects a player id that does not exist' do
+    lines = valid_lines
+    lines['1'][:home_player_ids] = [players(:sc_home_captain).id.to_s, '0']
+    form = ScorecardForm.new(match: @match, lines: lines)
+
+    assert_not form.save
+    assert_includes form.errors[:base], 'Line 1: unknown player'
+  end
+
   test 'rejects a player who appears on two lines' do
     lines = valid_lines
     lines['2'][:home_player_ids] = [players(:sc_home_captain).id.to_s, players(:sc_home_player5).id.to_s]

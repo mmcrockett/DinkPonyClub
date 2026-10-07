@@ -20,6 +20,7 @@ class ScorecardForm
     validate :enough_players
     validate :no_duplicate_players_on_a_side
     validate :no_overlap_between_sides
+    validate :players_exist
     validate :scores_are_valid
 
     def all_player_ids
@@ -43,10 +44,8 @@ class ScorecardForm
     private
 
     def pick_rows(team_id, ids)
-      now = Time.current
       ids.each_with_index.map do |id, index|
-        { match_id: form.match.id, team_id: team_id, player_id: id, position: position, seat: index + 1,
-          created_at: now, updated_at: now }
+        { match_id: form.match.id, team_id: team_id, player_id: id, position: position, seat: index + 1 }
       end
     end
 
@@ -99,6 +98,12 @@ class ScorecardForm
       return unless home_player_ids.intersect?(away_player_ids)
 
       errors.add(:base, 'a player cannot play both sides of a line')
+    end
+
+    def players_exist
+      return if Player.where(id: all_player_ids).count == all_player_ids.uniq.size
+
+      errors.add(:base, 'unknown player')
     end
 
     def scores_are_valid
