@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_06_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_06_130000) do
   create_table "charges", force: :cascade do |t|
     t.integer "amount_cents", null: false
     t.datetime "created_at", null: false
@@ -118,6 +118,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_06_120000) do
     t.datetime "updated_at", null: false
     t.index ["away_team_id"], name: "index_matches_on_away_team_id"
     t.index ["home_team_id"], name: "index_matches_on_home_team_id"
+    t.index ["match_night_id"], name: "index_matches_on_match_night_id"
     t.index ["season_id"], name: "index_matches_on_season_id"
   end
 
