@@ -8,7 +8,8 @@ class ScorecardForm
   class << self
     def from_match(match)
       lines_attrs = attrs_from_picks(match)
-      match.lineups.includes(:games).find_each do |lineup|
+      ActiveRecord::Associations::Preloader.new(records: [match], associations: { lineups: :games }).call
+      match.lineups.each do |lineup|
         picked = lines_attrs.fetch(lineup.position, {})
         lines_attrs[lineup.position] = picked.merge(attrs_from_lineup(lineup)) { |_key, old, new| merge_ids(old, new) }
       end

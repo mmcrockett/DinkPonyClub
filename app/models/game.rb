@@ -64,12 +64,17 @@ class Game < ApplicationRecord
 
   def player_not_in_another_lineup
     return unless lineup&.match
-    return unless players.compact.intersect?(taken_players)
+    return unless player_ids.intersect?(taken_player_ids)
 
     errors.add(:base, 'players can only appear in one lineup per match')
   end
 
-  def taken_players
-    lineup.match.lineups.where.not(id: lineup.id).flat_map { |other| other.games.flat_map(&:players) }.compact
+  def player_ids
+    PLAYER_COLUMNS.filter_map { |column| self[column] }
+  end
+
+  def taken_player_ids
+    Game.joins(:lineup).where(lineups: { match_id: lineup.match_id }).where.not(lineup_id: lineup.id)
+        .pluck(*PLAYER_COLUMNS).flatten.compact
   end
 end

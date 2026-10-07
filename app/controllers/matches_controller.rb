@@ -58,7 +58,7 @@ class MatchesController < ApplicationController
   end
 
   def set_match
-    @match = Match.find(params.expect(:id))
+    @match = Match.includes(:season, :home_team, :away_team).find(params.expect(:id))
   end
 
   def load_form_and_rosters
