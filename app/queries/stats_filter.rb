@@ -16,7 +16,7 @@ class StatsFilter
 
   def initialize(rows, params = {})
     @all_rows = rows
-    assign_ratings(rows, params)
+    @ratings = rows.any?(&:pupr)
     @query = params[:q].to_s.strip
     @team = params[:team].presence
     @hide_substitutes = params[:hide_substitutes] == '1'
@@ -25,15 +25,11 @@ class StatsFilter
   end
 
   def sorts
-    SORTS + (@ratings ? [PUPR] : []) + (@elo ? [RATING] : [])
+    @ratings ? SORTS + [PUPR, RATING] : SORTS
   end
 
   def ratings?
     @ratings
-  end
-
-  def elo?
-    @elo
   end
 
   def hide_substitutes?
@@ -55,11 +51,6 @@ class StatsFilter
   end
 
   private
-
-  def assign_ratings(rows, params)
-    @ratings = rows.any?(&:pupr)
-    @elo = @ratings && params[:elo] == true
-  end
 
   def direction_from(value)
     DIRECTIONS.include?(value) ? value : self.class.default_direction(sort)

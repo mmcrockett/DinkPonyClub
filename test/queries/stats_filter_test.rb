@@ -76,17 +76,9 @@ class StatsFilterTest < ActiveSupport::TestCase
     assert_not_includes StatsFilter.new(@rows).sorts, 'rating'
   end
 
-  test 'elo sort needs the elo flag but pupr does not' do
-    rated = rated_rows
-
-    assert_equal 'pupr', StatsFilter.new(rated, sort: 'pupr').sort
-    assert_equal 'name', StatsFilter.new(rated, sort: 'rating').sort
-    assert_not_includes StatsFilter.new(rated).sorts, 'rating'
-  end
-
   test 'sorts by elo descending with unrated players last' do
     assert_equal ['High Two', 'Low One', 'None Three'],
-                 names(StatsFilter.new(rated_rows, sort: 'rating', elo: true))
+                 names(StatsFilter.new(rated_rows, sort: 'rating'))
   end
 
   test 'sorts by pupr ascending' do

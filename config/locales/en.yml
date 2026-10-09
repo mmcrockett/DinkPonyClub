@@ -279,7 +279,7 @@ en:
       meaning: "Pony Universal Pickleball Rating - this league's own rating on the DUPR scale, worked out from games played in the league."
     elo:
       short: "Elo"
-      meaning: "The raw league rating behind the PUPR. Only the player, captains, and admins can see it."
+      meaning: "The raw league rating behind the PUPR."
     rated_games:
       one: "%{count} rated game"
       other: "%{count} rated games"
