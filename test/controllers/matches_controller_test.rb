@@ -230,6 +230,25 @@ class MatchesControllerTest < ActionDispatch::IntegrationTest
     assert_equal ScorecardForm.from_match(@match.reload).fingerprint, response.parsed_body['fingerprint']
   end
 
+  test 'json update needs the page csrf token header because the form token is bound to the html path' do
+    sign_in_as players(:sc_home_captain)
+    with_forgery_protection do
+      get edit_match_path(@match)
+      form_token = css_select('input[name=authenticity_token]').first['value']
+      page_token = css_select('meta[name=csrf-token]').first['content']
+
+      patch match_path(@match, format: :json),
+            params: { authenticity_token: form_token, scorecard: { lines: valid_lines } }
+
+      assert_response :unprocessable_content
+
+      patch match_path(@match, format: :json), params: { scorecard: { lines: valid_lines } },
+                                               headers: { 'X-CSRF-Token' => page_token }
+
+      assert_response :success
+    end
+  end
+
   test 'json update returns errors for a tie' do
     sign_in_as players(:sc_home_captain)
     lines = valid_lines
@@ -278,6 +297,14 @@ class MatchesControllerTest < ActionDispatch::IntegrationTest
     mock_google_auth(email: player.email, uid: player.google_uid)
     post '/auth/google_oauth2'
     follow_redirect!
+  end
+
+  def with_forgery_protection
+    previous = ActionController::Base.allow_forgery_protection
+    ActionController::Base.allow_forgery_protection = true
+    yield
+  ensure
+    ActionController::Base.allow_forgery_protection = previous
   end
 
   def valid_lines

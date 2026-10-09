@@ -185,7 +185,7 @@ export default class extends Controller {
       const response = await fetch(this.urlValue, {
         method: "PATCH",
         body: new FormData(this.element),
-        headers: { Accept: "application/json" }
+        headers: { Accept: "application/json", "X-CSRF-Token": document.querySelector("meta[name=csrf-token]")?.content ?? "" }
       })
       await this.handle(response)
     } catch (error) {
@@ -197,7 +197,8 @@ export default class extends Controller {
   }
 
   async handle(response) {
-    const data = await response.json().catch(() => ({ errors: [`server error (${response.status})`] }))
+    const data = await response.json().catch(() => ({}))
+    const errors = data.errors || [`server error (${response.status})`]
     if (response.ok) {
       this.fingerprintTarget.value = data.fingerprint
       this.dirty = this.again === true
@@ -206,9 +207,9 @@ export default class extends Controller {
     } else if (response.status === 409) {
       this.stopped = true
       this.dirty = false
-      this.status(`${data.errors.join(" ")} `, true, true)
+      this.status(`${errors.join(" ")} `, true, true)
     } else {
-      this.status(`Not saved: ${data.errors.join(", ")}`, true)
+      this.status(`Not saved: ${errors.join(", ")}`, true)
     }
   }
 
