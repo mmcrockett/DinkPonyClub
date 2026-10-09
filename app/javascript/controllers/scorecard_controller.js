@@ -185,7 +185,7 @@ export default class extends Controller {
       const response = await fetch(this.urlValue, {
         method: "PATCH",
         body: new FormData(this.element),
-        headers: { Accept: "application/json", "X-CSRF-Token": document.querySelector("meta[name=csrf-token]").content }
+        headers: { Accept: "application/json", "X-CSRF-Token": document.querySelector("meta[name=csrf-token]")?.content ?? "" }
       })
       await this.handle(response)
     } catch (error) {
