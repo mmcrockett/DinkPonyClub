@@ -75,6 +75,9 @@
                 <span class="text-gray-500">
                   <%= t('players.show.line_vs_html', position: lineup.position, opponent: team_link(line.opponent, @season)) %>
                 </span>
+                <span class="ml-1 rounded-full px-2 py-0.5 text-xs font-bold uppercase <%= line.wins > line.losses ? 'bg-dpc-green text-white' : 'bg-gray-100 text-gray-600' %>">
+                  <%= "#{line.wins}-#{line.losses}" %>
+                </span>
               </p>
               <% if line.partners.any? %>
                 <p class="text-sm text-gray-500">
@@ -107,9 +110,6 @@
                   <% end %>
                 </tbody>
               </table>
-              <span class="rounded-full px-2 py-0.5 text-xs font-bold uppercase <%= line.wins > line.losses ? 'bg-dpc-green text-white' : 'bg-gray-100 text-gray-600' %>">
-                <%= "#{line.wins}-#{line.losses}" %>
-              </span>
             </div>
           </li>
         <% end %>
