@@ -1,10 +1,11 @@
-<% content_for :title, t('standings.show.title') %>
+<% title = t(lifetime_period? ? 'standings.show.lifetime_title' : 'standings.show.title') %>
+<% content_for :title, title %>
 
 <div class="flex flex-col gap-6">
   <%= render 'shared/season_breadcrumb', season: @season, all_time: lifetime_period? %>
 
   <div class="flex flex-wrap items-start justify-between gap-4">
-    <h1 class="text-2xl font-extrabold text-dpc-navy"><%= t('standings.show.title') %></h1>
+    <h1 class="text-2xl font-extrabold text-dpc-navy"><%= title %></h1>
 
     <div class="flex items-center gap-3">
       <span class="rounded-full bg-dpc-navy px-3 py-1 text-xs font-bold uppercase text-white">
@@ -15,11 +16,13 @@
 
   <% if @rows.any? %>
     <% if @results_posted.positive? %>
-      <div class="grid gap-4 md:grid-cols-3">
-        <% @rows.first(3).each_with_index do |row, index| %>
-          <%= render 'podium_card', row: row, rank: index + 1 %>
-        <% end %>
-      </div>
+      <% unless lifetime_period? %>
+        <div class="grid gap-4 md:grid-cols-3">
+          <% @rows.first(3).each_with_index do |row, index| %>
+            <%= render 'podium_card', row: row, rank: index + 1 %>
+          <% end %>
+        </div>
+      <% end %>
     <% else %>
       <p class="text-gray-500"><%= t('standings.show.no_results_yet') %></p>
     <% end %>

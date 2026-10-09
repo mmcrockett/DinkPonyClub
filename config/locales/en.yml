@@ -389,6 +389,7 @@ en:
   standings:
     show:
       title: "The race for first."
+      lifetime_title: "All-time standings."
       empty: "No teams are rostered for this season yet."
       no_results_yet: "No results have been posted yet. The table fills in as scorecards land."
       footnote: "Every game win is one point; a three-game line sweep adds %{bonus}."
