@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 class PlayerStats
-  Row = Struct.new(:player, :season, :team, :captain, :games, :wins, :losses, :win_pct, :rating, :rated_games,
-                   keyword_init: true) do
+  Row = Struct.new(:player, :season, :team, :captain, :games, :wins, :losses, :win_pct, :pupr, :rating,
+                   :rated_games, keyword_init: true) do
     def substitute?
       team.nil?
     end
@@ -52,7 +52,7 @@ class PlayerStats
     Row.new(
       player: player, season: season, team: team, captain: captain, games: games.size,
       wins: wins, losses: games.size - wins, win_pct: win_pct(wins, games.size),
-      rating: rating&.elo&.round, rated_games: rating&.games
+      pupr: rating&.pupr, rating: rating&.elo&.round, rated_games: rating&.games
     )
   end
 

@@ -286,9 +286,8 @@ en:
     contact_hidden: "Contact details are available to captains."
     no_contact: "No contact details on file."
     filters:
-      period: "Results period"
-      season_results: "Season results"
-      lifetime: "Lifetime results"
+      season: "Season"
+      all_time: "All time"
       lifetime_note: "Results include all recorded seasons. Ratings are unchanged. Teams, captain badges and substitute filters refer to %{season}."
       search: "Find a player..."
       team: "Team"
@@ -306,7 +305,8 @@ en:
         wins: "Wins"
         losses: "Losses"
         win_pct: "Win %"
-        rating: "Rating"
+        pupr: "PUPR"
+        rating: "Elo"
     show:
       back: "Back to players"
       not_playing: "Not playing this season"

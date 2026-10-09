@@ -70,16 +70,27 @@ class StatsFilterTest < ActiveSupport::TestCase
                  names(StatsFilter.new(@rows, sort: 'losses', dir: 'asc'))
   end
 
-  test 'rating sort is ignored unless ratings are enabled' do
+  test 'rating sorts are ignored unless ratings are enabled' do
     assert_equal 'name', StatsFilter.new(@rows, sort: 'rating').sort
+    assert_equal 'name', StatsFilter.new(@rows, sort: 'pupr').sort
     assert_not_includes StatsFilter.new(@rows).sorts, 'rating'
   end
 
-  test 'sorts by rating descending with unrated players last' do
-    rated = [row('Low', 'One', nil, nil, rating: 1400), row('High', 'Two', nil, nil, rating: 1600),
-             row('None', 'Three', nil, nil)]
+  test 'elo sort needs the elo flag but pupr does not' do
+    rated = rated_rows
 
-    assert_equal ['High Two', 'Low One', 'None Three'], names(StatsFilter.new(rated, sort: 'rating'))
+    assert_equal 'pupr', StatsFilter.new(rated, sort: 'pupr').sort
+    assert_equal 'name', StatsFilter.new(rated, sort: 'rating').sort
+    assert_not_includes StatsFilter.new(rated).sorts, 'rating'
+  end
+
+  test 'sorts by elo descending with unrated players last' do
+    assert_equal ['High Two', 'Low One', 'None Three'],
+                 names(StatsFilter.new(rated_rows, sort: 'rating', elo: true))
+  end
+
+  test 'sorts by pupr ascending' do
+    assert_equal ['Low One', 'High Two', 'None Three'], names(StatsFilter.new(rated_rows, sort: 'pupr', dir: 'asc'))
   end
 
   test 'next direction reverses the active column and uses the default for others' do
@@ -91,6 +102,11 @@ class StatsFilterTest < ActiveSupport::TestCase
   end
 
   private
+
+  def rated_rows
+    [row('Low', 'One', nil, nil, rating: 1400, pupr: 3.25), row('High', 'Two', nil, nil, rating: 1600, pupr: 3.75),
+     row('None', 'Three', nil, nil)]
+  end
 
   def row(first_name, last_name, team, win_pct, **counts)
     PlayerStats::Row.new(player: Player.new(first_name: first_name, last_name: last_name), team: team,
