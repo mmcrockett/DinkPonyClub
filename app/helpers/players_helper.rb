@@ -25,7 +25,7 @@ module PlayersHelper
     label = t(lifetime ? 'players.filters.all_time' : 'players.filters.season')
     classes = active ? 'bg-dpc-navy text-white' : 'bg-white text-dpc-navy hover:bg-gray-100'
 
-    link_to label, season_players_path(season, players_query_params(filter, lifetime: lifetime)),
+    link_to label, players_index_path(season, players_query_params(filter, lifetime: lifetime)),
             class: "px-4 py-2 text-sm font-semibold #{classes}", aria: { current: ('page' if active) }
   end
 
@@ -41,7 +41,7 @@ module PlayersHelper
     query_params = players_query_params(filter, lifetime: lifetime).merge(sort: column,
                                                                           dir: filter.next_direction(column))
 
-    link_to season_players_path(season, query_params), class: 'inline-flex items-center gap-1 hover:text-dpc-navy' do
+    link_to players_index_path(season, query_params), class: 'inline-flex items-center gap-1 hover:text-dpc-navy' do
       safe_join([t("players.index.table.#{column}"), sort_indicator(filter, column)].compact)
     end
   end
@@ -68,6 +68,10 @@ module PlayersHelper
 
   def changes_for(player, games, ratings)
     games.map { |game| ratings.change_for(game.id, player.id) }
+  end
+
+  def players_index_path(season, query_params)
+    season ? season_players_path(season, query_params) : players_path(query_params)
   end
 
   def players_query_params(filter, lifetime:)
