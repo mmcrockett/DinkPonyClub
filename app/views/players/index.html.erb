@@ -48,8 +48,11 @@
                 <td class="px-4 py-3 text-right"><%= row.losses %></td>
                 <td class="px-4 py-3 text-right"><%= win_rate_label(row) %></td>
                 <% if @filter.ratings? %>
-                  <td class="px-4 py-3 text-right <%= 'text-gray-400' if row.rated_games.to_i.zero? %>"
-                      title="<%= t('players.rated_games', count: row.rated_games.to_i) %>"><%= rating_label(row) %></td>
+                  <td class="pupr-cell px-4 py-3 text-right <%= 'text-gray-400' if row.rated_games.to_i.zero? %>"
+                      title="<%= t('players.rated_games', count: row.rated_games.to_i) %>"><%= pupr_label(row) %></td>
+                <% end %>
+                <% if @filter.elo? %>
+                  <td class="elo-cell px-4 py-3 text-right <%= 'text-gray-400' if row.rated_games.to_i.zero? %>"><%= rating_label(row) %></td>
                 <% end %>
               </tr>
             <% end %>

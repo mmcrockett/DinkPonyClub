@@ -63,17 +63,21 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
     get season_players_path(seasons(:fall), sort: 'rating')
 
     assert_response :success
-    assert_select 'th a', text: /Rating/
-    assert_select "##{dom_id(players(:ada), :stats)} td:last-child", text: /\d{4}/
+    assert_select 'th a', text: /Elo/
+    assert_select 'th a', text: /PUPR/
+    assert_select "##{dom_id(players(:ada), :stats)} td.elo-cell", text: /\d{4}/
+    assert_select "##{dom_id(players(:ada), :stats)} td.pupr-cell", text: /\d\.\d{2}/
   end
 
-  test 'regular players see no rating column and cannot sort by it' do
+  test 'regular players see pupr but no elo column and cannot sort by elo' do
     sign_in_as(players(:grace))
 
     get season_players_path(seasons(:fall), sort: 'rating')
 
     assert_response :success
-    assert_select 'th a', text: /Rating/, count: 0
+    assert_select 'th a', text: /Elo/, count: 0
+    assert_select "##{dom_id(players(:ada), :stats)} td.elo-cell", count: 0
+    assert_select "##{dom_id(players(:ada), :stats)} td.pupr-cell", text: /\d\.\d{2}/
     assert_select 'th[aria-sort="ascending"]', text: /Player/
   end
 
@@ -426,20 +430,37 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
     get season_players_path(seasons(:spring), period: 'lifetime', sort: 'wins', team: teams(:alpha).id)
 
     assert_response :success
-    assert_select 'select[name=period] option[selected]', text: 'Lifetime results'
+    assert_select 'a[aria-current=page]', text: 'All time'
     assert_select 'th a[href*="period=lifetime"]'
     assert_select "##{dom_id(players(:ada), :stats)} td:nth-child(3)", text: '6'
     assert_select "##{dom_id(players(:sam), :stats)}", count: 0
   end
 
+  test 'the filter form carries the lifetime period' do
+    sign_in_as(players(:ada))
+
+    get season_players_path(seasons(:spring), period: 'lifetime')
+
+    assert_select 'input[name=period][value=lifetime]'
+  end
+
+  test 'period links keep the current filters' do
+    sign_in_as(players(:ada))
+
+    get season_players_path(seasons(:spring), team: teams(:alpha).id)
+
+    assert_select "a[aria-current=page][href*='team=#{teams(:alpha).id}']", text: 'Season'
+    assert_select "a[href*='period=lifetime'][href*='team=#{teams(:alpha).id}']", text: 'All time'
+  end
+
   test 'switching to lifetime leaves the existing rating unchanged' do
     sign_in_as(players(:ada))
     get season_players_path(seasons(:fall))
-    rating = css_select("##{dom_id(players(:ada), :stats)} td:last-child").first.text
+    rating = css_select("##{dom_id(players(:ada), :stats)} td.elo-cell").first.text
 
     get season_players_path(seasons(:fall), period: 'lifetime')
 
-    assert_select "##{dom_id(players(:ada), :stats)} td:last-child", text: rating
+    assert_select "##{dom_id(players(:ada), :stats)} td.elo-cell", text: rating
   end
 
   test 'lifetime does not expose ratings to non-captains' do
@@ -448,7 +469,7 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
     get season_players_path(seasons(:fall), period: 'lifetime', sort: 'rating')
 
     assert_response :success
-    assert_select 'th a', text: /Rating/, count: 0
+    assert_select 'th a', text: /Elo/, count: 0
   end
 
   private

@@ -1,7 +1,8 @@
 <%= form_with url: season ? season_players_path(season) : players_path, method: :get, class: 'flex flex-wrap items-center gap-3', data: { controller: 'auto-submit' } do |form| %>
-  <%= form.select :period, [[t('players.filters.season_results'), 'season'], [t('players.filters.lifetime'), 'lifetime']],
-                  { selected: lifetime ? 'lifetime' : 'season' }, class: 'rounded-md border border-gray-300 px-3 py-2',
-                  aria: { label: t('players.filters.period') }, data: { action: 'change->auto-submit#submit' } %>
+  <div class="inline-flex overflow-hidden rounded-md border border-gray-300">
+    <%= players_period_link(filter, season: season, lifetime: false, active: !lifetime) %>
+    <%= players_period_link(filter, season: season, lifetime: true, active: lifetime) %>
+  </div>
 
   <%= form.search_field :q, value: filter.query, placeholder: t('players.filters.search'), autocomplete: 'off',
                               class: 'rounded-md border border-gray-300 px-3 py-2', aria: { label: t('players.filters.search') },
@@ -19,6 +20,7 @@
     <%= t('players.filters.hide_substitutes') %>
   </label>
 
+  <%= form.hidden_field :period, value: 'lifetime' if lifetime %>
   <%= form.hidden_field :sort, value: filter.sort %>
   <%= form.hidden_field :dir, value: filter.direction %>
 <% end %>

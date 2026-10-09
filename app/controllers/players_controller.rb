@@ -11,7 +11,7 @@ class PlayersController < ApplicationController
     @lifetime = params[:period] == 'lifetime'
     @teams = @season ? @season.teams.order(:name) : []
     @captain_view = @season.present? && captain_or_admin?(@season)
-    @filter = StatsFilter.new(stats_rows, filter_params)
+    @filter = StatsFilter.new(stats_rows, filter_params.merge(elo: @captain_view))
     @rows = @filter.rows
     @owing_ids = @captain_view ? Charge.owing_player_ids(@season) : []
   end
@@ -36,8 +36,7 @@ class PlayersController < ApplicationController
   def stats_rows
     return [] unless @season
 
-    ratings = PlayerRatings.new(@season) if @captain_view
-    PlayerStats.new(@season, ratings: ratings, lifetime: @lifetime).rows
+    PlayerStats.new(@season, ratings: PlayerRatings.new(@season), lifetime: @lifetime).rows
   end
 
   def filter_params

@@ -9,18 +9,29 @@ module PlayersHelper
     number_to_percentage(row.win_pct * 100, precision: 0)
   end
 
-  def rating_label(row)
-    row.rating || '-'
-  end
-
   def player_team_label(row)
     row.substitute? ? t('players.substitute') : row.team.name
   end
 
+  def rating_label(row)
+    row.rating || '-'
+  end
+
+  def pupr_label(row)
+    row.pupr ? number_with_precision(row.pupr, precision: 2) : '-'
+  end
+
+  def players_period_link(filter, season:, lifetime:, active:)
+    label = t(lifetime ? 'players.filters.all_time' : 'players.filters.season')
+    classes = active ? 'bg-dpc-navy text-white' : 'bg-white text-dpc-navy hover:bg-gray-100'
+
+    link_to label, season_players_path(season, players_query_params(filter, lifetime: lifetime)),
+            class: "px-4 py-2 text-sm font-semibold #{classes}", aria: { current: ('page' if active) }
+  end
+
   def players_sort_link(filter, column, season:, lifetime: false)
-    query_params = { q: filter.query.presence, team: filter.team,
-                     hide_substitutes: filter.hide_substitutes? ? '1' : nil,
-                     sort: column, dir: filter.next_direction(column), period: ('lifetime' if lifetime) }.compact
+    query_params = players_query_params(filter, lifetime: lifetime).merge(sort: column,
+                                                                          dir: filter.next_direction(column))
 
     link_to season_players_path(season, query_params), class: 'inline-flex items-center gap-1 hover:text-dpc-navy' do
       safe_join([t("players.index.table.#{column}"), sort_indicator(filter, column)].compact)
@@ -45,6 +56,11 @@ module PlayersHelper
   end
 
   private
+
+  def players_query_params(filter, lifetime:)
+    { q: filter.query.presence, team: filter.team, hide_substitutes: filter.hide_substitutes? ? '1' : nil,
+      sort: filter.sort, dir: filter.direction, period: ('lifetime' if lifetime) }.compact
+  end
 
   def sort_indicator(filter, column)
     return unless filter.sort == column
