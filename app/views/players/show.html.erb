@@ -75,6 +75,9 @@
                 <span class="text-gray-500">
                   <%= t('players.show.line_vs_html', position: lineup.position, opponent: team_link(line.opponent, @season)) %>
                 </span>
+                <span class="ml-1 rounded-full px-2 py-0.5 text-xs font-bold uppercase <%= line.wins > line.losses ? 'bg-dpc-green text-white' : 'bg-gray-100 text-gray-600' %>">
+                  <%= "#{line.wins}-#{line.losses}" %>
+                </span>
               </p>
               <% if line.partners.any? %>
                 <p class="text-sm text-gray-500">
@@ -83,22 +86,30 @@
               <% end %>
             </div>
             <div class="flex items-center gap-3 text-sm">
-              <ul class="flex flex-col gap-0.5">
-                <% line.scores.zip(line.changes).each do |(own, other), change| %>
-                  <li class="game-result flex items-center justify-end gap-2">
-                    <span><%= own %>-<%= other %></span>
-                    <% if change %>
-                      <span class="rating-change text-xs font-semibold <%= change.pupr.positive? ? 'text-dpc-green' : 'text-gray-500' %>">
-                        <%= t('players.pupr.short') %> <%= pupr_change_label(change) %>
-                        <span class="elo-change">- <%= t('players.elo.short') %> <%= elo_change_label(change) %></span>
-                      </span>
+              <table class="game-results tabular-nums">
+                <thead class="text-[10px] font-semibold uppercase text-gray-400">
+                  <tr>
+                    <th class="text-right font-semibold"><%= t('players.show.score') %></th>
+                    <% if line.changes.any? %>
+                      <th class="pl-3 text-right font-semibold"><%= t('players.pupr.short') %></th>
+                      <th class="pl-3 text-right font-semibold"><%= t('players.elo.short') %></th>
                     <% end %>
-                  </li>
-                <% end %>
-              </ul>
-              <span class="rounded-full px-2 py-0.5 text-xs font-bold uppercase <%= line.wins > line.losses ? 'bg-dpc-green text-white' : 'bg-gray-100 text-gray-600' %>">
-                <%= "#{line.wins}-#{line.losses}" %>
-              </span>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% line.scores.zip(line.changes).each do |(own, other), change| %>
+                    <tr class="game-result">
+                      <td class="py-0.5 text-right">
+                        <span class="<%= 'font-bold' if own > other %>"><%= own %></span>-<span class="<%= 'font-bold' if other > own %>"><%= other %></span>
+                      </td>
+                      <% if change %>
+                        <td class="rating-change py-0.5 pl-3 text-right text-xs font-semibold <%= rating_change_class(change.pupr) %>"><%= pupr_change_label(change) %></td>
+                        <td class="elo-change py-0.5 pl-3 text-right text-xs font-semibold <%= rating_change_class(change.elo.round) %>"><%= elo_change_label(change) %></td>
+                      <% end %>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
             </div>
           </li>
         <% end %>

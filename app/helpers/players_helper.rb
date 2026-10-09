@@ -37,6 +37,16 @@ module PlayersHelper
     format('%<change>+d', change: change.elo.round)
   end
 
+  def rating_change_class(value)
+    if value.positive?
+      'text-dpc-green'
+    elsif value.negative?
+      'text-red-700'
+    else
+      'text-gray-500'
+    end
+  end
+
   def players_sort_link(filter, column, season:, lifetime: false)
     query_params = players_query_params(filter, lifetime: lifetime).merge(sort: column,
                                                                           dir: filter.next_direction(column))

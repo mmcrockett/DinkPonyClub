@@ -318,6 +318,7 @@ en:
       season: "Season"
       career: "Career"
       lines: "This season's lines"
+      score: "Score"
       line_vs_html: "Line %{position} vs %{opponent}"
       partners: "With %{names}"
       no_lines: "No line results this season yet."
