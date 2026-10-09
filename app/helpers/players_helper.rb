@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module PlayersHelper
-  LineSummary = Struct.new(:match, :opponent, :partners, :scores, :wins, :losses, :elo_changes, keyword_init: true)
+  LineSummary = Struct.new(:match, :opponent, :partners, :scores, :wins, :losses, :changes, keyword_init: true)
 
   def win_rate_label(row)
     return '-' if row.nil? || row.win_pct.nil?
@@ -29,12 +29,12 @@ module PlayersHelper
             class: "px-4 py-2 text-sm font-semibold #{classes}", aria: { current: ('page' if active) }
   end
 
-  def pupr_change_label(elo_change)
-    format('%<change>+.2f', change: elo_change / PlayerRatings::ELO_PER_PUPR)
+  def pupr_change_label(change)
+    format('%<change>+.2f', change: change.pupr)
   end
 
-  def elo_change_label(elo_change)
-    format('%<change>+d', change: elo_change.round)
+  def elo_change_label(change)
+    format('%<change>+d', change: change.elo.round)
   end
 
   def players_sort_link(filter, column, season:, lifetime: false)
@@ -61,13 +61,13 @@ module PlayersHelper
     LineSummary.new(match:, opponent: home ? match.away_team : match.home_team,
                     partners: line_partners(games, home) - [player],
                     scores:, wins:, losses: scores.size - wins,
-                    elo_changes: elo_changes_for(player, games, ratings))
+                    changes: changes_for(player, games, ratings))
   end
 
   private
 
-  def elo_changes_for(player, games, ratings)
-    games.map { |game| ratings&.elo_change(game.id, player.id) }
+  def changes_for(player, games, ratings)
+    games.map { |game| ratings&.change_for(game.id, player.id) }
   end
 
   def players_query_params(filter, lifetime:)

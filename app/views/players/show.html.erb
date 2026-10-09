@@ -86,11 +86,11 @@
             </div>
             <div class="flex items-center gap-3 text-sm">
               <ul class="flex flex-col gap-0.5">
-                <% line.scores.zip(line.elo_changes).each do |(own, other), change| %>
+                <% line.scores.zip(line.changes).each do |(own, other), change| %>
                   <li class="game-result flex items-center justify-end gap-2">
                     <span><%= own %>-<%= other %></span>
                     <% if change %>
-                      <span class="rating-change text-xs font-semibold <%= change.positive? ? 'text-dpc-green' : 'text-gray-500' %>">
+                      <span class="rating-change text-xs font-semibold <%= change.pupr.positive? ? 'text-dpc-green' : 'text-gray-500' %>">
                         <%= t('players.pupr.short') %> <%= pupr_change_label(change) %>
                         <% if @show_elo %>
                           <span class="elo-change">- <%= t('players.elo.short') %> <%= elo_change_label(change) %></span>

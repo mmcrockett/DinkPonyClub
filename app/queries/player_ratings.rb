@@ -6,6 +6,7 @@ class PlayerRatings
       (PUPR_CENTER + ((elo - BASE) / ELO_PER_PUPR)).clamp(2.0, 8.0).round(2)
     end
   end
+  Change = Data.define(:elo, :pupr)
   Played = Data.define(:home, :away, :home_score, :away_score, :position, :season_id, :game_id)
 
   BASE = 1500
@@ -29,7 +30,7 @@ class PlayerRatings
     ratings[player_id]
   end
 
-  def elo_change(game_id, player_id)
+  def change_for(game_id, player_id)
     ratings
     @changes[[game_id, player_id]]
   end
@@ -65,23 +66,23 @@ class PlayerRatings
     home, away = [played.home, played.away].map { |ids| ids.map { |id| entry(table, id, played) } }
     delta = delta_for(played, home, away)
 
-    home.each { |rating| apply(rating, delta) }
-    away.each { |rating| apply(rating, -delta) }
-    record_change(played, delta)
+    record_changes(played, played.home, home, delta)
+    record_changes(played, played.away, away, -delta)
   end
 
   def delta_for(played, home, away)
     K * multiplier(played) * (outcome(played) - expected(home, away))
   end
 
-  def record_change(played, delta)
-    played.home.each { |id| @changes[[played.game_id, id]] = delta }
-    played.away.each { |id| @changes[[played.game_id, id]] = -delta }
+  def record_changes(played, ids, side, delta)
+    ids.zip(side) { |id, rating| @changes[[played.game_id, id]] = apply(rating, delta) }
   end
 
   def apply(rating, delta)
+    before = rating.pupr
     rating.elo += delta
     rating.games += 1
+    Change.new(elo: delta, pupr: (rating.pupr - before).round(2))
   end
 
   def expected(home, away)
