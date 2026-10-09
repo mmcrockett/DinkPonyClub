@@ -66,6 +66,7 @@ class MatchesControllerTest < ActionDispatch::IntegrationTest
     get edit_match_path(@match)
 
     assert_response :success
+    assert_select 'button[data-action="scorecard#setLineup"] svg'
   end
 
   test 'edit renders for the away captain' do
