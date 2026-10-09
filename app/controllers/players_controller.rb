@@ -29,7 +29,8 @@ class PlayersController < ApplicationController
   private
 
   def assign_rating
-    @rating = PlayerRatings.new(@season).for(@player.id) if @season
+    @ratings = PlayerRatings.new(@season) if @season
+    @rating = @ratings&.for(@player.id)
     @show_elo = @rating.present? && (@player == current_player || captain_or_admin?(@season))
   end
 

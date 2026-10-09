@@ -69,7 +69,7 @@
     <% if @line_results.any? %>
       <ul class="flex flex-col gap-2">
         <% @line_results.each do |lineup, games| %>
-          <% line = player_line_summary(@player, lineup, games) %>
+          <% line = player_line_summary(@player, lineup, games, @ratings) %>
           <li id="<%= dom_id(lineup, :result) %>" class="flex flex-wrap items-center justify-between gap-3 rounded-md bg-white px-4 py-3 shadow-sm">
             <div>
               <p class="font-semibold text-dpc-navy">
@@ -85,7 +85,21 @@
               <% end %>
             </div>
             <div class="flex items-center gap-3 text-sm">
-              <span><%= line.scores.map { |own, other| "#{own}-#{other}" }.join(', ') %></span>
+              <ul class="flex flex-col gap-0.5">
+                <% line.scores.zip(line.changes).each do |(own, other), change| %>
+                  <li class="game-result flex items-center justify-end gap-2">
+                    <span><%= own %>-<%= other %></span>
+                    <% if change %>
+                      <span class="rating-change text-xs font-semibold <%= change.pupr.positive? ? 'text-dpc-green' : 'text-gray-500' %>">
+                        <%= t('players.pupr.short') %> <%= pupr_change_label(change) %>
+                        <% if @show_elo %>
+                          <span class="elo-change">- <%= t('players.elo.short') %> <%= elo_change_label(change) %></span>
+                        <% end %>
+                      </span>
+                    <% end %>
+                  </li>
+                <% end %>
+              </ul>
               <span class="rounded-full px-2 py-0.5 text-xs font-bold uppercase <%= line.wins > line.losses ? 'bg-dpc-green text-white' : 'bg-gray-100 text-gray-600' %>">
                 <%= "#{line.wins}-#{line.losses}" %>
               </span>
