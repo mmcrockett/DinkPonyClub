@@ -25,14 +25,6 @@ module PlayersHelper
     row.pupr ? number_with_precision(row.pupr, precision: 2) : '-'
   end
 
-  def players_period_link(filter, season:, lifetime:, active:)
-    label = t(lifetime ? 'players.filters.all_time' : 'players.filters.season')
-    classes = active ? 'bg-dpc-navy text-white' : 'bg-white text-dpc-navy hover:bg-gray-100'
-
-    link_to label, players_index_path(season, players_query_params(filter, lifetime: lifetime)),
-            class: "px-4 py-2 text-sm font-semibold #{classes}", aria: { current: ('page' if active) }
-  end
-
   def pupr_change_label(change)
     format('%<change>+.2f', change: change.pupr)
   end

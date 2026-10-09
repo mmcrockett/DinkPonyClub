@@ -426,7 +426,7 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
     get season_players_path(seasons(:spring), period: 'lifetime', sort: 'wins', team: teams(:alpha).id)
 
     assert_response :success
-    assert_select 'a[aria-current=page]', text: 'All time'
+    assert_select 'nav[aria-label=Breadcrumb] summary', text: /All time/
     assert_select 'th a[href*="period=lifetime"]'
     assert_select "##{dom_id(players(:ada), :stats)} td:nth-child(3)", text: '6'
     assert_select "##{dom_id(players(:sam), :stats)}", count: 0
@@ -447,17 +447,26 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
     get players_path
 
     assert_response :success
-    assert_select 'a[aria-current=page][href^="/players"]', text: 'Season'
-    assert_select 'a[href*="period=lifetime"]', text: 'All time'
   end
 
-  test 'period links keep the current filters' do
+  test 'the all time option is in the season dropdown and drops the team filter' do
     sign_in_as(players(:ada))
 
-    get season_players_path(seasons(:spring), team: teams(:alpha).id)
+    get season_players_path(seasons(:spring), q: 'a', team: teams(:alpha).id)
 
-    assert_select "a[aria-current=page][href*='team=#{teams(:alpha).id}']", text: 'Season'
-    assert_select "a[href*='period=lifetime'][href*='team=#{teams(:alpha).id}']", text: 'All time'
+    assert_select 'nav[aria-label=Breadcrumb] summary', text: /Spring 2026/
+    all_time_path = season_players_path(seasons(:spring), q: 'a', period: 'lifetime')
+
+    assert_select "nav[aria-label=Breadcrumb] a[href='#{all_time_path}']", text: 'All time'
+  end
+
+  test 'picking a season from the dropdown leaves all time' do
+    sign_in_as(players(:ada))
+
+    get season_players_path(seasons(:spring), period: 'lifetime')
+
+    assert_select 'nav[aria-label=Breadcrumb] a[aria-current=true]', text: 'All time'
+    assert_select 'nav[aria-label=Breadcrumb] a[href*="period=lifetime"]', count: 1
   end
 
   test 'switching to lifetime leaves the existing rating unchanged' do

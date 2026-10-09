@@ -286,8 +286,6 @@ en:
     contact_hidden: "Contact details are available to captains."
     no_contact: "No contact details on file."
     filters:
-      season: "Season"
-      all_time: "All time"
       lifetime_note: "Results include all recorded seasons. Ratings are unchanged. Teams, captain badges and substitute filters refer to %{season}."
       search: "Find a player..."
       team: "Team"
@@ -348,6 +346,7 @@ en:
   shared:
     season_breadcrumb:
       league: "Dink Pony Club"
+      all_time: "All time"
   home:
     index:
       banner_alt: "Dink Pony Club Fall 2026 team lineups: Old Balls, New Flicks; Soft Serves; Net Gainz; and Big Dink Energy"

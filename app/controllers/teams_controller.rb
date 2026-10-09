@@ -7,7 +7,7 @@ class TeamsController < ApplicationController
 
   def index
     @season = current_season
-    @rows = Standings.new(@season).rows
+    @rows = Standings.new(@season, lifetime: lifetime_period?).rows
   end
 
   def show

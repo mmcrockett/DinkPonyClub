@@ -25,6 +25,15 @@ class TeamsControllerTest < ActionDispatch::IntegrationTest
     assert_select "li##{dom_id(teams(:bravo))}", text: /0-1-0/
   end
 
+  test 'all time lists every team but links only the season teams' do
+    get season_teams_path(seasons(:fall), period: 'lifetime')
+
+    assert_select 'nav[aria-label=Breadcrumb] summary', text: /All time/
+    assert_select "li##{dom_id(teams(:alpha))} a", text: teams(:alpha).name
+    assert_select "li##{dom_id(teams(:sc_home))}", text: /#{teams(:sc_home).name}/
+    assert_select "li##{dom_id(teams(:sc_home))} a", count: 0
+  end
+
   test 'show has the record, roster with captain and player links' do
     get season_team_path(seasons(:fall), teams(:alpha))
 

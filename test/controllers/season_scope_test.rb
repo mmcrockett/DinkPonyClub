@@ -47,7 +47,7 @@ class SeasonScopeTest < ActionDispatch::IntegrationTest
   test 'breadcrumb lists every season and keeps the page and query' do
     get season_players_path(seasons(:fall), q: 'a', team: teams(:alpha).id)
 
-    assert_select 'nav[aria-label=Breadcrumb] li a', count: Season.count
+    assert_select 'nav[aria-label=Breadcrumb] li a', count: Season.count + 1
     assert_select "nav[aria-label=Breadcrumb] a[href='#{season_players_path(seasons(:spring), q: 'a')}']",
                   text: 'Spring 2026'
     assert_select 'nav[aria-label=Breadcrumb] a[aria-current=true]', text: 'Fall 2026'
@@ -60,7 +60,7 @@ class SeasonScopeTest < ActionDispatch::IntegrationTest
     assert_select 'nav[aria-label=Breadcrumb] li a' do |links|
       assert(links.all? { |link| link['href'].start_with?('/seasons/') })
     end
-    assert_select "nav[aria-label=Breadcrumb] a[href*='script_name=%2F%2Fevil.example']", count: Season.count
+    assert_select "nav[aria-label=Breadcrumb] a[href*='script_name=%2F%2Fevil.example']", count: Season.count + 1
   end
 
   test 'legacy redirect keeps hostile params in the query string' do

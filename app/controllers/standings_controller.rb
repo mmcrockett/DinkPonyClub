@@ -8,7 +8,7 @@ class StandingsController < ApplicationController
 
   def show
     @season = current_season
-    standings = Standings.new(@season) if @season
+    standings = Standings.new(@season, lifetime: lifetime_period?) if @season
     @rows = standings&.rows || []
     @results_posted = standings&.results_posted || 0
   end

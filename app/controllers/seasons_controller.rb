@@ -25,7 +25,7 @@ class SeasonsController < ApplicationController
     Season.find(params.expect(:id)) if params.key?(:id)
   end
 
-  def season_switch_path(season, except: [])
+  def season_switch_path(season, **)
     return super unless action_name == 'show'
 
     season_path(season)

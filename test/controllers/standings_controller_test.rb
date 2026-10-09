@@ -19,6 +19,23 @@ class StandingsControllerTest < ActionDispatch::IntegrationTest
                     :<, response.body.index(dom_id(teams(:bravo), :standings))
   end
 
+  test 'all time lists teams from every season' do
+    sign_in_as_ada
+
+    get season_standings_path(seasons(:fall), period: 'lifetime')
+
+    assert_select 'nav[aria-label=Breadcrumb] summary', text: /All time/
+    assert_select "##{dom_id(teams(:sc_home), :standings)}"
+  end
+
+  test 'season standings leave out teams from other seasons' do
+    sign_in_as_ada
+
+    get season_standings_path(seasons(:fall))
+
+    assert_select "##{dom_id(teams(:sc_home), :standings)}", count: 0
+  end
+
   test 'shows the leader on the first podium card' do
     sign_in_as_ada
 

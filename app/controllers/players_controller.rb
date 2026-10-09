@@ -8,7 +8,7 @@ class PlayersController < ApplicationController
 
   def index
     @season = current_season
-    @lifetime = params[:period] == 'lifetime'
+    @lifetime = lifetime_period?
     @teams = @season ? @season.teams.order(:name) : []
     @captain_view = @season.present? && captain_or_admin?(@season)
     @filter = StatsFilter.new(stats_rows, filter_params)

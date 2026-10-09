@@ -1,7 +1,7 @@
 <% content_for :title, t('.title') %>
 
 <div class="flex flex-col gap-6">
-  <%= render 'shared/season_breadcrumb', season: @season %>
+  <%= render 'shared/season_breadcrumb', season: @season, all_time: lifetime_period? %>
 
   <h1 class="text-2xl font-extrabold text-dpc-navy"><%= t('.title') %></h1>
 
@@ -12,7 +12,7 @@
           <div class="flex min-w-0 items-center gap-3">
             <%= team_logo(row.team, class: 'h-10 w-10 shrink-0 rounded-full object-cover') %>
             <div class="min-w-0">
-              <p class="text-lg font-extrabold text-dpc-navy"><%= team_link(row.team, @season) %></p>
+              <p class="text-lg font-extrabold text-dpc-navy"><%= standings_team_link(row.team, @season) %></p>
               <% if row.team.tagline.present? %>
                 <p class="truncate text-sm text-gray-500"><%= row.team.tagline %></p>
               <% end %>

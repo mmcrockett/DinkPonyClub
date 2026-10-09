@@ -1,19 +1,28 @@
 <% if season %>
+  <% all_time = local_assigns[:all_time] %>
   <nav aria-label="Breadcrumb" class="flex items-center gap-2 text-sm text-gray-500">
     <%= link_to t('shared.season_breadcrumb.league'), root_path, class: 'hover:underline' %>
     <span aria-hidden="true">&rsaquo;</span>
     <% seasons = Season.chronological.to_a %>
-    <% if seasons.size > 1 %>
+    <% if seasons.size > 1 || !all_time.nil? %>
       <details class="relative">
         <summary class="cursor-pointer list-none rounded-md border border-gray-300 bg-white px-3 py-1 font-semibold text-dpc-navy">
-          <%= season.name %> <span aria-hidden="true">&#9662;</span>
+          <%= all_time ? t('shared.season_breadcrumb.all_time') : season.name %> <span aria-hidden="true">&#9662;</span>
         </summary>
         <ul class="absolute z-10 mt-1 min-w-40 rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5">
           <% seasons.each do |option| %>
+            <% current = option == season && !all_time %>
             <li>
-              <%= link_to option.name, season_switch_path(option, except: %w[team]),
-                          class: "block px-3 py-1.5 hover:bg-gray-100 #{option == season ? 'font-bold text-dpc-navy' : 'text-gray-700'}",
-                          aria: { current: (option == season ? 'true' : nil) } %>
+              <%= link_to option.name, season_switch_path(option, except: %w[team period]),
+                          class: "block px-3 py-1.5 hover:bg-gray-100 #{current ? 'font-bold text-dpc-navy' : 'text-gray-700'}",
+                          aria: { current: (current ? 'true' : nil) } %>
+            </li>
+          <% end %>
+          <% unless all_time.nil? %>
+            <li class="mt-1 border-t border-gray-100 pt-1">
+              <%= link_to t('shared.season_breadcrumb.all_time'), season_switch_path(season, except: %w[team], period: 'lifetime'),
+                          class: "block px-3 py-1.5 hover:bg-gray-100 #{all_time ? 'font-bold text-dpc-navy' : 'text-gray-700'}",
+                          aria: { current: (all_time ? 'true' : nil) } %>
             </li>
           <% end %>
         </ul>

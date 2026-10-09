@@ -1,7 +1,7 @@
 <% content_for :title, t('players.index.title') %>
 
 <div class="flex flex-col gap-6">
-  <%= render 'shared/season_breadcrumb', season: @season %>
+  <%= render 'shared/season_breadcrumb', season: @season, all_time: lifetime_period? %>
 
   <h1 class="text-2xl font-extrabold text-dpc-navy"><%= t('players.index.title') %></h1>
 
