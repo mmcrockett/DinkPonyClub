@@ -424,6 +424,17 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
     assert_select 'input[name=period][value=lifetime]'
   end
 
+  test 'the players page renders without any season' do
+    sign_in_as(players(:ada))
+    Season.destroy_all
+
+    get players_path
+
+    assert_response :success
+    assert_select 'a[aria-current=page][href^="/players"]', text: 'Season'
+    assert_select 'a[href*="period=lifetime"]', text: 'All time'
+  end
+
   test 'period links keep the current filters' do
     sign_in_as(players(:ada))
 
