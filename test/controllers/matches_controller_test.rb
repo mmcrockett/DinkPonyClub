@@ -300,10 +300,11 @@ class MatchesControllerTest < ActionDispatch::IntegrationTest
   end
 
   def with_forgery_protection
+    previous = ActionController::Base.allow_forgery_protection
     ActionController::Base.allow_forgery_protection = true
     yield
   ensure
-    ActionController::Base.allow_forgery_protection = false
+    ActionController::Base.allow_forgery_protection = previous
   end
 
   def valid_lines
