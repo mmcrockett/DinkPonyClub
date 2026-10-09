@@ -6,7 +6,7 @@ class PlayerRatings
       (PUPR_CENTER + ((elo - BASE) / ELO_PER_PUPR)).clamp(2.0, 8.0).round(2)
     end
   end
-  Played = Data.define(:home, :away, :home_score, :away_score, :position, :season_id)
+  Played = Data.define(:home, :away, :home_score, :away_score, :position, :season_id, :game_id)
 
   BASE = 1500
   LINE_STEP = 170
@@ -17,7 +17,9 @@ class PlayerRatings
   MAX_MARGIN = 11
   DEFAULT_LINES = 4
   PLUCKED = (Game::PLAYER_COLUMNS.map { |column| "games.#{column}" } +
-             %w[games.home_score games.away_score lineups.position matches.season_id]).freeze
+             %w[games.home_score games.away_score lineups.position matches.season_id games.id]).freeze
+
+  include Seeding
 
   def initialize(season)
     @season = season
@@ -27,11 +29,17 @@ class PlayerRatings
     ratings[player_id]
   end
 
+  def elo_change(game_id, player_id)
+    ratings
+    @changes[[game_id, player_id]]
+  end
+
   private
 
   def ratings
     @ratings ||= begin
       table = {}
+      @changes = {}
       played_games.each { |played| rate(table, played) }
       seed_roster(table)
       table
@@ -50,7 +58,7 @@ class PlayerRatings
 
   def played_from(values)
     Played.new(home: values[0..1], away: values[2..3], home_score: values[4], away_score: values[5],
-               position: values[6], season_id: values[7])
+               position: values[6], season_id: values[7], game_id: values[8])
   end
 
   def rate(table, played)
@@ -59,10 +67,16 @@ class PlayerRatings
 
     home.each { |rating| apply(rating, delta) }
     away.each { |rating| apply(rating, -delta) }
+    record_change(played, delta)
   end
 
   def delta_for(played, home, away)
     K * multiplier(played) * (outcome(played) - expected(home, away))
+  end
+
+  def record_change(played, delta)
+    played.home.each { |id| @changes[[played.game_id, id]] = delta }
+    played.away.each { |id| @changes[[played.game_id, id]] = -delta }
   end
 
   def apply(rating, delta)
@@ -101,29 +115,5 @@ class PlayerRatings
       tier = tier_from_rank(spot.draft_rank)
       table[spot.player_id] ||= Rating.new(seed(tier, count), 0) if tier
     end
-  end
-
-  def seed(tier, count)
-    BASE + (LINE_STEP * (((count + 1) / 2.0) - tier.clamp(1, count)))
-  end
-
-  def tier_from_rank(rank)
-    text = rank.to_s.strip.upcase
-    return text.to_i if text.match?(/\A[1-9]/)
-
-    text.ord - 'A'.ord + 1 if text.match?(/\A[A-E]/)
-  end
-
-  def line_count(season_id)
-    line_counts[season_id] || DEFAULT_LINES
-  end
-
-  def line_counts
-    @line_counts ||= Lineup.joins(:match).group('matches.season_id').maximum(:position)
-  end
-
-  def draft_ranks
-    @draft_ranks ||= RosterSpot.pluck(:season_id, :player_id, :draft_rank)
-                               .to_h { |season_id, player_id, rank| [[season_id, player_id], rank] }
   end
 end

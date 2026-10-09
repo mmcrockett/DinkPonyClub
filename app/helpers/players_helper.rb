@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module PlayersHelper
-  LineSummary = Struct.new(:match, :opponent, :partners, :scores, :wins, :losses, keyword_init: true)
+  LineSummary = Struct.new(:match, :opponent, :partners, :scores, :wins, :losses, :elo_changes, keyword_init: true)
 
   def win_rate_label(row)
     return '-' if row.nil? || row.win_pct.nil?
@@ -29,6 +29,14 @@ module PlayersHelper
             class: "px-4 py-2 text-sm font-semibold #{classes}", aria: { current: ('page' if active) }
   end
 
+  def pupr_change_label(elo_change)
+    format('%<change>+.2f', change: elo_change / PlayerRatings::ELO_PER_PUPR)
+  end
+
+  def elo_change_label(elo_change)
+    format('%<change>+d', change: elo_change.round)
+  end
+
   def players_sort_link(filter, column, season:, lifetime: false)
     query_params = players_query_params(filter, lifetime: lifetime).merge(sort: column,
                                                                           dir: filter.next_direction(column))
@@ -44,7 +52,7 @@ module PlayersHelper
     filter.descending? ? 'descending' : 'ascending'
   end
 
-  def player_line_summary(player, lineup, games)
+  def player_line_summary(player, lineup, games, ratings = nil)
     home = games.first.home_players.include?(player)
     match = lineup.match
     scores = own_side_scores(games, home)
@@ -52,10 +60,15 @@ module PlayersHelper
 
     LineSummary.new(match:, opponent: home ? match.away_team : match.home_team,
                     partners: line_partners(games, home) - [player],
-                    scores:, wins:, losses: scores.size - wins)
+                    scores:, wins:, losses: scores.size - wins,
+                    elo_changes: elo_changes_for(player, games, ratings))
   end
 
   private
+
+  def elo_changes_for(player, games, ratings)
+    games.map { |game| ratings&.elo_change(game.id, player.id) }
+  end
 
   def players_query_params(filter, lifetime:)
     { q: filter.query.presence, team: filter.team, hide_substitutes: filter.hide_substitutes? ? '1' : nil,

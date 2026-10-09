@@ -40,6 +40,23 @@ class PlayerRatingsTest < ActiveSupport::TestCase
     assert_in_delta 6000, total(ratings)
   end
 
+  test 'elo change records each game movement per player and nets to zero' do
+    game = play(11, 9)
+    ratings = PlayerRatings.new(@season)
+    changes = [@ada, players(:grace), @sam, players(:ben)].map { |player| ratings.elo_change(game.id, player.id) }
+
+    assert_in_delta 12, changes.first
+    assert_equal changes.first, changes.second
+    assert_in_delta(-12, changes.third)
+    assert_in_delta 0, changes.sum
+  end
+
+  test 'elo change is nil for a player who was not in the game' do
+    game = play(11, 9)
+
+    assert_nil PlayerRatings.new(@season).elo_change(game.id, players(:ada).id + 9999)
+  end
+
   test 'earlier seasons only see games up to their last match night' do
     play(11, 9)
 

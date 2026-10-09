@@ -124,6 +124,23 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
     assert_select 'span', text: 'PUPR'
   end
 
+  test 'profile shows per game pupr change to any player but elo only where elo is visible' do
+    sign_in_as(players(:grace))
+
+    get season_player_path(seasons(:fall), players(:ada))
+
+    assert_select "##{dom_id(lineups(:fall_alpha_bravo_one), :result)} .rating-change", text: /PUPR [+-]\d\.\d{2}/
+    assert_select '.elo-change', count: 0
+  end
+
+  test 'a captain sees the elo change next to the pupr change' do
+    sign_in_as(players(:ada))
+
+    get season_player_path(seasons(:fall), players(:grace))
+
+    assert_select '.rating-change .elo-change', text: /Elo [+-]\d+/
+  end
+
   test 'links each name to the player profile' do
     sign_in_as(players(:ada))
 
@@ -338,7 +355,7 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select 'h1', text: players(:ada).full_name
     assert_select "##{dom_id(lineups(:fall_alpha_bravo_one), :result)}", text: /Line 1 vs Test Team Bravo/
-    assert_select "##{dom_id(lineups(:fall_alpha_bravo_one), :result)}", text: /11-4, 6-11, 12-10/
+    assert_select "##{dom_id(lineups(:fall_alpha_bravo_one), :result)}", text: /11-4.*6-11.*12-10/m
     assert_select "##{dom_id(lineups(:fall_alpha_bravo_one), :result)}", text: /With Grace Fixture/
   end
 
@@ -377,7 +394,7 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
 
     get season_player_path(seasons(:fall), players(:sam))
 
-    assert_select "##{dom_id(lineups(:fall_alpha_bravo_one), :result)}", text: /4-11, 11-6, 10-12/
+    assert_select "##{dom_id(lineups(:fall_alpha_bravo_one), :result)}", text: /4-11.*11-6.*10-12/m
   end
 
   test 'profile has no edit link' do
