@@ -27,23 +27,21 @@ class PlayerRatings
   end
 
   def for(player_id)
-    ratings[player_id]
+    replay.first[player_id]
   end
 
   def change_for(game_id, player_id)
-    ratings
-    @changes[[game_id, player_id]]
+    replay.last[[game_id, player_id]]
   end
 
   private
 
-  def ratings
-    @ratings ||= begin
+  def replay
+    @replay ||= begin
       table = {}
-      @changes = {}
-      played_games.each { |played| rate(table, played) }
+      changes = played_games.reduce({}) { |all, played| all.merge!(rate(table, played)) }
       seed_roster(table)
-      table
+      [table, changes]
     end
   end
 
@@ -66,16 +64,15 @@ class PlayerRatings
     home, away = [played.home, played.away].map { |ids| ids.map { |id| entry(table, id, played) } }
     delta = delta_for(played, home, away)
 
-    record_changes(played, played.home, home, delta)
-    record_changes(played, played.away, away, -delta)
+    side_changes(played, played.home, home, delta).merge(side_changes(played, played.away, away, -delta))
   end
 
   def delta_for(played, home, away)
     K * multiplier(played) * (outcome(played) - expected(home, away))
   end
 
-  def record_changes(played, ids, side, delta)
-    ids.zip(side) { |id, rating| @changes[[played.game_id, id]] = apply(rating, delta) }
+  def side_changes(played, ids, side, delta)
+    ids.zip(side).to_h { |id, rating| [[played.game_id, id], apply(rating, delta)] }
   end
 
   def apply(rating, delta)
