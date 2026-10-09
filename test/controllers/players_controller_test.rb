@@ -57,8 +57,8 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
     assert_select '.owes-chip', count: 0
   end
 
-  test 'captains see a sortable rating column' do
-    sign_in_as(players(:ada))
+  test 'every player sees sortable pupr and elo columns' do
+    sign_in_as(players(:grace))
 
     get season_players_path(seasons(:fall), sort: 'rating')
 
@@ -67,18 +67,6 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
     assert_select 'th a', text: /PUPR/
     assert_select "##{dom_id(players(:ada), :stats)} td.elo-cell", text: /\d{4}/
     assert_select "##{dom_id(players(:ada), :stats)} td.pupr-cell", text: /\d\.\d{2}/
-  end
-
-  test 'regular players see pupr but no elo column and cannot sort by elo' do
-    sign_in_as(players(:grace))
-
-    get season_players_path(seasons(:fall), sort: 'rating')
-
-    assert_response :success
-    assert_select 'th a', text: /Elo/, count: 0
-    assert_select "##{dom_id(players(:ada), :stats)} td.elo-cell", count: 0
-    assert_select "##{dom_id(players(:ada), :stats)} td.pupr-cell", text: /\d\.\d{2}/
-    assert_select 'th[aria-sort="ascending"]', text: /Player/
   end
 
   test 'any signed in player sees the pupr on a profile' do
@@ -99,45 +87,20 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
     assert_select '#pupr-info[popover] strong', count: 4
   end
 
-  test 'a player sees their own elo on their profile' do
-    sign_in_as(players(:grace))
-
-    get season_player_path(seasons(:fall), players(:grace))
-
-    assert_select "##{dom_id(players(:grace), :elo)}", text: /\A\d+\z/
-  end
-
-  test 'captains see a player elo on their profile' do
-    sign_in_as(players(:ada))
-
-    get season_player_path(seasons(:fall), players(:grace))
-
-    assert_select "##{dom_id(players(:grace), :elo)}"
-  end
-
-  test 'regular players do not see another player elo' do
+  test 'any signed in player sees a player elo on their profile' do
     sign_in_as(players(:grace))
 
     get season_player_path(seasons(:fall), players(:ada))
 
-    assert_select "##{dom_id(players(:ada), :elo)}", count: 0
-    assert_select 'span', text: 'PUPR'
+    assert_select "##{dom_id(players(:ada), :elo)}", text: /\A\d+\z/
   end
 
-  test 'profile shows per game pupr change to any player but elo only where elo is visible' do
+  test 'profile shows per game pupr and elo change to any player' do
     sign_in_as(players(:grace))
 
     get season_player_path(seasons(:fall), players(:ada))
 
     assert_select "##{dom_id(lineups(:fall_alpha_bravo_one), :result)} .rating-change", text: /PUPR [+-]\d\.\d{2}/
-    assert_select '.elo-change', count: 0
-  end
-
-  test 'a captain sees the elo change next to the pupr change' do
-    sign_in_as(players(:ada))
-
-    get season_player_path(seasons(:fall), players(:grace))
-
     assert_select '.rating-change .elo-change', text: /Elo [+-]\d+/
   end
 
@@ -478,15 +441,6 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
     get season_players_path(seasons(:fall), period: 'lifetime')
 
     assert_select "##{dom_id(players(:ada), :stats)} td.elo-cell", text: rating
-  end
-
-  test 'lifetime does not expose ratings to non-captains' do
-    sign_in_as(players(:grace))
-
-    get season_players_path(seasons(:fall), period: 'lifetime', sort: 'rating')
-
-    assert_response :success
-    assert_select 'th a', text: /Elo/, count: 0
   end
 
   private
