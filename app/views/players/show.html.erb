@@ -71,7 +71,7 @@
           <li id="<%= dom_id(lineup, :result) %>" class="flex flex-wrap items-center justify-between gap-3 rounded-md bg-white px-4 py-3 shadow-sm">
             <div>
               <p class="font-semibold text-dpc-navy">
-                <%= l(line.match.played_on, format: :short) %> - <%= line.match.match_night.label %>
+                <%= link_to "#{l(line.match.played_on, format: :short)} - #{line.match.match_night.label}", match_path(line.match), class: 'hover:underline' %>
                 <span class="text-gray-500">
                   <%= t('players.show.line_vs_html', position: lineup.position, opponent: team_link(line.opponent, @season)) %>
                 </span>
@@ -81,7 +81,7 @@
               </p>
               <% if line.partners.any? %>
                 <p class="text-sm text-gray-500">
-                  <%= t('players.show.partners', names: line.partners.map(&:full_name).to_sentence) %>
+                  <%= t('players.show.partners_html', names: to_sentence(line.partners.map { |partner| player_link(partner, @season) })) %>
                 </p>
               <% end %>
             </div>

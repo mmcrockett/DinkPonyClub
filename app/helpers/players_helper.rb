@@ -9,6 +9,10 @@ module PlayersHelper
     number_to_percentage(row.win_pct * 100, precision: 0)
   end
 
+  def player_link(player, season)
+    link_to player.full_name, season_player_path(season, player), class: 'hover:underline'
+  end
+
   def player_team_label(row)
     row.substitute? ? t('players.substitute') : row.team.name
   end

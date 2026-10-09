@@ -326,6 +326,18 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
     assert_select "##{dom_id(lineups(:fall_alpha_bravo_one), :result)}", text: /With Grace Fixture/
   end
 
+  test 'profile line result links partner and match' do
+    sign_in_as(players(:grace))
+    lineup = lineups(:fall_alpha_bravo_one)
+
+    get season_player_path(seasons(:fall), players(:ada))
+
+    result = "##{dom_id(lineup, :result)}"
+
+    assert_select "#{result} a[href=?]", season_player_path(seasons(:fall), players(:grace)), text: 'Grace Fixture'
+    assert_select "#{result} a[href=?]", match_path(lineup.match)
+  end
+
   test 'profile lists every season with a career total and highlights the viewed one' do
     sign_in_as(players(:grace))
 

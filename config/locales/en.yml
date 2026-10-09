@@ -320,7 +320,7 @@ en:
       lines: "This season's lines"
       score: "Score"
       line_vs_html: "Line %{position} vs %{opponent}"
-      partners: "With %{names}"
+      partners_html: "With %{names}"
       no_lines: "No line results this season yet."
   calendar_tokens:
     create:
