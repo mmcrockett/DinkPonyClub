@@ -13,13 +13,14 @@ class Standings
 
   attr_reader :season
 
-  def initialize(season)
+  def initialize(season, lifetime: false)
     @season = season
+    @lifetime = lifetime
   end
 
   def rows
-    season.teams.map { |team| row_for(team) }
-          .sort_by { |row| [-row.wins, -row.diff] }
+    teams.map { |team| row_for(team) }
+         .sort_by { |row| [-row.wins, -row.diff] }
   end
 
   def results_posted
@@ -28,10 +29,14 @@ class Standings
 
   private
 
+  def teams
+    @lifetime ? Team.order(:name) : season.teams
+  end
+
   def regular_season_matches
-    @regular_season_matches ||= season.matches.joins(:match_night)
-                                      .merge(MatchNight.where(playoff: false, canceled: false))
-                                      .includes(MATCH_INCLUDES).to_a
+    @regular_season_matches ||= (@lifetime ? Match.all : season.matches).joins(:match_night)
+                                .merge(MatchNight.where(playoff: false, canceled: false))
+                                .includes(MATCH_INCLUDES).to_a
   end
 
   def completed_results

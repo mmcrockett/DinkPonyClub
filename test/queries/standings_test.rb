@@ -9,6 +9,14 @@ class StandingsTest < ActiveSupport::TestCase
     assert_equal [1, 1], rows.map(&:played)
   end
 
+  test 'lifetime standings include teams and results from every season' do
+    rows = Standings.new(seasons(:fall), lifetime: true).rows
+
+    assert_equal Team.count, rows.size
+    assert_includes rows.map(&:team), teams(:sc_home)
+    assert_equal 1, rows.find { |row| row.team == teams(:alpha) }.wins
+  end
+
   test 'reports points for, points against, and diff from the match result' do
     row = Standings.new(seasons(:fall)).rows.find { |candidate| candidate.team == teams(:alpha) }
 
