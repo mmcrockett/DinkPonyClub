@@ -52,7 +52,7 @@ module PlayersHelper
     filter.descending? ? 'descending' : 'ascending'
   end
 
-  def player_line_summary(player, lineup, games, ratings = nil)
+  def player_line_summary(player, lineup, games, ratings)
     home = games.first.home_players.include?(player)
     match = lineup.match
     scores = own_side_scores(games, home)
@@ -67,7 +67,7 @@ module PlayersHelper
   private
 
   def changes_for(player, games, ratings)
-    games.map { |game| ratings&.change_for(game.id, player.id) }
+    games.map { |game| ratings.change_for(game.id, player.id) }
   end
 
   def players_query_params(filter, lifetime:)
