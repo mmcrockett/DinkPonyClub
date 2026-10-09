@@ -100,8 +100,12 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
 
     get season_player_path(seasons(:fall), players(:ada))
 
-    assert_select "##{dom_id(lineups(:fall_alpha_bravo_one), :result)} .rating-change", text: /PUPR [+-]\d\.\d{2}/
-    assert_select '.rating-change .elo-change', text: /Elo [+-]\d+/
+    result = "##{dom_id(lineups(:fall_alpha_bravo_one), :result)}"
+
+    assert_select "#{result} .game-results th", text: 'PUPR'
+    assert_select "#{result} .game-results th", text: 'Elo'
+    assert_select "#{result} .rating-change", text: /\A[+-]\d\.\d{2}\z/
+    assert_select "#{result} .elo-change", text: /\A[+-]\d+\z/
   end
 
   test 'links each name to the player profile' do
