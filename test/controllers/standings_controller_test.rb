@@ -36,6 +36,15 @@ class StandingsControllerTest < ActionDispatch::IntegrationTest
     assert_select "##{dom_id(teams(:sc_home), :standings)}", count: 0
   end
 
+  test 'all time drops the race title and podium' do
+    sign_in_as_ada
+
+    get season_standings_path(seasons(:fall), period: 'lifetime')
+
+    assert_select 'h1', text: 'All-time standings.'
+    assert_select "##{dom_id(teams(:alpha), :podium)}", count: 0
+  end
+
   test 'shows the leader on the first podium card' do
     sign_in_as_ada
 
