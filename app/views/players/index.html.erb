@@ -6,10 +6,7 @@
   <h1 class="text-2xl font-extrabold text-dpc-navy"><%= t('players.index.title') %></h1>
 
   <% if admin? %>
-    <%= link_to new_admin_player_path(season: @season), title: t('players.index.add'),
-                class: 'inline-flex h-12 w-12 items-center justify-center rounded-md border border-gray-200 bg-white text-dpc-green shadow-sm hover:bg-gray-50' do %>
-      <%= render 'shared/icon', name: 'plus', class: 'h-7 w-7' %><span class="sr-only"><%= t('players.index.add') %></span>
-    <% end %>
+    <%= link_to t('players.index.add'), new_admin_player_path(season: @season), class: 'btn btn-primary self-start' %>
   <% end %>
 
   <%= turbo_frame_tag 'players', class: 'flex flex-col gap-6', data: { turbo_action: 'advance' } do %>
