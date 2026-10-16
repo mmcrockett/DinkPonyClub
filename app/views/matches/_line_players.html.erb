@@ -9,7 +9,7 @@
         <% (0..2).each do |slot| %>
           <% third_hidden = slot == 2 && selected_ids[2].blank? %>
           <%= select_tag "scorecard[lines][#{line.position}][#{side}_player_ids][]",
-                roster_options(roster, selected_ids[slot]),
+                roster_options(roster, selected_ids[slot], @subs - roster),
                 include_blank: true, class: 'form-input', hidden: third_hidden,
                 'aria-label': "Line #{line.position} #{side} player #{slot + 1}",
                 data: { scorecard_target: 'player', line: line.position, side: side, slot: slot,

@@ -180,6 +180,27 @@ class MatchesControllerTest < ActionDispatch::IntegrationTest
     assert_select 'option[selected]', text: players(:ada).full_name
   end
 
+  test 'edit offers unrostered active players under a Subs group' do
+    sign_in_as players(:sc_home_captain)
+
+    get edit_match_path(@match)
+
+    assert_select "optgroup[label='Subs'] option", text: players(:ada).full_name
+    assert_select "optgroup[label='Subs'] option", text: players(:wade).full_name, count: 0
+    assert_select "optgroup[label='Subs'] option", text: players(:sc_away_captain).full_name, count: 0
+  end
+
+  test 'update saves a sub in place of a rostered player' do
+    sign_in_as players(:sc_home_captain)
+    lines = valid_lines
+    lines['4'][:home_player_ids][0] = players(:ada).id.to_s
+
+    patch match_path(@match), params: { scorecard: { lines: lines } }
+
+    assert_redirected_to match_path(@match)
+    assert @match.lineup_picks.exists?(player: players(:ada), position: 4)
+  end
+
   test 'edit renders a block per line with a score row for each of the three games' do
     sign_in_as players(:sc_home_captain)
 
