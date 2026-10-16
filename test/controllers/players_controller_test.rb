@@ -22,6 +22,32 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_path
   end
 
+  test 'shows the add link and edit link to an admin' do
+    sign_in_as(players(:zoe))
+    season = seasons(:fall)
+
+    get season_players_path(season)
+
+    assert_select "a[href='#{new_admin_player_path(season: season)}']"
+
+    get season_player_path(season, players(:sam))
+
+    assert_select "a[href='#{edit_admin_player_path(players(:sam), season: season)}']"
+  end
+
+  test 'hides the add link and edit link from a non-admin' do
+    sign_in_as(players(:ada))
+    season = seasons(:fall)
+
+    get season_players_path(season)
+
+    assert_select "a[href='#{new_admin_player_path(season: season)}']", count: 0
+
+    get season_player_path(season, players(:sam))
+
+    assert_select "a[href='#{edit_admin_player_path(players(:sam), season: season)}']", count: 0
+  end
+
   test 'lists rostered players and substitutes' do
     sign_in_as(players(:ada))
 

@@ -32,7 +32,7 @@ Rails.application.routes.draw do
 
   get    'auth/google_oauth2/callback', to: 'sessions#create'
   get    'auth/failure', to: 'sessions#failure'
-  get    'test/sign_in/:player_id', to: 'test_sessions#create', as: :test_sign_in if Rails.env.test?
+  get    'test/sign_in/:player_id', to: 'test_sessions#create', as: :test_sign_in if Rails.env.local?
   delete 'sign_out', to: 'sessions#destroy', as: :sign_out
   get    'sign_in', to: 'sessions#new', as: :sign_in
   resource :magic_link, only: %i[create show], path: 'sign_in/link' do
@@ -43,6 +43,7 @@ Rails.application.routes.draw do
   end
 
   namespace :admin do
+    root 'dashboards#show'
     resources :players, only: %i[index new create edit update] do
       resource :charges, only: %i[update]
       resource :payment_request, only: %i[create]

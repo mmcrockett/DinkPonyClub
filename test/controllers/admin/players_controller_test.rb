@@ -16,14 +16,12 @@ module Admin
       assert_redirected_to root_path
     end
 
-    test 'renders the player list for an admin' do
+    test 'sends the admin player list to the season players page' do
       sign_in_as players(:zoe)
 
       get admin_players_path
 
-      assert_response :success
-      assert_select 'li', text: /#{players(:ada).full_name}/
-      assert_select "a[href='#{admin_roster_path}']"
+      assert_redirected_to season_players_path(seasons(:fall))
     end
 
     test 'renders the new player form for an admin' do
@@ -51,7 +49,7 @@ module Admin
         post admin_players_path, params: params
       end
 
-      assert_redirected_to admin_players_path
+      assert_redirected_to season_player_path(seasons(:fall), Player.find_by!(email: 'new@example.test'))
     end
 
     test 'does not create an invalid player' do
@@ -69,7 +67,7 @@ module Admin
 
       patch admin_player_path(players(:ada)), params: { player: { first_name: 'Updated', email: 'ada@example.test' } }
 
-      assert_redirected_to admin_players_path
+      assert_redirected_to season_player_path(seasons(:fall), players(:ada))
       assert_equal 'Updated', players(:ada).reload.first_name
     end
 
@@ -86,7 +84,7 @@ module Admin
 
       patch admin_player_path(players(:ada)), params: { player: { phone: '512-555-0142' } }
 
-      assert_redirected_to admin_players_path
+      assert_redirected_to season_player_path(seasons(:fall), players(:ada))
       assert_equal '512-555-0142', players(:ada).reload.phone
     end
 

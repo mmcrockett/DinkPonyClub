@@ -11,7 +11,7 @@ module NavigationHelper
       { label: 'Standings', icon: 'trophy', path: season_nav_path(:standings) },
       { label: 'Rules & Format', icon: 'book-open', path: rules_path }
     ]
-    items << { label: 'Admin', icon: 'cog', path: admin_players_path } if admin?
+    items << { label: 'Admin', icon: 'cog', path: admin_root_path(season: nav_season) } if admin?
     items
   end
 

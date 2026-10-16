@@ -175,6 +175,16 @@ class MatchNightTest < ActiveSupport::TestCase
     assert_not night.complete?
   end
 
+  test 'availability_relevant? is false once the night is past or complete' do
+    today = MatchNight.new(played_on: Date.current)
+
+    assert_predicate today, :availability_relevant?
+    today.define_singleton_method(:complete?) { true }
+
+    assert_not today.availability_relevant?
+    assert_not MatchNight.new(played_on: Date.current - 1).availability_relevant?
+  end
+
   test 'results lock at the end of the day after played_on' do
     night = MatchNight.new(played_on: Date.new(2026, 1, 10))
 

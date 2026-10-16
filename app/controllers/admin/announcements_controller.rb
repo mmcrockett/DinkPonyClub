@@ -24,7 +24,7 @@ module Admin
 
     def require_season
       @season = current_season
-      redirect_to admin_players_path, alert: t('admin.announcements.no_season') unless @season
+      redirect_to players_home_path, alert: t('admin.announcements.no_season') unless @season
     end
 
     def announcement_params

@@ -15,6 +15,13 @@
     <%= t('players.filters.hide_substitutes') %>
   </label>
 
+  <% if admin? %>
+    <%= link_to new_admin_player_path(season: season), title: t('players.index.add'), data: { turbo_frame: '_top' },
+                class: 'ml-auto inline-flex h-10 w-10 items-center justify-center rounded-md bg-dpc-navy text-white shadow-sm hover:bg-dpc-navy/90' do %>
+      <%= render 'shared/icon', name: 'plus', class: 'h-6 w-6' %><span class="sr-only"><%= t('players.index.add') %></span>
+    <% end %>
+  <% end %>
+
   <%= form.hidden_field :period, value: 'lifetime' if lifetime %>
   <%= form.hidden_field :sort, value: filter.sort %>
   <%= form.hidden_field :dir, value: filter.direction %>

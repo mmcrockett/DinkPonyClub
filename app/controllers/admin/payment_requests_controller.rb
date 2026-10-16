@@ -7,7 +7,7 @@ module Admin
     before_action :require_admin
 
     def create
-      return redirect_to admin_players_path, alert: t('.no_season') unless current_season
+      return redirect_to players_home_path, alert: t('.no_season') unless current_season
 
       recipients, skipped = requested_players.partition { |player| player.email.present? }
       recipients.each { |player| PaymentRequestMailer.request_payment(player, current_season).deliver_later }
@@ -22,7 +22,7 @@ module Admin
     end
 
     def destination
-      return admin_players_path(season: current_season) unless params[:player_id]
+      return players_home_path unless params[:player_id]
 
       edit_admin_player_path(params[:player_id], season: current_season)
     end

@@ -351,6 +351,14 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
     assert_select 'button', text: 'Cancel night', count: 0
   end
 
+  test 'hides the availability control on a past night' do
+    sign_in_as_ada
+
+    get season_match_nights_path(seasons(:fall))
+
+    assert_select "##{dom_id(match_nights(:fall_week_one), :my_availability)}", count: 0
+  end
+
   test 'hides the availability control on a canceled night' do
     sign_in_as(players(:zoe))
 
