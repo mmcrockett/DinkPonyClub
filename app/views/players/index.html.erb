@@ -5,6 +5,8 @@
 
   <h1 class="text-2xl font-extrabold text-dpc-navy"><%= t('players.index.title') %></h1>
 
+  <%= render 'admin_toolbar', season: @season if admin? %>
+
   <%= turbo_frame_tag 'players', class: 'flex flex-col gap-6', data: { turbo_action: 'advance' } do %>
     <%= render 'filters', season: @season, teams: @teams, filter: @filter, lifetime: @lifetime %>
 

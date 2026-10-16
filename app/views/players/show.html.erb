@@ -36,6 +36,12 @@
           </p>
         </div>
       <% end %>
+      <% if admin? %>
+        <%= link_to edit_admin_player_path(@player, season: @season), title: t('players.show.edit'),
+                    class: 'inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-gray-200 text-dpc-green hover:bg-gray-50' do %>
+          <%= render 'shared/icon', name: 'pencil-square', class: 'h-6 w-6' %><span class="sr-only"><%= t('players.show.edit') %></span>
+        <% end %>
+      <% end %>
       <% if @row&.captain %>
         <span class="rounded-full bg-dpc-green px-2 py-0.5 text-xs font-bold uppercase text-white">
           <%= t('players.captain') %>

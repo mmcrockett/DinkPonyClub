@@ -21,7 +21,7 @@ module Admin
         post admin_payment_requests_path(season: seasons(:fall))
       end
 
-      assert_redirected_to admin_players_path(season: seasons(:fall))
+      assert_redirected_to season_players_path(seasons(:fall))
       assert_equal 'Payment request sent to 1 player.', flash[:notice]
     end
 

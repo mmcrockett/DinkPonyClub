@@ -307,6 +307,7 @@ en:
         rating: "Elo"
     show:
       back: "Back to players"
+      edit: "Edit player"
       not_playing: "Not playing this season"
       games: "Games"
       wins: "Wins"

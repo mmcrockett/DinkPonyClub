@@ -4,13 +4,17 @@ module SeasonScoped
   extend ActiveSupport::Concern
 
   included do
-    helper_method :current_season, :season_switch_path, :lifetime_period?
+    helper_method :current_season, :season_switch_path, :lifetime_period?, :players_home_path
   end
 
   private
 
   def lifetime_period?
     params[:period] == 'lifetime'
+  end
+
+  def players_home_path
+    current_season ? season_players_path(current_season) : players_path
   end
 
   def current_season

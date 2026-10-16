@@ -28,7 +28,7 @@ module Admin
 
       get new_admin_announcement_path
 
-      assert_redirected_to admin_players_path
+      assert_redirected_to players_path
       assert_equal 'No seasons exist yet.', flash[:alert]
     end
 

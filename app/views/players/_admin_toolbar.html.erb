@@ -1,0 +1,21 @@
+<% tile = 'inline-flex h-14 w-14 items-center justify-center rounded-md border border-gray-200 bg-white text-dpc-green shadow-sm hover:bg-gray-50' %>
+<nav aria-label="Admin" class="flex flex-wrap items-center gap-3">
+  <%= link_to new_admin_player_path(season: season), title: 'New player', class: tile do %>
+    <%= render 'shared/icon', name: 'plus', class: 'h-8 w-8' %><span class="sr-only">New player</span>
+  <% end %>
+  <% if season %>
+    <%= link_to admin_roster_path(season: season), title: t('admin.rosters.show.title'), class: tile do %>
+      <%= render 'shared/icon', name: 'users', class: 'h-8 w-8' %><span class="sr-only"><%= t('admin.rosters.show.title') %></span>
+    <% end %>
+    <%= link_to admin_fees_path(season: season), title: t('admin.fees.index.title'), class: tile do %>
+      <%= render 'shared/icon', name: 'clipboard-document-list', class: 'h-8 w-8' %><span class="sr-only"><%= t('admin.fees.index.title') %></span>
+    <% end %>
+    <%= link_to new_admin_announcement_path(season: season), title: t('admin.announcements.new.title'), class: tile do %>
+      <%= render 'shared/icon', name: 'envelope', class: 'h-8 w-8' %><span class="sr-only"><%= t('admin.announcements.new.title') %></span>
+    <% end %>
+    <%= button_to admin_payment_requests_path(season: season), title: t('admin.payment_requests.button'), class: tile,
+                  form: { data: { turbo_confirm: t('admin.payment_requests.confirm_all', season: season.name) } } do %>
+      <%= render 'shared/icon', name: 'currency-dollar', class: 'h-8 w-8' %><span class="sr-only"><%= t('admin.payment_requests.button') %></span>
+    <% end %>
+  <% end %>
+</nav>

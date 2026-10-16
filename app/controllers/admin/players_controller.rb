@@ -8,7 +8,7 @@ module Admin
     before_action :set_player, only: %i[edit update]
 
     def index
-      @players = Player.by_name
+      redirect_to players_home_path
     end
 
     def new
@@ -25,7 +25,7 @@ module Admin
       @player = Player.new(player_params)
 
       if @player.save
-        redirect_to admin_players_path, notice: t('.created', name: @player.full_name)
+        redirect_to player_page_path, notice: t('.created', name: @player.full_name)
       else
         render :new, status: :unprocessable_content
       end
@@ -33,13 +33,17 @@ module Admin
 
     def update
       if @player.update(player_params)
-        redirect_to admin_players_path, notice: t('.updated', name: @player.full_name)
+        redirect_to player_page_path, notice: t('.updated', name: @player.full_name)
       else
         render :edit, status: :unprocessable_content
       end
     end
 
     private
+
+    def player_page_path
+      current_season ? season_player_path(current_season, @player) : player_path(@player)
+    end
 
     def set_player
       @player = Player.find(params.expect(:id))
