@@ -64,6 +64,10 @@ en:
     dashboards:
       show:
         title: "Admin"
+        fees: "Fees"
+        email: "Email"
+        payments: "Payments"
+        roster: "Roster"
         no_season: "Create a season first."
     players:
       create:

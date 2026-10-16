@@ -1,23 +1,38 @@
 <% content_for :title, t('.title') %>
-<% tile = 'inline-flex h-20 w-20 items-center justify-center rounded-md border border-gray-200 bg-white text-dpc-green shadow-sm hover:bg-gray-50' %>
+<% tile = 'flex w-24 flex-col items-center gap-1 text-sm font-semibold text-dpc-navy' %>
+<% box = 'flex h-20 w-24 items-center justify-center rounded-md border border-gray-200 bg-white text-dpc-green shadow-sm hover:bg-gray-50' %>
 
 <div class="mx-auto flex max-w-2xl flex-col gap-6">
   <h1 class="text-2xl font-extrabold text-dpc-navy"><%= t('.title') %></h1>
 
   <% if @season %>
-    <nav aria-label="Admin" class="flex flex-wrap items-center gap-4">
-      <%= link_to admin_fees_path(season: @season), title: t('admin.fees.index.title'), class: tile do %>
-        <%= render 'shared/icon', name: 'clipboard-document-list', class: 'h-10 w-10' %><span class="sr-only"><%= t('admin.fees.index.title') %></span>
-      <% end %>
-      <%= link_to new_admin_announcement_path(season: @season), title: t('admin.announcements.new.title'), class: tile do %>
-        <%= render 'shared/icon', name: 'envelope', class: 'h-10 w-10' %><span class="sr-only"><%= t('admin.announcements.new.title') %></span>
-      <% end %>
-      <%= button_to admin_payment_requests_path(season: @season), title: t('admin.payment_requests.button'), class: tile,
-                    form: { data: { turbo_confirm: t('admin.payment_requests.confirm_all', season: @season.name) } } do %>
-        <%= render 'shared/icon', name: 'currency-dollar', class: 'h-10 w-10' %><span class="sr-only"><%= t('admin.payment_requests.button') %></span>
-      <% end %>
+    <nav aria-label="Admin" class="flex flex-wrap items-start gap-4">
+      <div class="<%= tile %>">
+        <%= link_to admin_fees_path(season: @season), title: t('admin.fees.index.title'), class: box do %>
+          <%= render 'shared/icon', name: 'clipboard-document-list', class: 'h-10 w-10' %>
+        <% end %>
+        <span><%= t('.fees') %></span>
+      </div>
+      <div class="<%= tile %>">
+        <%= link_to new_admin_announcement_path(season: @season), title: t('admin.announcements.new.title'), class: box do %>
+          <%= render 'shared/icon', name: 'envelope', class: 'h-10 w-10' %>
+        <% end %>
+        <span><%= t('.email') %></span>
+      </div>
+      <div class="<%= tile %>">
+        <%= button_to admin_payment_requests_path(season: @season), title: t('admin.payment_requests.button'), class: box,
+                      form: { class: 'contents', data: { turbo_confirm: t('admin.payment_requests.confirm_all', season: @season.name) } } do %>
+          <%= render 'shared/icon', name: 'currency-dollar', class: 'h-10 w-10' %>
+        <% end %>
+        <span><%= t('.payments') %></span>
+      </div>
+      <div class="<%= tile %>">
+        <%= link_to admin_roster_path(season: @season), title: t('admin.rosters.show.title'), class: box do %>
+          <%= render 'shared/icon', name: 'users', class: 'h-10 w-10' %>
+        <% end %>
+        <span><%= t('.roster') %></span>
+      </div>
     </nav>
-    <%= link_to t('admin.rosters.show.title'), admin_roster_path(season: @season), class: 'text-sm font-semibold text-dpc-navy underline' %>
   <% else %>
     <p class="text-gray-500"><%= t('.no_season') %></p>
   <% end %>

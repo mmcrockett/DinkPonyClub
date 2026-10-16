@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-# Lets system tests skip the OAuth redirect chain, which Capybara races.
+# Lets system tests (and local development) skip the OAuth redirect chain, which Capybara races.
 # The real flow stays covered by SessionsControllerTest.
 class TestSessionsController < ApplicationController
-  before_action :block_outside_test
+  before_action :block_outside_local
 
   def create
     sign_in(Player.find(params.expect(:player_id)))
@@ -12,7 +12,7 @@ class TestSessionsController < ApplicationController
 
   private
 
-  def block_outside_test
-    head :not_found unless Rails.env.test?
+  def block_outside_local
+    head :not_found unless Rails.env.local?
   end
 end
