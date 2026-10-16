@@ -31,11 +31,9 @@ class ScorecardForm
       scores.each_with_index { |pair, index| persist_game!(lineup, pair, index) }
     end
 
-    def persist_picks!
+    def persist_picks!(picked)
       { form.match.home_team => home_player_ids, form.match.away_team => away_player_ids }.each do |team, ids|
-        ids.each_with_index do |id, index|
-          form.match.lineup_picks.create!(team: team, player_id: id, position: position, seat: index + 1)
-        end
+        ids.each_with_index { |id, index| create_pick!(team, id, index) if picked.add?(id) }
       end
     end
 
@@ -44,6 +42,10 @@ class ScorecardForm
     end
 
     private
+
+    def create_pick!(team, id, index)
+      form.match.lineup_picks.create!(team: team, player_id: id, position: position, seat: index + 1)
+    end
 
     def persist_game!(lineup, pair, index)
       home_score, away_score = pair

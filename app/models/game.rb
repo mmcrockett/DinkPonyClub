@@ -17,7 +17,6 @@ class Game < ApplicationRecord
   validates :home_score, :away_score, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   validate :final_score
   validate :distinct_players
-  validate :player_not_in_another_lineup
 
   def home_players
     [home_player_a, home_player_b]
@@ -60,21 +59,5 @@ class Game < ApplicationRecord
     return if players.compact.uniq.size == players.compact.size
 
     errors.add(:base, 'players must be distinct within a game')
-  end
-
-  def player_not_in_another_lineup
-    return unless lineup&.match
-    return unless player_ids.intersect?(taken_player_ids)
-
-    errors.add(:base, 'players can only appear in one lineup per match')
-  end
-
-  def player_ids
-    PLAYER_COLUMNS.filter_map { |column| self[column] }
-  end
-
-  def taken_player_ids
-    Game.joins(:lineup).where(lineups: { match_id: lineup.match_id }).where.not(lineup_id: lineup.id)
-        .pluck(*PLAYER_COLUMNS).flatten.compact
   end
 end

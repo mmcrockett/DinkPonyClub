@@ -63,7 +63,6 @@ class ScorecardForm
   end
 
   validate :lines_are_valid
-  validate :players_appear_on_one_line_only
 
   def fingerprint
     rows = match.games.reload.order(:id).pluck(:id, :number, :home_score, :away_score, :updated_at)
@@ -93,7 +92,8 @@ class ScorecardForm
 
   def sync_picks!
     match.lineup_picks.destroy_all
-    lines.each(&:persist_picks!)
+    picked = Set.new
+    lines.each { |line| line.persist_picks!(picked) }
   end
 
   def lines_are_valid
@@ -101,19 +101,6 @@ class ScorecardForm
       next if line.valid?
 
       line.errors.full_messages.each { |message| errors.add(:base, "Line #{line.position}: #{message}") }
-    end
-  end
-
-  def players_appear_on_one_line_only
-    seen = {}
-    lines.each do |line|
-      line.all_player_ids.uniq.each do |id|
-        if seen[id]
-          errors.add(:base, "Line #{seen[id]} and Line #{line.position}: a player cannot appear on two lines")
-        else
-          seen[id] = line.position
-        end
-      end
     end
   end
 end

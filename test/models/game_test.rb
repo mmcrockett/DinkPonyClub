@@ -48,13 +48,12 @@ class GameTest < ActiveSupport::TestCase
     assert_includes game.errors[:base], 'players must be distinct within a game'
   end
 
-  test 'rejects a player already used in another lineup of the same match' do
+  test 'allows a player already used in another lineup of the same match' do
     other_lineup = matches(:fall_alpha_bravo).lineups.create!(position: 2)
     game = other_lineup.games.new(number: 1, home_score: 11, away_score: 5,
                                   home_player_a: players(:ada), home_player_b: players(:grace),
                                   away_player_a: players(:sam), away_player_b: players(:ben))
 
-    assert_not game.valid?
-    assert_includes game.errors[:base], 'players can only appear in one lineup per match'
+    assert_predicate game, :valid?
   end
 end

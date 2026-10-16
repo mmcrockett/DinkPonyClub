@@ -136,13 +136,14 @@ class ScorecardFormTest < ActiveSupport::TestCase
     assert_predicate form.errors, :any?
   end
 
-  test 'rejects a player who appears on two lines' do
+  test 'allows a player to play on two lines and keeps a single pick for them' do
     lines = valid_lines
     lines['2'][:home_player_ids] = [players(:sc_home_captain).id.to_s, players(:sc_home_player5).id.to_s]
     form = ScorecardForm.new(match: @match, lines: lines)
 
-    assert_not form.valid?
-    assert_includes form.errors[:base], 'Line 1 and Line 2: a player cannot appear on two lines'
+    assert form.save
+    assert_equal 1, @match.lineup_picks.where(player: players(:sc_home_captain)).count
+    assert_equal 2, Game.involving(players(:sc_home_captain)).joins(:lineup).distinct.count(:lineup_id)
   end
 
   test 'allows a player with no roster spot this season to play as a sub' do
