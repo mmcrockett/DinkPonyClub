@@ -10,7 +10,7 @@
         data: { controller: 'scorecard', action: 'submit->scorecard#finish',
                 scorecard_url_value: match_path(@match, format: :json),
                 scorecard_done_url_value: match_path(@match),
-                scorecard_persisted_value: @match.lineups.any? } do |form| %>
+                scorecard_persisted_value: @match.lineups.any? && @form.errors.none? } do |form| %>
     <%= hidden_field_tag :fingerprint, @form.fingerprint, data: { scorecard_target: 'fingerprint' } %>
 
     <% if @form.errors.any? %>

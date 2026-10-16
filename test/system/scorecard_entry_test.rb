@@ -36,6 +36,48 @@ class ScorecardEntryTest < ApplicationSystemTestCase
     assert_equal '11', score_field('home').value
   end
 
+  test 'Done after a failed save submits the whole form once the score is fixed' do
+    score_field('home').set('11')
+    score_field('away').set('11')
+
+    assert_text 'Not saved'
+
+    score_field('away').set('7')
+
+    assert_text(/Saved \d/)
+    click_on 'Done'
+
+    assert_text 'Scorecard saved.'
+  end
+
+  test 'a rejected Done keeps the entries instead of navigating away' do
+    score_field('home').set('11')
+    score_field('away').set('11')
+
+    assert_text 'Not saved'
+    click_on 'Done'
+
+    assert_text 'cannot end in a tie'
+
+    click_on 'Done'
+
+    assert_text 'cannot end in a tie'
+    assert_no_text 'Edit scorecard'
+  end
+
+  test 'a later successful row save does not mask an earlier failed one' do
+    score_field('home').set('11')
+    score_field('away').set('11')
+
+    assert_text 'Not saved'
+
+    score_field('home', 3).set('11')
+    score_field('away', 3).set('4')
+
+    assert_text 'Not saved'
+    assert_no_text(/Saved \d/)
+  end
+
   test 'a half-filled row holds the save and says what is missing' do
     score_field('home').set('1')
 
@@ -71,8 +113,8 @@ class ScorecardEntryTest < ApplicationSystemTestCase
 
   private
 
-  def score_field(side)
-    find("input[aria-label='Line 1 game 2 #{side} score']")
+  def score_field(side, game = 2)
+    find("input[aria-label='Line 1 game #{game} #{side} score']")
   end
 
   def seated_lines

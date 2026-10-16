@@ -204,6 +204,7 @@ export default class extends Controller {
     const [home, away] = this.rowScores(row)
     data.append("game[home_score]", home)
     data.append("game[away_score]", away)
+    data.append("fingerprint", this.fingerprintTarget.value)
     this.playerTargets
       .filter((select) => select.dataset.line === row.dataset.line && select.value)
       .forEach((select) => data.append(`game[${select.dataset.side}_player_ids][]`, select.value))
@@ -218,24 +219,38 @@ export default class extends Controller {
     })
   }
 
+  pending() {
+    return this.again === true || this.fullSave || this.dirtyRows.size > 0
+  }
+
   async request() {
+    const full = this.fullSave
+    const rows = full ? [] : Array.from(this.dirtyRows)
+    this.fullSave = false
+    this.dirtyRows.clear()
     try {
-      const full = this.fullSave
-      const rows = Array.from(this.dirtyRows)
-      this.fullSave = false
-      this.dirtyRows.clear()
       if (full) {
-        await this.handle(await this.patch(this.urlValue, new FormData(this.element)), true)
+        if (!(await this.send(this.urlValue, new FormData(this.element), true))) this.fullSave = true
       } else {
-        for (const row of rows) await this.handle(await this.patch(row.dataset.url, this.rowData(row)), false)
+        for (const row of rows) {
+          if (!(await this.send(row.dataset.url, this.rowData(row), false))) this.dirtyRows.add(row)
+        }
       }
     } catch (error) {
       this.lastSaveFailed = true
+      this.fullSave = full
+      rows.forEach((row) => this.dirtyRows.add(row))
       this.status("Not saved: network error", true)
     } finally {
       this.saving = false
       if (this.again && !this.stopped) this.queueSave()
     }
+  }
+
+  async send(url, body, full) {
+    const response = await this.patch(url, body)
+    await this.handle(response, full)
+    return response.ok
   }
 
   async handle(response, full) {
@@ -246,9 +261,9 @@ export default class extends Controller {
     if (response.ok) {
       this.saved = true
       this.fingerprintTarget.value = data.fingerprint
-      this.dirty = this.again === true
+      this.dirty = this.pending()
       const time = new Date(data.saved_at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })
-      this.status(`Saved ${time}`)
+      if (!this.dirty) this.status(`Saved ${time}`)
     } else if (response.status === 409) {
       this.stopped = true
       this.dirty = false

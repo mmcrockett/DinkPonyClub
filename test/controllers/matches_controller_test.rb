@@ -242,6 +242,21 @@ class MatchesControllerTest < ActionDispatch::IntegrationTest
     assert_select 'li', text: /cannot end in a tie/
   end
 
+  test 'edit marks the scorecard persisted once lineups exist, but not after a rejected save' do
+    sign_in_as players(:sc_home_captain)
+    ScorecardForm.new(match: @match, lines: valid_lines).save
+
+    get edit_match_path(@match)
+
+    assert_select "form[data-scorecard-persisted-value='true']"
+
+    lines = valid_lines
+    lines['1'][:away_score1] = '11'
+    patch match_path(@match), params: { scorecard: { lines: lines } }
+
+    assert_select "form[data-scorecard-persisted-value='false']"
+  end
+
   test 'json update saves and returns a fresh fingerprint' do
     sign_in_as players(:sc_home_captain)
 

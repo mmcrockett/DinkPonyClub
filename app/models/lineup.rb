@@ -16,16 +16,32 @@ class Lineup < ApplicationRecord
   end
 
   def record_game!(number, home_score:, away_score:, home_player_ids:, away_player_ids:)
-    game = games.find_or_initialize_by(number: number)
+    game = games.find { |existing| existing.number == number } || games.build(number: number)
     return game.destroy if home_score.blank? && away_score.blank?
 
-    home, away = [home_player_ids, away_player_ids].map { |ids| Game.pair_for(ids.compact_blank, number - 1) }
-    game.update!(home_score: home_score, away_score: away_score,
-                 home_player_a_id: home[0], home_player_b_id: home[1],
-                 away_player_a_id: away[0], away_player_b_id: away[1])
+    home, away = [home_player_ids, away_player_ids].map { |ids| ids.compact_blank.map(&:to_i) }
+    ensure_same_players!(game, home, away)
+    game.update!(home_score: home_score, away_score: away_score, **player_columns(number, home, away))
   end
 
   private
+
+  def player_columns(number, home, away)
+    home_pair, away_pair = [home, away].map { |ids| Game.pair_for(ids, number - 1) }
+    { home_player_a_id: home_pair[0], home_player_b_id: home_pair[1],
+      away_player_a_id: away_pair[0], away_player_b_id: away_pair[1] }
+  end
+
+  def same_players?(game, home, away)
+    ((game.home_player_ids - home) + (game.away_player_ids - away)).empty?
+  end
+
+  def ensure_same_players!(game, home, away)
+    return if games.all? { |other| other == game || same_players?(other, home, away) }
+
+    errors.add(:base, 'players must match the rest of the line')
+    raise ActiveRecord::RecordInvalid, self
+  end
 
   def at_most_three_games
     return if games.size <= GAMES_PER_LINEUP

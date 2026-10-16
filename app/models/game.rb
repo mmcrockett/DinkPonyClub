@@ -24,6 +24,14 @@ class Game < ApplicationRecord
     ids.size == 2 ? ids : ROTATION[game_index].map { |i| ids[i] }
   end
 
+  def home_player_ids
+    [home_player_a_id, home_player_b_id]
+  end
+
+  def away_player_ids
+    [away_player_a_id, away_player_b_id]
+  end
+
   def home_players
     [home_player_a, home_player_b]
   end

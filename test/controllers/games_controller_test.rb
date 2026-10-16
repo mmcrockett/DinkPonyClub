@@ -52,6 +52,45 @@ class GamesControllerTest < ActionDispatch::IntegrationTest
     assert_predicate response.parsed_body['errors'], :any?
   end
 
+  test 'rejects a stale fingerprint with a conflict' do
+    sign_in_as players(:sc_home_captain)
+
+    patch game_path(1, 1), params: score_params('11', '4').merge(fingerprint: 'out-of-date')
+
+    assert_response :conflict
+    assert_equal 0, @match.lineups.find_by(position: 1).games.count
+  end
+
+  test 'accepts the current fingerprint' do
+    sign_in_as players(:sc_home_captain)
+
+    fingerprint = ScorecardForm.new(match: @match).fingerprint
+
+    patch game_path(1, 1), params: score_params('11', '4').merge(fingerprint: fingerprint)
+
+    assert_response :success
+  end
+
+  test 'rejects scores the scorecard would reject' do
+    sign_in_as players(:sc_home_captain)
+
+    patch game_path(1, 1), params: score_params('100', '98')
+
+    assert_response :unprocessable_content
+    assert_equal 0, @match.lineups.find_by(position: 1).games.count
+  end
+
+  test 'rejects players that differ from the rest of the line' do
+    sign_in_as players(:sc_home_captain)
+    patch game_path(1, 1), params: score_params('11', '4')
+    @home = [players(:sc_home_player2), players(:sc_home_player3)]
+
+    patch game_path(1, 2), params: score_params('11', '6')
+
+    assert_response :unprocessable_content
+    assert_includes response.parsed_body['errors'], 'players must match the rest of the line'
+  end
+
   test 'a non-captain is forbidden' do
     sign_in_as players(:sc_home_player1)
 
