@@ -10,7 +10,8 @@
 
   <% (1..Lineup::GAMES_PER_LINEUP).each do |number| %>
     <div class="mt-2 grid grid-cols-[2.5rem_1fr_1.25rem_1fr] items-end gap-x-2 border-t border-gray-100 pt-2"
-         data-scorecard-target="row" data-line="<%= line.position %>" data-game="<%= number %>">
+         data-scorecard-target="row" data-line="<%= line.position %>" data-game="<%= number %>"
+         data-url="<%= match_lineup_game_path(@match, line.position, number, format: :json) %>">
       <span class="pb-3 text-xs font-bold uppercase text-gray-500">G<%= number %></span>
       <% %i[home away].each_with_index do |side, index| %>
         <div class="flex min-w-0 flex-col gap-1">

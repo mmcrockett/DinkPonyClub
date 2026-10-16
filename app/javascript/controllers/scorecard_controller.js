@@ -12,6 +12,8 @@ export default class extends Controller {
     this.dirty = false
     this.saved = this.persistedValue
     this.lastSaveFailed = false
+    this.fullSave = false
+    this.dirtyRows = new Set()
     this.saving = false
     this.stopped = false
     this.rowTargets.forEach((row) => this.highlight(row))
@@ -29,7 +31,9 @@ export default class extends Controller {
   scoreChanged(event) {
     const input = event.target
     input.value = input.value.replace(/\D/g, "")
-    this.highlight(input.closest("[data-line]"))
+    const row = input.closest("[data-line]")
+    this.highlight(row)
+    this.dirtyRows.add(row)
     if (input.value.length >= 2) this.focusNext(input)
     this.queueSave()
   }
@@ -53,7 +57,10 @@ export default class extends Controller {
       return
     }
     await this.settled()
-    if (!this.clean()) await this.save()
+    if (!this.clean()) {
+      this.fullSave = true
+      await this.save()
+    }
     if (this.dirty) return
     this.renderSummary()
     this.editorTarget.hidden = true
@@ -85,6 +92,7 @@ export default class extends Controller {
 
   playersChanged(event) {
     this.relabel(event.target.dataset.line)
+    this.fullSave = true
     this.queueSave()
   }
 
@@ -142,6 +150,7 @@ export default class extends Controller {
   queueSave() {
     if (this.stopped) return
     this.dirty = true
+    if (!this.saved) this.fullSave = true
     clearTimeout(this.timer)
     if (!this.lineupReady()) {
       this.status("Not saved - every line needs at least two players per team", true)
@@ -190,14 +199,36 @@ export default class extends Controller {
     clearTimeout(this.timer)
   }
 
+  rowData(row) {
+    const data = new FormData()
+    const [home, away] = this.rowScores(row)
+    data.append("game[home_score]", home)
+    data.append("game[away_score]", away)
+    this.playerTargets
+      .filter((select) => select.dataset.line === row.dataset.line && select.value)
+      .forEach((select) => data.append(`game[${select.dataset.side}_player_ids][]`, select.value))
+    return data
+  }
+
+  async patch(url, body) {
+    return fetch(url, {
+      method: "PATCH",
+      body,
+      headers: { Accept: "application/json", "X-CSRF-Token": document.querySelector("meta[name=csrf-token]")?.content ?? "" }
+    })
+  }
+
   async request() {
     try {
-      const response = await fetch(this.urlValue, {
-        method: "PATCH",
-        body: new FormData(this.element),
-        headers: { Accept: "application/json", "X-CSRF-Token": document.querySelector("meta[name=csrf-token]")?.content ?? "" }
-      })
-      await this.handle(response)
+      const full = this.fullSave
+      const rows = Array.from(this.dirtyRows)
+      this.fullSave = false
+      this.dirtyRows.clear()
+      if (full) {
+        await this.handle(await this.patch(this.urlValue, new FormData(this.element)), true)
+      } else {
+        for (const row of rows) await this.handle(await this.patch(row.dataset.url, this.rowData(row)), false)
+      }
     } catch (error) {
       this.lastSaveFailed = true
       this.status("Not saved: network error", true)
@@ -207,10 +238,11 @@ export default class extends Controller {
     }
   }
 
-  async handle(response) {
+  async handle(response, full) {
     const data = await response.json().catch(() => ({}))
     const errors = data.errors || [`server error (${response.status})`]
-    this.lastSaveFailed = !response.ok
+    if (!response.ok) this.lastSaveFailed = true
+    if (response.ok && full) this.lastSaveFailed = false
     if (response.ok) {
       this.saved = true
       this.fingerprintTarget.value = data.fingerprint

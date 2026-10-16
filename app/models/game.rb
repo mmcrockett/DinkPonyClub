@@ -5,6 +5,8 @@ class Game < ApplicationRecord
   WIN_BY = 2
   PLAYER_COLUMNS = %i[home_player_a_id home_player_b_id away_player_a_id away_player_b_id].freeze
 
+  ROTATION = [[0, 1], [0, 2], [1, 2]].freeze
+
   scope :involving, ->(player) { PLAYER_COLUMNS.map { |column| where(column => player.id) }.reduce(:or) }
 
   belongs_to :lineup
@@ -17,6 +19,10 @@ class Game < ApplicationRecord
   validates :home_score, :away_score, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   validate :final_score
   validate :distinct_players
+
+  def self.pair_for(ids, game_index)
+    ids.size == 2 ? ids : ROTATION[game_index].map { |i| ids[i] }
+  end
 
   def home_players
     [home_player_a, home_player_b]

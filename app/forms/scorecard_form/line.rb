@@ -4,7 +4,6 @@ class ScorecardForm
   class Line
     include ActiveModel::Model
 
-    ROTATION = [[0, 1], [0, 2], [1, 2]].freeze
     SCORE_FORMAT = /\A\d{1,2}\z/
 
     attr_reader :form, :position, :home_player_ids, :away_player_ids, :scores
@@ -79,7 +78,7 @@ class ScorecardForm
     end
 
     def rotate(ids, game_index)
-      ids.size == 2 ? ids : ROTATION[game_index].map { |i| ids[i] }
+      Game.pair_for(ids, game_index)
     end
 
     def enough_players

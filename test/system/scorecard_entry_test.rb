@@ -28,7 +28,8 @@ class ScorecardEntryTest < ApplicationSystemTestCase
     score_field('away').set('7')
     click_on 'Done'
 
-    assert_text 'Scorecard saved.'
+    assert_text 'Edit scorecard'
+    assert_current_path match_path(@match)
 
     visit edit_match_path(@match)
 

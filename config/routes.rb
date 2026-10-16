@@ -17,7 +17,11 @@ Rails.application.routes.draw do
     resources :players, only: %i[index show]
     resources :teams, only: %i[index show]
   end
-  resources :matches, only: %i[show edit update]
+  resources :matches, only: %i[show edit update] do
+    resources :lineups, param: :position, only: [] do
+      resources :games, param: :number, only: :update
+    end
+  end
   get   'matches/:match_id/teams/:team_id/lineup/edit', to: 'lineup_plans#edit', as: :edit_match_team_lineup
   patch 'matches/:match_id/teams/:team_id/lineup', to: 'lineup_plans#update', as: :match_team_lineup
   resources :players, only: %i[index show]
