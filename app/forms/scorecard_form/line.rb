@@ -44,7 +44,7 @@ class ScorecardForm
     private
 
     def create_pick!(team, id, index)
-      form.match.lineup_picks.create!(team: team, player_id: id, position: position, seat: index + 1)
+      form.match.lineup_picks.create!(team: team, player: form.players_by_id[id], position: position, seat: index + 1)
     end
 
     def persist_game!(lineup, pair, index)
@@ -57,8 +57,12 @@ class ScorecardForm
 
     def game_attrs(index, home_score, away_score, home_pair, away_pair)
       { number: index + 1, home_score: home_score, away_score: away_score,
-        home_player_a_id: home_pair[0], home_player_b_id: home_pair[1],
-        away_player_a_id: away_pair[0], away_player_b_id: away_pair[1] }
+        home_player_a: player(home_pair[0]), home_player_b: player(home_pair[1]),
+        away_player_a: player(away_pair[0]), away_player_b: player(away_pair[1]) }
+    end
+
+    def player(id)
+      form.players_by_id[id]
     end
 
     def clean_ids(ids)

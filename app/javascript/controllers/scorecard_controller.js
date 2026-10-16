@@ -6,10 +6,12 @@ const WINNING_SCORE = 11
 
 export default class extends Controller {
   static targets = ["score", "row", "player", "fingerprint", "status", "summary", "editor", "scores"]
-  static values = { url: String }
+  static values = { url: String, doneUrl: String, persisted: Boolean }
 
   connect() {
     this.dirty = false
+    this.saved = this.persistedValue
+    this.lastSaveFailed = false
     this.saving = false
     this.stopped = false
     this.rowTargets.forEach((row) => this.highlight(row))
@@ -51,7 +53,7 @@ export default class extends Controller {
       return
     }
     await this.settled()
-    await this.save()
+    if (!this.clean()) await this.save()
     if (this.dirty) return
     this.renderSummary()
     this.editorTarget.hidden = true
@@ -170,8 +172,16 @@ export default class extends Controller {
     if (this.submitting) return
     this.submitting = true
     await this.settled()
+    if (this.clean()) {
+      window.Turbo.visit(this.doneUrlValue)
+      return
+    }
     this.dirty = false
     this.element.submit()
+  }
+
+  clean() {
+    return this.saved && !this.dirty && !this.lastSaveFailed
   }
 
   async settled() {
@@ -189,6 +199,7 @@ export default class extends Controller {
       })
       await this.handle(response)
     } catch (error) {
+      this.lastSaveFailed = true
       this.status("Not saved: network error", true)
     } finally {
       this.saving = false
@@ -199,7 +210,9 @@ export default class extends Controller {
   async handle(response) {
     const data = await response.json().catch(() => ({}))
     const errors = data.errors || [`server error (${response.status})`]
+    this.lastSaveFailed = !response.ok
     if (response.ok) {
+      this.saved = true
       this.fingerprintTarget.value = data.fingerprint
       this.dirty = this.again === true
       const time = new Date(data.saved_at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })

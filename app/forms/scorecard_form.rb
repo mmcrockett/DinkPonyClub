@@ -84,6 +84,10 @@ class ScorecardForm
     false
   end
 
+  def players_by_id
+    @players_by_id ||= Player.where(id: lines.flat_map(&:all_player_ids).uniq).index_by { |player| player.id.to_s }
+  end
+
   def lineup_ready?
     lines.all? { |line| line.home_player_ids.size >= 2 && line.away_player_ids.size >= 2 }
   end
