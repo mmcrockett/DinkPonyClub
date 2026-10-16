@@ -69,10 +69,12 @@
       <% end %>
     </div>
 
-    <% if @team_view %>
-      <%= render 'match_nights/team_availability', match_night: match_night unless match_night.past? %>
-    <% else %>
-      <%= render 'match_nights/availability_control', match_night: match_night %>
+    <% if match_night.availability_relevant? %>
+      <% if @team_view %>
+        <%= render 'match_nights/team_availability', match_night: match_night %>
+      <% else %>
+        <%= render 'match_nights/availability_control', match_night: match_night %>
+      <% end %>
     <% end %>
   <% end %>
 </div>

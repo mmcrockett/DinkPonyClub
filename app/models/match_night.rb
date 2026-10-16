@@ -40,6 +40,10 @@ class MatchNight < ApplicationRecord
     played_on.present? && Time.current < availability_cutoff_at
   end
 
+  def availability_relevant?
+    !past? && !complete?
+  end
+
   def results_locked_at
     played_on&.next_day&.end_of_day
   end
