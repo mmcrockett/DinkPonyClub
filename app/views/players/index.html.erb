@@ -5,10 +5,6 @@
 
   <h1 class="text-2xl font-extrabold text-dpc-navy"><%= t('players.index.title') %></h1>
 
-  <% if admin? %>
-    <%= link_to t('players.index.add'), new_admin_player_path(season: @season), class: 'btn btn-primary self-start' %>
-  <% end %>
-
   <%= turbo_frame_tag 'players', class: 'flex flex-col gap-6', data: { turbo_action: 'advance' } do %>
     <%= render 'filters', season: @season, teams: @teams, filter: @filter, lifetime: @lifetime %>
 
