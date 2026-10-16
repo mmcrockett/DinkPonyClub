@@ -12,11 +12,11 @@
 
 ActiveRecord::Schema[8.1].define(version: 2026_10_06_120000) do
   create_table "charges", force: :cascade do |t|
-    t.integer "amount_cents", null: false
-    t.datetime "created_at", null: false
-    t.integer "fee_id", null: false
-    t.integer "paid_cents", default: 0, null: false
     t.integer "roster_spot_id", null: false
+    t.integer "fee_id", null: false
+    t.integer "amount_cents", null: false
+    t.integer "paid_cents", default: 0, null: false
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["fee_id"], name: "index_charges_on_fee_id"
     t.index ["roster_spot_id", "fee_id"], name: "index_charges_on_roster_spot_id_and_fee_id", unique: true
@@ -24,27 +24,27 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_06_120000) do
   end
 
   create_table "fees", force: :cascade do |t|
+    t.integer "season_id", null: false
+    t.string "name", limit: 100, null: false
     t.integer "amount_cents", null: false
     t.boolean "applies_to_all", default: false, null: false
     t.datetime "created_at", null: false
-    t.string "name", limit: 100, null: false
-    t.integer "season_id", null: false
     t.datetime "updated_at", null: false
     t.index ["season_id", "name"], name: "index_fees_on_season_id_and_name", unique: true
     t.index ["season_id"], name: "index_fees_on_season_id"
   end
 
   create_table "games", force: :cascade do |t|
-    t.integer "away_player_a_id", null: false
-    t.integer "away_player_b_id", null: false
-    t.integer "away_score", null: false
-    t.datetime "created_at", null: false
-    t.integer "home_player_a_id", null: false
-    t.integer "home_player_b_id", null: false
-    t.integer "home_score", null: false
     t.integer "lineup_id", null: false
     t.integer "number", null: false
+    t.integer "home_score", null: false
+    t.integer "away_score", null: false
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "home_player_a_id", null: false
+    t.integer "home_player_b_id", null: false
+    t.integer "away_player_a_id", null: false
+    t.integer "away_player_b_id", null: false
     t.index ["away_player_a_id"], name: "index_games_on_away_player_a_id"
     t.index ["away_player_b_id"], name: "index_games_on_away_player_b_id"
     t.index ["home_player_a_id"], name: "index_games_on_home_player_a_id"
@@ -53,12 +53,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_06_120000) do
   end
 
   create_table "lineup_picks", force: :cascade do |t|
-    t.datetime "created_at", null: false
     t.integer "match_id", null: false
+    t.integer "team_id", null: false
     t.integer "player_id", null: false
     t.integer "position", null: false
     t.integer "seat", null: false
-    t.integer "team_id", null: false
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["match_id", "player_id"], name: "index_lineup_picks_on_match_id_and_player_id", unique: true
     t.index ["match_id", "team_id", "position", "seat"], name: "index_lineup_picks_on_slot", unique: true
@@ -68,85 +68,85 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_06_120000) do
   end
 
   create_table "lineups", force: :cascade do |t|
-    t.datetime "created_at", null: false
     t.integer "match_id", null: false
     t.integer "position", null: false
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["match_id", "position"], name: "index_lineups_on_match_id_and_position", unique: true
   end
 
   create_table "match_availabilities", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.integer "match_night_id", null: false
     t.integer "player_id", null: false
-    t.string "status", limit: 10, default: "maybe", null: false
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "match_night_id", null: false
+    t.string "status", limit: 10, default: "maybe", null: false
     t.index ["match_night_id", "player_id"], name: "index_match_availabilities_on_match_night_and_player", unique: true
     t.index ["player_id"], name: "index_match_availabilities_on_player_id"
   end
 
   create_table "match_nights", force: :cascade do |t|
-    t.boolean "canceled", default: false, null: false
-    t.datetime "created_at", null: false
-    t.string "label", limit: 60, null: false
-    t.integer "lines_count"
-    t.text "notes"
-    t.date "played_on", null: false
-    t.boolean "playoff", default: false, null: false
     t.integer "season_id", null: false
-    t.datetime "updated_at", null: false
+    t.date "played_on", null: false
+    t.string "label", limit: 60, null: false
     t.string "venue", limit: 150
+    t.text "notes"
+    t.boolean "canceled", default: false, null: false
+    t.boolean "playoff", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "lines_count"
     t.index ["season_id", "played_on"], name: "index_match_nights_on_season_id_and_played_on"
   end
 
   create_table "match_slots", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.integer "match_night_id", null: false
     t.integer "position", null: false
     t.datetime "starts_at", null: false
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "match_night_id", null: false
     t.index ["match_night_id", "position"], name: "index_match_slots_on_match_night_and_position", unique: true
     t.index ["match_night_id", "starts_at"], name: "index_match_slots_on_match_night_and_starts_at", unique: true
   end
 
   create_table "matches", force: :cascade do |t|
+    t.integer "season_id", null: false
+    t.integer "home_team_id", null: false
     t.integer "away_team_id", null: false
     t.datetime "created_at", null: false
-    t.integer "home_team_id", null: false
-    t.integer "match_night_id", null: false
-    t.integer "season_id", null: false
     t.datetime "updated_at", null: false
+    t.integer "match_night_id", null: false
     t.index ["away_team_id"], name: "index_matches_on_away_team_id"
     t.index ["home_team_id"], name: "index_matches_on_home_team_id"
     t.index ["season_id"], name: "index_matches_on_season_id"
   end
 
   create_table "players", force: :cascade do |t|
-    t.boolean "admin", default: false, null: false
-    t.string "avatar_url", limit: 512
-    t.string "calendar_token", limit: 64, null: false
-    t.datetime "created_at", null: false
-    t.string "email", limit: 255
     t.string "first_name", limit: 100, null: false
-    t.string "google_uid", limit: 255
     t.string "last_name", limit: 100, null: false
-    t.datetime "last_signed_in_at"
-    t.string "phone", limit: 40
-    t.string "status", limit: 20, default: "active", null: false
+    t.string "email", limit: 255
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "avatar_url", limit: 512
+    t.string "google_uid", limit: 255
+    t.datetime "last_signed_in_at"
+    t.boolean "admin", default: false, null: false
+    t.string "status", limit: 20, default: "active", null: false
+    t.string "phone", limit: 40
+    t.string "calendar_token", limit: 64, null: false
     t.index ["calendar_token"], name: "index_players_on_calendar_token", unique: true
     t.index ["email"], name: "index_players_on_email", unique: true
     t.index ["google_uid"], name: "index_players_on_google_uid", unique: true
   end
 
   create_table "roster_spots", force: :cascade do |t|
-    t.boolean "captain", default: false, null: false
-    t.datetime "created_at", null: false
-    t.string "draft_rank", limit: 10
-    t.integer "player_id", null: false
     t.integer "season_id", null: false
     t.integer "team_id", null: false
+    t.integer "player_id", null: false
+    t.boolean "captain", default: false, null: false
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "draft_rank", limit: 10
     t.index ["player_id"], name: "index_roster_spots_on_player_id"
     t.index ["season_id", "player_id"], name: "index_roster_spots_on_season_and_player", unique: true
     t.index ["season_id", "team_id"], name: "index_roster_spots_on_season_id_and_team_id"
@@ -154,31 +154,31 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_06_120000) do
   end
 
   create_table "seasons", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.date "ends_on"
-    t.integer "lines_per_match", default: 5, null: false
     t.string "name", limit: 100, null: false
-    t.text "rules"
     t.date "starts_on"
-    t.decimal "sweep_bonus", precision: 3, scale: 1, default: "0.5", null: false
+    t.date "ends_on"
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.decimal "sweep_bonus", precision: 3, scale: 1, default: "0.5", null: false
+    t.text "rules"
+    t.integer "lines_per_match", default: 5, null: false
     t.index ["name"], name: "index_seasons_on_name", unique: true
   end
 
   create_table "slot_availabilities", force: :cascade do |t|
-    t.datetime "created_at", null: false
     t.integer "match_slot_id", null: false
     t.integer "player_id", null: false
     t.string "preference", limit: 20, default: "meh", null: false
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["match_slot_id", "player_id"], name: "index_slot_availabilities_on_slot_and_player", unique: true
     t.index ["player_id"], name: "index_slot_availabilities_on_player_id"
   end
 
   create_table "teams", force: :cascade do |t|
-    t.datetime "created_at", null: false
     t.string "name", limit: 100, null: false
     t.string "tagline", limit: 200
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["name"], name: "index_teams_on_name", unique: true
   end
