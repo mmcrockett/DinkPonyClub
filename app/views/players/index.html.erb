@@ -5,7 +5,12 @@
 
   <h1 class="text-2xl font-extrabold text-dpc-navy"><%= t('players.index.title') %></h1>
 
-  <%= render 'admin_toolbar', season: @season if admin? %>
+  <% if admin? %>
+    <%= link_to new_admin_player_path(season: @season), title: t('players.index.add'),
+                class: 'inline-flex h-12 w-12 items-center justify-center rounded-md border border-gray-200 bg-white text-dpc-green shadow-sm hover:bg-gray-50' do %>
+      <%= render 'shared/icon', name: 'plus', class: 'h-7 w-7' %><span class="sr-only"><%= t('players.index.add') %></span>
+    <% end %>
+  <% end %>
 
   <%= turbo_frame_tag 'players', class: 'flex flex-col gap-6', data: { turbo_action: 'advance' } do %>
     <%= render 'filters', season: @season, teams: @teams, filter: @filter, lifetime: @lifetime %>

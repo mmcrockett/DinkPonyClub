@@ -61,6 +61,10 @@ en:
     request_payment:
       subject: "Dink Pony Club - you owe %{total} for %{season}"
   admin:
+    dashboards:
+      show:
+        title: "Admin"
+        no_season: "Create a season first."
     players:
       create:
         created: "%{name} was added."
@@ -294,6 +298,7 @@ en:
       hide_substitutes: "Hide substitutes"
     index:
       title: "Good people. Great games."
+      add: "Add player"
       empty: "No players are rostered for this season yet."
       no_matches: "No players match these filters."
       table:

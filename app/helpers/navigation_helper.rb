@@ -2,7 +2,7 @@
 
 module NavigationHelper
   def sidebar_items
-    [
+    items = [
       { label: 'Home', icon: 'home', path: root_path },
       { label: 'Seasons', icon: 'layers', path: seasons_path },
       { label: 'Teams', icon: 'users', path: (season_teams_path(nav_season) if nav_season) },
@@ -11,6 +11,8 @@ module NavigationHelper
       { label: 'Standings', icon: 'trophy', path: season_nav_path(:standings) },
       { label: 'Rules & Format', icon: 'book-open', path: rules_path }
     ]
+    items << { label: 'Admin', icon: 'cog', path: admin_root_path(season: nav_season) } if admin?
+    items
   end
 
   def app_version

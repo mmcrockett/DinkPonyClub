@@ -43,6 +43,7 @@ Rails.application.routes.draw do
   end
 
   namespace :admin do
+    root 'dashboards#show'
     resources :players, only: %i[index new create edit update] do
       resource :charges, only: %i[update]
       resource :payment_request, only: %i[create]

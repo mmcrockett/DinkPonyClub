@@ -22,29 +22,26 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_path
   end
 
-  test 'shows the admin toolbar and edit link to an admin' do
+  test 'shows the add link and edit link to an admin' do
     sign_in_as(players(:zoe))
     season = seasons(:fall)
 
     get season_players_path(season)
 
-    assert_select "nav[aria-label=Admin] a[href='#{new_admin_player_path(season: season)}']"
-    assert_select "nav[aria-label=Admin] a[href='#{admin_fees_path(season: season)}']"
-    assert_select "nav[aria-label=Admin] a[href='#{new_admin_announcement_path(season: season)}']"
-    assert_select "nav[aria-label=Admin] form[action='#{admin_payment_requests_path(season: season)}']"
+    assert_select "a[href='#{new_admin_player_path(season: season)}']"
 
     get season_player_path(season, players(:sam))
 
     assert_select "a[href='#{edit_admin_player_path(players(:sam), season: season)}']"
   end
 
-  test 'hides the admin toolbar and edit link from a non-admin' do
+  test 'hides the add link and edit link from a non-admin' do
     sign_in_as(players(:ada))
     season = seasons(:fall)
 
     get season_players_path(season)
 
-    assert_select 'nav[aria-label=Admin]', count: 0
+    assert_select "a[href='#{new_admin_player_path(season: season)}']", count: 0
 
     get season_player_path(season, players(:sam))
 
