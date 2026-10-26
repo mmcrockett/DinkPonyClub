@@ -4,7 +4,7 @@ export default class extends Controller {
   static targets = ["seat", "save", "subSources", "subPanel", "subList"]
   static values = {
     empty: String, move: String, cancel: String,
-    subsUrl: String, loading: String, noSubs: String, failed: String
+    subsUrl: String, here: String, extraHere: String, loading: String, noSubs: String, failed: String
   }
 
   move(event) {
@@ -173,13 +173,27 @@ export default class extends Controller {
     })
   }
 
+  extraOpen(row) {
+    if (!this.source) return false
+
+    const filled = this.seatTargets.filter(
+      (seat) => seat.dataset.position === row.dataset.position && seat.dataset.playerId && seat !== this.source
+    )
+    return filled.length >= 2
+  }
+
   refreshRow(row) {
     const isSource = row === this.source
+    if ("extra" in row.dataset) row.hidden = !row.dataset.playerId && !this.extraOpen(row)
     const benchToBench = this.source && this.source.dataset.position === "" && row.dataset.position === ""
     const moveButton = row.querySelector("[data-role=move]")
     moveButton.hidden = !row.dataset.playerId || (this.source && !isSource)
     moveButton.textContent = isSource ? this.cancelValue : this.moveValue
     row.querySelectorAll("[data-role=remove]").forEach((button) => (button.hidden = !!this.source))
-    row.querySelector("[data-role=here]").hidden = !this.source || isSource || benchToBench
+    const hereButton = row.querySelector("[data-role=here]")
+    hereButton.hidden = !this.source || isSource || benchToBench
+    const addsExtra = "extra" in row.dataset && !row.dataset.playerId
+    hereButton.textContent = addsExtra ? this.extraHereValue : this.hereValue
+    hereButton.classList.toggle("here-extra", addsExtra)
   }
 }

@@ -82,6 +82,15 @@ class MatchupsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to match_path(@match)
   end
 
+  test 'the optional third seat is rendered hidden until used' do
+    LineupPick.create!(match: @match, team: teams(:sc_home), player: players(:sc_home_player1), position: 1, seat: 1)
+    sign_in_as players(:sc_home_captain)
+
+    get season_matchup_path(@season)
+
+    assert_select 'tr[data-extra][hidden]', minimum: 1
+  end
+
   test 'captain cannot view another team' do
     sign_in_as players(:sc_home_captain)
 

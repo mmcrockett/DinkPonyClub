@@ -30,7 +30,8 @@
     <%= form_with url: match_team_lineup_path(@match, @team), method: :patch, id: 'matchup-lineup',
                   data: { controller: 'lineup-move', lineup_move_empty_value: tag.span(t('.empty'), class: 'text-gray-400'),
                           lineup_move_move_value: t('.move'), lineup_move_cancel_value: t('.cancel'),
-                          lineup_move_subs_url_value: match_team_subs_path(@match, @team), lineup_move_loading_value: t('.loading_subs'),
+                          lineup_move_subs_url_value: match_team_subs_path(@match, @team), lineup_move_here_value: t('.here'), lineup_move_extra_here_value: t('.extra_here'),
+                          lineup_move_loading_value: t('.loading_subs'),
                           lineup_move_no_subs_value: t('.no_subs'), lineup_move_failed_value: t('.subs_failed') } do %>
       <%= hidden_field_tag :return_to, season_matchup_path(@season, team_id: @team.id) %>
 
@@ -53,8 +54,10 @@
           <% @board.lines.each do |position, rows| %>
             <% state = rows.count(&:player) >= 2 ? 'complete' : 'incomplete' %>
             <tbody class="border-b border-gray-200">
-              <% rows.each do |row| %>
-                <%= render 'row', row: row, label: t('.line', number: position), state: state, position: position, editable: @editable %>
+              <% rows.each_with_index do |row, index| %>
+                <% extra = index >= MatchupBoard::MIN_SEATS %>
+                <%= render 'row', row: row, label: extra ? t('.extra') : t('.line', number: position), state: state, position: position,
+                                  editable: @editable, extra: extra %>
               <% end %>
             </tbody>
           <% end %>

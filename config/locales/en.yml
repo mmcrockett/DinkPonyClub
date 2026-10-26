@@ -385,6 +385,8 @@ en:
       slot: "Slot"
       action: "Action"
       move: "Move"
+      extra: "Extra"
+      extra_here: "+1"
       add_sub: "+ Sub"
       remove_sub: "Remove sub"
       sub_tag: "Sub"

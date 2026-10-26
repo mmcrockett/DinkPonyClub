@@ -5,6 +5,7 @@ class MatchupBoard
 
   EMPTY_ROW = Row.new(player: nil, pupr: nil, rating: nil, sub: false)
   MIN_SEATS = 2
+  SEATS = LineupPick::SEATS.size
 
   def initialize(match, team)
     @match = match
@@ -44,7 +45,7 @@ class MatchupBoard
 
   def line_rows(ids)
     rows = ids.map { |id| row_for(players.fetch(id.to_i)) }
-    rows.fill(EMPTY_ROW, rows.size...MIN_SEATS)
+    rows.fill(EMPTY_ROW, rows.size...SEATS)
   end
 
   def row_for(player)

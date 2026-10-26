@@ -9,10 +9,10 @@ class MatchupBoardTest < ActiveSupport::TestCase
     @board = MatchupBoard.new(@match, @team)
   end
 
-  test 'short lines are padded to two rows' do
+  test 'lines are padded to three seats' do
     _position, rows = @board.lines.first
 
-    assert_equal [@picked, nil], rows.map(&:player)
+    assert_equal [@picked, nil, nil], rows.map(&:player)
   end
 
   test 'bench excludes picked players' do
