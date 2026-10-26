@@ -11,6 +11,7 @@ module NavigationHelper
       { label: 'Standings', icon: 'trophy', path: season_nav_path(:standings) },
       { label: 'Rules & Format', icon: 'book-open', path: rules_path }
     ]
+    items.insert(6, matchup_item) if matchup_visible?
     items << { label: 'Admin', icon: 'cog', path: admin_root_path(season: nav_season) } if admin?
     items
   end
@@ -36,6 +37,14 @@ module NavigationHelper
   end
 
   private
+
+  def matchup_item
+    { label: 'Matchup', icon: 'clipboard-document-list', path: season_nav_path(:matchup) }
+  end
+
+  def matchup_visible?
+    nav_season.present? && captain_or_admin?(nav_season)
+  end
 
   def season_nav_path(resource)
     return public_send("#{resource}_path") unless nav_season

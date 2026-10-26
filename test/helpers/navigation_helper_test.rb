@@ -24,7 +24,19 @@ class NavigationHelperTest < ActionView::TestCase
     with_env('KAMAL_VERSION' => nil, 'APP_BUILT_AT' => '') { assert_nil app_version_title }
   end
 
+  test 'sidebar shows Matchup only to captains and admins' do
+    stubs = { nav_season: seasons(:scorecard), admin?: false }
+
+    assert_not_includes sidebar_labels(stubs.merge(captain_or_admin?: false)), 'Matchup'
+    assert_includes sidebar_labels(stubs.merge(captain_or_admin?: true)), 'Matchup'
+  end
+
   private
+
+  def sidebar_labels(stubs)
+    stubs.each { |name, value| define_singleton_method(name) { |*| value } }
+    sidebar_items.pluck(:label)
+  end
 
   def with_env(vars)
     old = vars.keys.index_with { |key| ENV.fetch(key, nil) }

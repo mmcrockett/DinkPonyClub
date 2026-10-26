@@ -29,11 +29,10 @@ class LineupPlanFormTest < ActiveSupport::TestCase
     assert_equal [3], @match.lineup_picks.where(team: @team).pluck(:position).uniq
   end
 
-  test 'a line with a single player is invalid' do
+  test 'a line with a single player can be saved' do
     form = LineupPlanForm.new(match: @match, team: @team, lines: { 1 => ids(1) })
 
-    assert_not form.save
-    assert_includes form.errors.full_messages.to_sentence, 'Line 1'
+    assert form.save
   end
 
   test 'a player cannot appear twice' do

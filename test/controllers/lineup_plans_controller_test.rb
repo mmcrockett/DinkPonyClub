@@ -27,6 +27,31 @@ class LineupPlansControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to edit_match_team_lineup_path(@match, @home)
   end
 
+  test 'save returns to a same-site return_to and ignores off-site ones' do
+    sign_in_as players(:sc_home_captain)
+    picked = [players(:sc_home_player1).id, players(:sc_home_player2).id]
+
+    patch match_team_lineup_path(@match, @home), params: { return_to: '/matchup', lineup: { lines: { '1' => picked } } }
+
+    assert_redirected_to '/matchup'
+
+    patch match_team_lineup_path(@match, @home),
+          params: { return_to: 'https://evil.example/', lineup: { lines: { '1' => picked } } }
+
+    assert_redirected_to edit_match_team_lineup_path(@match, @home)
+  end
+
+  test 'invalid save with return_to redirects back with the error' do
+    sign_in_as players(:sc_home_captain)
+
+    twice = [players(:sc_home_player1).id, players(:sc_home_player2).id]
+    patch match_team_lineup_path(@match, @home),
+          params: { return_to: '/matchup', lineup: { lines: { '1' => twice, '2' => twice } } }
+
+    assert_redirected_to '/matchup'
+    assert_match(/twice/, flash[:alert])
+  end
+
   test 'away captain cannot set the home lineup' do
     sign_in_as players(:sc_away_captain)
 

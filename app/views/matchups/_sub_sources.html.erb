@@ -1,0 +1,4 @@
+<%# locals: (rows:) %>
+<% rows.each do |row| %>
+  <%= render 'matchups/row', row: row, label: t('matchups.show.bench'), state: 'bench', editable: true, sub_source: true %>
+<% end %>

@@ -11,10 +11,16 @@ class LineupPlansController < ApplicationController
     load_availability
   end
 
+  def subs
+    render partial: 'matchups/sub_sources', locals: { rows: MatchupBoard.new(@match, @team).sub_options }
+  end
+
   def update
     @form = LineupPlanForm.new(match: @match, team: @team, lines: lines_params)
     if @form.save
-      redirect_to edit_match_team_lineup_path(@match, @team), notice: t('.saved')
+      redirect_to return_path || edit_match_team_lineup_path(@match, @team), notice: t('.saved')
+    elsif return_path
+      redirect_to return_path, alert: @form.errors.full_messages.to_sentence
     else
       load_availability
       render :edit, status: :unprocessable_content
@@ -22,6 +28,10 @@ class LineupPlansController < ApplicationController
   end
 
   private
+
+  def return_path
+    url_from(params[:return_to])
+  end
 
   def set_match_and_team
     @match = Match.find(params.expect(:match_id))

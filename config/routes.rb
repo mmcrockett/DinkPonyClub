@@ -13,6 +13,7 @@ Rails.application.routes.draw do
 
   resources :seasons, only: %i[index show] do
     resource :standings, only: :show
+    resource :matchup, only: :show
     resources :match_nights, only: :index, path: 'schedule'
     resources :players, only: %i[index show]
     resources :teams, only: %i[index show]
@@ -23,10 +24,12 @@ Rails.application.routes.draw do
     end
   end
   get   'matches/:match_id/teams/:team_id/lineup/edit', to: 'lineup_plans#edit', as: :edit_match_team_lineup
+  get   'matches/:match_id/teams/:team_id/subs', to: 'lineup_plans#subs', as: :match_team_subs
   patch 'matches/:match_id/teams/:team_id/lineup', to: 'lineup_plans#update', as: :match_team_lineup
   resources :players, only: %i[index show]
   get 'rules', to: 'rules#show', as: :rules
   get 'standings', to: 'standings#show', as: :standings
+  get 'matchup', to: 'matchups#show', as: :matchup
 
   get 'schedule.ics', to: 'calendars#show', as: :schedule_calendar, format: false, defaults: { format: :ics }
   resources :match_nights, only: %i[index show], path: 'schedule' do

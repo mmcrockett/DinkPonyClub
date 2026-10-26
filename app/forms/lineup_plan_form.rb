@@ -17,7 +17,6 @@ class LineupPlanForm
     @lines = match.line_positions.index_with { |position| clean_ids(lines[position] || lines[position.to_s]) }
   end
 
-  validate :lines_have_enough_players
   validate :players_are_eligible
   validate :players_appear_once
 
@@ -67,12 +66,6 @@ class LineupPlanForm
 
   def clean_ids(ids)
     Array(ids).map(&:to_s).compact_blank.first(LineupPick::SEATS.size)
-  end
-
-  def lines_have_enough_players
-    lines.each do |position, ids|
-      errors.add(:base, "Line #{position}: needs at least two players") if ids.size == 1
-    end
   end
 
   def players_are_eligible

@@ -1,0 +1,33 @@
+<%# locals: (row:, label:, state:, position: nil, editable: false, bench_new: false, sub_source: false) %>
+<% player_id = row.player&.id %>
+<tr <%= "hidden data-sub-source data-sub-id=#{player_id}" if sub_source %> class="group border-t border-gray-100 first:border-t-0 data-[state=bench]:bg-gray-50 data-[state=complete]:bg-green-50 data-[state=incomplete]:bg-amber-50 data-[source]:outline-2 data-[source]:-outline-offset-2 data-[source]:outline-dpc-navy"
+    data-state="<%= state %>"
+    <% if editable && !sub_source %>data-lineup-move-target="seat" data-position="<%= position %>" data-player-id="<%= player_id %>"<%= ' data-bench-new' if bench_new %><% end %>>
+  <td class="border-l-4 px-4 py-3 text-gray-600 group-data-[state=bench]:border-transparent group-data-[state=complete]:border-solid group-data-[state=complete]:border-green-700 group-data-[state=incomplete]:border-dashed group-data-[state=incomplete]:border-amber-500"><%= label %></td>
+  <td class="px-4 py-3" data-slot="name">
+    <% if row.player %>
+      <span class="font-bold text-dpc-navy"><%= row.player.full_name %></span>
+      <% if row.sub %><span class="ml-1 rounded-full bg-gray-200 px-2 py-0.5 text-xs font-bold uppercase text-gray-600"><%= t('matchups.show.sub_tag') %></span>
+        <% if editable %>
+          <button type="button" class="ml-2 inline-flex rounded-md border border-gray-400 bg-white p-1.5 align-middle text-gray-600 hover:border-red-700 hover:text-red-700" data-role="remove" data-action="lineup-move#remove"
+                  aria-label="<%= t('matchups.show.remove_sub') %>"><%= render 'shared/icon', name: 'trash', class: 'h-5 w-5' %></button>
+        <% end %>
+      <% end %>
+    <% else %>
+      <span class="text-gray-400"><%= bench_new ? t('matchups.show.to_bench') : t('matchups.show.empty') %></span>
+    <% end %>
+  </td>
+  <td class="px-4 py-3 text-right" data-slot="pupr"><%= pupr_label(row) %></td>
+  <td class="px-4 py-3 text-right" data-slot="elo"><%= rating_label(row) %></td>
+  <% if editable %>
+    <td class="px-4 py-3 text-right whitespace-nowrap">
+      <button type="button" class="rounded-full border border-dpc-navy px-3 py-1 text-xs font-bold uppercase text-dpc-navy"
+              data-role="move" data-action="lineup-move#move" <%= 'hidden' unless player_id %>><%= t('matchups.show.move') %></button>
+      <button type="button" class="rounded-full bg-dpc-navy px-3 py-1 text-xs font-bold uppercase text-white"
+              data-role="here" data-action="lineup-move#here" hidden><%= t('matchups.show.here') %></button>
+      <% if position %>
+        <input type="hidden" name="lineup[lines][<%= position %>][]" value="<%= player_id %>" <%= 'disabled' unless player_id %> data-field>
+      <% end %>
+    </td>
+  <% end %>
+</tr>
