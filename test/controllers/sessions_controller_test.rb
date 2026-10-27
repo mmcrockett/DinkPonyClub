@@ -70,7 +70,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
 
       post '/auth/google_oauth2'
 
-      assert_not_equal 302, response.status, 'tokenless request must not reach Google'
+      assert_redirected_to(%r{/auth/failure})
 
       post '/auth/google_oauth2', params: { authenticity_token: token }
 
