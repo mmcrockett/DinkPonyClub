@@ -19,7 +19,7 @@ class MatchupOpponent
   end
 
   def elos(position)
-    players.fetch(position, []).map { |player| @ratings.for(player.id)&.elo || PlayerRatings::BASE }
+    players.fetch(position, []).map { |player| @ratings.elo_for(player.id) }
   end
 
   private
@@ -33,9 +33,7 @@ class MatchupOpponent
   end
 
   def row_for(player)
-    rating = @ratings.for(player.id)
-    MatchupBoard::Row.new(player: player, pupr: rating&.pupr, rating: rating&.elo&.round,
-                          sub: roster.exclude?(player), status: nil, preferences: {})
+    MatchupBoard::Row.build(player, @ratings.for(player.id), sub: roster.exclude?(player))
   end
 
   def roster

@@ -1,7 +1,12 @@
 # frozen_string_literal: true
 
 class MatchupBoard
-  Row = Data.define(:player, :pupr, :rating, :sub, :status, :preferences)
+  Row = Data.define(:player, :pupr, :rating, :sub, :status, :preferences) do
+    def self.build(player, rating, sub:, status: nil, preferences: {})
+      new(player: player, pupr: rating&.pupr, rating: rating&.elo&.round, sub: sub,
+          status: status, preferences: preferences)
+    end
+  end
 
   EMPTY_ROW = Row.new(player: nil, pupr: nil, rating: nil, sub: false, status: nil, preferences: {})
   MIN_SEATS = 2
@@ -75,7 +80,7 @@ class MatchupBoard
   end
 
   def elo_of(player_id)
-    ratings.for(player_id)&.elo || PlayerRatings::BASE
+    ratings.elo_for(player_id)
   end
 
   def picks
@@ -88,9 +93,9 @@ class MatchupBoard
   end
 
   def row_for(player)
-    rating = ratings.for(player.id)
-    Row.new(player: player, pupr: rating&.pupr, rating: rating&.elo&.round, sub: roster.exclude?(player),
-            status: statuses[player.id], preferences: preferences.fetch(player.id, {}))
+    Row.build(player, ratings.for(player.id), sub: roster.exclude?(player),
+                                              status: statuses[player.id],
+                                              preferences: preferences.fetch(player.id, {}))
   end
 
   def statuses

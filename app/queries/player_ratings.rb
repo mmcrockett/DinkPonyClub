@@ -30,6 +30,10 @@ class PlayerRatings
     replay.first[player_id]
   end
 
+  def elo_for(player_id)
+    self.for(player_id)&.elo || BASE
+  end
+
   def change_for(game_id, player_id)
     replay.last[[game_id, player_id]]
   end
