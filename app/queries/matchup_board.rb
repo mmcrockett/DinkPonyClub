@@ -72,9 +72,8 @@ class MatchupBoard
 
   def build_odds(own_ids)
     lines = own_ids.to_h do |position, ids|
-      [position, [ids.map do |id|
-                    elo_of(id.to_i)
-                  end, opponent_side.elos(position)]]
+      own = ids.map { |id| elo_of(id.to_i) }
+      [position, [own, opponent_side.elos(position)]]
     end
     MatchOdds.new(lines: lines, sweep_bonus: @match.season.sweep_bonus)
   end
@@ -104,13 +103,11 @@ class MatchupBoard
   end
 
   def preferences
-    @preferences ||= SlotAvailability.where(match_slot: slots, player: roster + form.eligible_subs)
-                                     .group_by(&:player_id)
-                                     .transform_values do |list|
-      list.to_h do |row|
-        [row.match_slot_id, row.preference]
-      end
-    end
+    @preferences ||= preference_rows.transform_values { |list| list.to_h { |row| [row.match_slot_id, row.preference] } }
+  end
+
+  def preference_rows
+    SlotAvailability.where(match_slot: slots, player: roster + form.eligible_subs).group_by(&:player_id)
   end
 
   def players
