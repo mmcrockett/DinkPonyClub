@@ -6,11 +6,17 @@ class MatchupBoard
       new(player: player, pupr: rating&.pupr, rating: rating&.elo&.round, sub: sub,
           status: status, preferences: preferences)
     end
+
+    def bench_sort_key
+      [status == 'out' ? 1 : 0, -(pupr || 0)]
+    end
   end
 
   EMPTY_ROW = Row.new(player: nil, pupr: nil, rating: nil, sub: false, status: nil, preferences: {})
   MIN_SEATS = 2
   SEATS = LineupPick::SEATS.size
+
+  delegate :bench, to: :opponent_side, prefix: :opponent
 
   def initialize(match, team)
     @match = match
@@ -27,15 +33,11 @@ class MatchupBoard
 
   def bench
     @bench ||= (roster - picked_players).map { |player| row_for(player) }
-                                        .sort_by { |row| [row.status == 'out' ? 1 : 0, -(row.pupr || 0)] }
+                                        .sort_by(&:bench_sort_key)
   end
 
   def opponent_lines
     opponent_side.rows
-  end
-
-  def opponent_bench
-    opponent_side.bench
   end
 
   def team_summary

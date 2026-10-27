@@ -16,7 +16,7 @@ class MatchupOpponent
 
   def bench
     @bench ||= (roster - players.values.flatten).map { |player| row_for(player) }
-                                                .sort_by { |row| [row.status == 'out' ? 1 : 0, -(row.pupr || 0)] }
+                                                .sort_by(&:bench_sort_key)
   end
 
   def team_summary
