@@ -43,7 +43,7 @@ class MatchupOpponent
   end
 
   def statuses
-    @statuses ||= @match.match_night.match_availabilities.where(player: roster)
+    @statuses ||= @match.match_night.match_availabilities.where(player: roster + players.values.flatten)
                         .to_h { |row| [row.player_id, row.status] }
   end
 
