@@ -31,6 +31,12 @@ class NavigationHelperTest < ActionView::TestCase
     assert_includes sidebar_labels(stubs.merge(captain_or_admin?: true)), 'Matchup'
   end
 
+  test 'Matchup sits right after Standings' do
+    labels = sidebar_labels(nav_season: seasons(:scorecard), admin?: false, captain_or_admin?: true)
+
+    assert_equal 'Matchup', labels[labels.index('Standings') + 1]
+  end
+
   private
 
   def sidebar_labels(stubs)

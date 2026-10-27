@@ -9,10 +9,10 @@ module NavigationHelper
       { label: 'Schedule', icon: 'calendar', path: season_nav_path(:match_nights) },
       { label: 'Players', icon: 'user', path: season_nav_path(:players) },
       { label: 'Standings', icon: 'trophy', path: season_nav_path(:standings) },
+      (matchup_item if matchup_visible?),
       { label: 'Rules & Format', icon: 'book-open', path: rules_path }
-    ]
-    items.insert(6, matchup_item) if matchup_visible?
-    items << { label: 'Admin', icon: 'cog', path: admin_root_path(season: nav_season) } if admin?
+    ].compact
+    items <<{ label: 'Admin', icon: 'cog', path: admin_root_path(season: nav_season) } if admin?
     items
   end
 
