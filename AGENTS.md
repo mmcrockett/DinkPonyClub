@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Dink Pony Club: Rails 8.1 app (Ruby 3.4.10) for running a pickleball league - seasons, teams, rosters, match nights, lineups, scorecards, standings, and player stats. Google OAuth sign-in; deployed with Kamal.
+Dink Pony Club: Rails 8.1 app (Ruby 3.4.11) for running a pickleball league - seasons, teams, rosters, match nights, lineups, scorecards, standings, and player stats. Google OAuth sign-in; deployed with Kamal.
 
 ## Commands
 
