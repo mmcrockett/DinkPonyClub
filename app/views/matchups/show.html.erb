@@ -21,88 +21,101 @@
       <p class="font-bold text-dpc-navy">
         <%= t('.versus', team: @team.name, opponent: @board.opponent.name) %>
         <span class="font-normal text-gray-500"><%= l(@match.played_on, format: :long) %></span>
-      </p>    </div>
+      </p>
+    </div>
 
     <%= render 'scoreboard', board: @board, team: @team %>
+
+    <% lineup_move_data = {
+         controller: 'lineup-move',
+         lineup_move_empty_value: tag.span(t('.empty'), class: 'text-gray-400'),
+         lineup_move_move_value: t('.move'),
+         lineup_move_cancel_value: t('.cancel'),
+         lineup_move_here_value: t('.here'),
+         lineup_move_extra_here_value: t('.extra_here'),
+         lineup_move_subs_url_value: match_team_subs_path(@match, @team),
+         lineup_move_odds_url_value: match_team_odds_path(@match, @team),
+         lineup_move_loading_value: t('.loading_subs'),
+         lineup_move_no_subs_value: t('.no_subs'),
+         lineup_move_failed_value: t('.subs_failed')
+       } %>
 
     <div class="flex snap-x snap-mandatory items-start gap-4 overflow-x-auto md:grid md:grid-cols-2 md:overflow-visible"
          data-controller="line-align">
       <div class="w-[88%] shrink-0 snap-center md:w-auto">
         <h2 class="mb-2 text-sm font-bold uppercase text-gray-500"><%= @team.name %></h2>
-    <%= form_with url: match_team_lineup_path(@match, @team), method: :patch, id: 'matchup-lineup',
-                  data: { controller: 'lineup-move', lineup_move_empty_value: tag.span(t('.empty'), class: 'text-gray-400'),
-                          lineup_move_move_value: t('.move'), lineup_move_cancel_value: t('.cancel'),
-                          lineup_move_subs_url_value: match_team_subs_path(@match, @team), lineup_move_odds_url_value: match_team_odds_path(@match, @team), lineup_move_here_value: t('.here'), lineup_move_extra_here_value: t('.extra_here'),
-                          lineup_move_loading_value: t('.loading_subs'),
-                          lineup_move_no_subs_value: t('.no_subs'), lineup_move_failed_value: t('.subs_failed') } do %>
-      <%= hidden_field_tag :return_to, season_matchup_path(@season, team_id: @team.id, match_id: @match.id) %>
 
-      <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
-        <table class="w-full text-left text-sm">
-          <thead class="border-b border-gray-200 text-xs font-bold uppercase text-gray-500" data-line-group="head">
-            <tr>
-              <th class="px-4 py-2"><%= t('.slot') %></th>
-              <th class="px-4 py-2"><%= t('.player') %></th>
-              <th class="px-4 py-2 text-right"><%= t('.pupr') %></th>
-              <th class="px-4 py-2 text-right"><%= t('.elo') %></th>
-              <% if @editable %>
-                <th class="px-4 py-2 text-right">
-                  <button type="button" class="rounded-full border border-dpc-navy px-3 py-1 text-xs font-bold uppercase text-dpc-navy"
-                          data-action="lineup-move#openSubs"><%= t('.add_sub') %></button>
-                </th>
+        <%= form_with url: match_team_lineup_path(@match, @team), method: :patch, id: 'matchup-lineup', data: lineup_move_data do %>
+          <%= hidden_field_tag :return_to, season_matchup_path(@season, team_id: @team.id, match_id: @match.id) %>
+
+          <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
+            <table class="w-full text-left text-sm">
+              <thead class="border-b border-gray-200 text-xs font-bold uppercase text-gray-500" data-line-group="head">
+                <tr>
+                  <th class="px-4 py-2"><%= t('.slot') %></th>
+                  <th class="px-4 py-2"><%= t('.player') %></th>
+                  <th class="px-4 py-2 text-right"><%= t('.pupr') %></th>
+                  <th class="px-4 py-2 text-right"><%= t('.elo') %></th>
+                  <% if @editable %>
+                    <th class="px-4 py-2 text-right">
+                      <button type="button" class="rounded-full border border-dpc-navy px-3 py-1 text-xs font-bold uppercase text-dpc-navy"
+                              data-action="lineup-move#openSubs"><%= t('.add_sub') %></button>
+                    </th>
+                  <% end %>
+                  <th class="px-2 py-2 text-center"><%= t('.ml') %></th>
+                </tr>
+              </thead>
+              <% @board.lines.each do |position, rows| %>
+                <% state = rows.count(&:player) >= 2 ? 'complete' : 'incomplete' %>
+                <tbody class="border-b border-gray-200" data-line-group="<%= position %>">
+                  <% rows.each_with_index do |row, index| %>
+                    <% extra = index >= MatchupBoard::MIN_SEATS %>
+                    <%= render 'row', row: row, label: extra ? t('.extra') : t('.line', number: position), state: state,
+                                      position: position, editable: @editable, extra: extra, slots: @board.slots,
+                                      line_odds: (@board.odds.line_moneylines.dig(position, :mine) || '-' if index.zero?),
+                                      odds_side: 'mine', odds_span: rows.size %>
+                  <% end %>
+                </tbody>
               <% end %>
-              <th class="px-2 py-2 text-center"><%= t('.ml') %></th>
-            </tr>
-          </thead>
-          <% @board.lines.each do |position, rows| %>
-            <% state = rows.count(&:player) >= 2 ? 'complete' : 'incomplete' %>
-            <tbody class="border-b border-gray-200" data-line-group="<%= position %>">
-              <% rows.each_with_index do |row, index| %>
-                <% extra = index >= MatchupBoard::MIN_SEATS %>
-                <%= render 'row', row: row, label: extra ? t('.extra') : t('.line', number: position), state: state, position: position,
-                                  editable: @editable, extra: extra, slots: @board.slots,
-                                  line_odds: (@board.odds.line_moneylines.dig(position, :mine) || '-' if index.zero?), odds_side: 'mine', odds_span: rows.size %>
-              <% end %>
-            </tbody>
+              <tbody data-lineup-move-target="subSources">
+                <% if @editable %>
+                  <%= render 'row', row: MatchupBoard::EMPTY_ROW, label: t('.bench'), state: 'bench', editable: true, bench_new: true %>
+                <% end %>
+                <% @board.bench.each do |row| %>
+                  <%= render 'row', row: row, label: t('.bench'), state: 'bench', editable: @editable, slots: @board.slots %>
+                <% end %>
+                <% if @editable %>
+                  <% @board.picked_subs.each do |row| %>
+                    <%= render 'row', row: row, label: t('.bench'), state: 'bench', editable: true, sub_source: true, slots: @board.slots %>
+                  <% end %>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+
+          <% if @editable %>
+            <dialog class="fixed inset-x-0 bottom-0 top-auto m-0 w-full max-w-none rounded-t-xl bg-white p-4 shadow-xl backdrop:bg-black/40 sm:inset-0 sm:m-auto sm:max-w-md sm:rounded-xl"
+                    data-lineup-move-target="subPanel" data-action="click->lineup-move#closeSubs">
+              <div class="mb-3 flex items-center justify-between">
+                <p class="text-sm font-bold uppercase text-gray-500"><%= t('.choose_sub') %></p>
+                <button type="button" data-close class="rounded-md border border-gray-400 px-3 py-1 text-sm font-bold text-gray-600"><%= t('.close') %></button>
+              </div>
+              <div class="grid grid-cols-[1fr_4rem_4rem] px-3 pb-1 text-xs font-bold uppercase text-gray-500">
+                <span><%= t('.player') %></span>
+                <span class="text-right"><%= t('.pupr') %></span>
+                <span class="text-right"><%= t('.elo') %></span>
+              </div>
+              <ul class="flex max-h-[60vh] flex-col overflow-y-auto" data-lineup-move-target="subList"></ul>
+            </dialog>
+
+            <div class="mt-4 flex items-center gap-3">
+              <%= submit_tag t('.save'), disabled: true, data: { lineup_move_target: 'save' },
+                             class: 'rounded-md bg-dpc-navy px-4 py-2 text-sm font-bold text-white disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500' %>
+              <%= link_to t('.cancel'), season_matchup_path(@season, team_id: @team.id, match_id: @match.id),
+                          class: 'text-sm font-bold text-gray-600 hover:underline' %>
+            </div>
           <% end %>
-          <tbody data-lineup-move-target="subSources">
-            <% if @editable %>
-              <%= render 'row', row: MatchupBoard::EMPTY_ROW, label: t('.bench'), state: 'bench', editable: true, bench_new: true %>
-            <% end %>
-            <% @board.bench.each do |row| %>
-              <%= render 'row', row: row, label: t('.bench'), state: 'bench', editable: @editable, slots: @board.slots %>
-            <% end %>
-            <% if @editable %>
-              <% @board.picked_subs.each do |row| %>
-                <%= render 'row', row: row, label: t('.bench'), state: 'bench', editable: true, sub_source: true, slots: @board.slots %>
-              <% end %>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
-
-      <% if @editable %>
-        <dialog class="fixed inset-x-0 bottom-0 top-auto m-0 w-full max-w-none rounded-t-xl bg-white p-4 shadow-xl backdrop:bg-black/40 sm:inset-0 sm:m-auto sm:max-w-md sm:rounded-xl"
-                data-lineup-move-target="subPanel" data-action="click->lineup-move#closeSubs">
-          <div class="mb-3 flex items-center justify-between">
-            <p class="text-sm font-bold uppercase text-gray-500"><%= t('.choose_sub') %></p>
-            <button type="button" data-close class="rounded-md border border-gray-400 px-3 py-1 text-sm font-bold text-gray-600"><%= t('.close') %></button>
-          </div>
-          <div class="grid grid-cols-[1fr_4rem_4rem] px-3 pb-1 text-xs font-bold uppercase text-gray-500">
-            <span><%= t('.player') %></span>
-            <span class="text-right"><%= t('.pupr') %></span>
-            <span class="text-right"><%= t('.elo') %></span>
-          </div>
-          <ul class="flex max-h-[60vh] flex-col overflow-y-auto" data-lineup-move-target="subList"></ul>
-        </dialog>
-
-        <div class="mt-4 flex items-center gap-3">
-          <%= submit_tag t('.save'), disabled: true, data: { lineup_move_target: 'save' },
-                         class: 'rounded-md bg-dpc-navy px-4 py-2 text-sm font-bold text-white disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500' %>
-          <%= link_to t('.cancel'), season_matchup_path(@season, team_id: @team.id, match_id: @match.id), class: 'text-sm font-bold text-gray-600 hover:underline' %>
-        </div>
-      <% end %>
-    <% end %>
+        <% end %>
       </div>
 
       <div class="w-[88%] shrink-0 snap-center md:w-auto">
