@@ -183,19 +183,24 @@ export default class extends Controller {
   async loadOdds() {
     const params = new URLSearchParams()
     this.element.querySelectorAll("input[data-field]:not(:disabled)").forEach((field) => params.append(field.name, field.value))
+    const request = (this.oddsRequest = (this.oddsRequest || 0) + 1)
+    let odds = {}
     try {
       const response = await fetch(`${this.oddsUrlValue}?${params}`, { headers: { Accept: "application/json" } })
-      if (!response.ok) return
-      const odds = await response.json()
-      document.querySelector("[data-odds=mine]").textContent = odds.mine || "-"
-      document.querySelector("[data-odds=theirs]").textContent = odds.theirs || "-"
-      document.querySelectorAll("[data-line-odds]").forEach((pill) => {
-        const line = (odds.lines || {})[pill.dataset.position] || {}
-        pill.textContent = line[pill.dataset.lineOdds] || "-"
-      })
+      if (response.ok) odds = await response.json()
     } catch {
-      // keep the previous odds on a failed request
+      odds = {}
     }
+    if (request === this.oddsRequest) this.showOdds(odds)
+  }
+
+  showOdds(odds) {
+    document.querySelector("[data-odds=mine]").textContent = odds.mine || "-"
+    document.querySelector("[data-odds=theirs]").textContent = odds.theirs || "-"
+    document.querySelectorAll("[data-line-odds]").forEach((pill) => {
+      const line = (odds.lines || {})[pill.dataset.position] || {}
+      pill.textContent = line[pill.dataset.lineOdds] || "-"
+    })
   }
 
   refreshStates() {
