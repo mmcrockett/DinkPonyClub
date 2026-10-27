@@ -12,7 +12,7 @@ module NavigationHelper
       (matchup_item if matchup_visible?),
       { label: 'Rules & Format', icon: 'book-open', path: rules_path }
     ].compact
-    items <<{ label: 'Admin', icon: 'cog', path: admin_root_path(season: nav_season) } if admin?
+    items << { label: 'Admin', icon: 'cog', path: admin_root_path(season: nav_season) } if admin?
     items
   end
 
