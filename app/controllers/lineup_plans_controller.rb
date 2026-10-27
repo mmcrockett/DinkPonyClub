@@ -12,9 +12,8 @@ class LineupPlansController < ApplicationController
   end
 
   def odds
-    ids = lines_params.to_h.to_h { |position, list| [position.to_i, Array(list).compact_blank] }
-    odds = MatchupBoard.new(@match, @team).odds(ids)
-    render json: (odds.moneylines || {}).merge(lines: odds.line_moneylines)
+    form = LineupPlanForm.new(match: @match, team: @team, lines: lines_params)
+    render json: form.valid? ? odds_payload(form.lines) : {}
   end
 
   def update
@@ -27,6 +26,11 @@ class LineupPlansController < ApplicationController
   end
 
   private
+
+  def odds_payload(lines)
+    odds = MatchupBoard.new(@match, @team).odds(lines)
+    (odds.moneylines || {}).merge(lines: odds.line_moneylines)
+  end
 
   def return_path
     url_from(params[:return_to]) || season_matchup_path(@match.season, team_id: @team.id, match_id: @match.id)

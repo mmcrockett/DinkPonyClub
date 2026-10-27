@@ -68,6 +68,15 @@ class LineupPlansControllerTest < ActionDispatch::IntegrationTest
     assert_equal %w[mine theirs], response.parsed_body.keys.sort
   end
 
+  test 'odds endpoint returns nothing for a lineup that could not be saved' do
+    sign_in_as players(:sc_home_captain)
+    twice = [players(:sc_home_player1).id, players(:sc_home_player2).id]
+
+    get match_team_odds_path(@match, @home), params: { lineup: { lines: { '1' => twice, '2' => twice } } }
+
+    assert_empty response.parsed_body
+  end
+
   test 'odds endpoint is closed to the other teams captain' do
     sign_in_as players(:sc_away_captain)
 
