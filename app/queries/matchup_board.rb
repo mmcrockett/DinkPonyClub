@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 class MatchupBoard
-  Row = Data.define(:player, :pupr, :rating, :sub)
+  Row = Data.define(:player, :pupr, :rating, :sub, :status, :preferences)
 
-  EMPTY_ROW = Row.new(player: nil, pupr: nil, rating: nil, sub: false)
+  EMPTY_ROW = Row.new(player: nil, pupr: nil, rating: nil, sub: false, status: nil, preferences: {})
   MIN_SEATS = 2
   SEATS = LineupPick::SEATS.size
 
@@ -22,11 +22,33 @@ class MatchupBoard
 
   def bench
     @bench ||= (roster - picked_players).map { |player| row_for(player) }
-                                        .sort_by { |row| -(row.pupr || 0) }
+                                        .sort_by { |row| [row.status == 'out' ? 1 : 0, -(row.pupr || 0)] }
+  end
+
+  def opponent_lines
+    opponent_side.rows
+  end
+
+  def team_summary
+    MatchupSummary.build(lines.flat_map { |_position, rows| rows.filter_map(&:player) }, ratings)
+  end
+
+  def opponent_team_summary
+    opponent_side.team_summary
+  end
+
+  def odds(own_ids = nil)
+    return build_odds(own_ids) if own_ids
+
+    @odds ||= build_odds(picks)
+  end
+
+  def slots
+    @slots ||= @match.match_night.match_slots.ordered.to_a
   end
 
   def sub_options
-    @sub_options ||= form.pickable_subs(sub_statuses).map { |player| row_for(player) }
+    @sub_options ||= form.pickable_subs(statuses).map { |player| row_for(player) }
   end
 
   def picked_subs
@@ -37,6 +59,23 @@ class MatchupBoard
 
   def form
     @form ||= LineupPlanForm.from_match(@match, @team)
+  end
+
+  def opponent_side
+    @opponent_side ||= MatchupOpponent.new(@match, opponent, ratings)
+  end
+
+  def build_odds(own_ids)
+    lines = own_ids.to_h do |position, ids|
+      [position, [ids.map do |id|
+                    elo_of(id.to_i)
+                  end, opponent_side.elos(position)]]
+    end
+    MatchOdds.new(lines: lines, sweep_bonus: @match.season.sweep_bonus)
+  end
+
+  def elo_of(player_id)
+    ratings.for(player_id)&.elo || PlayerRatings::BASE
   end
 
   def picks
@@ -50,11 +89,23 @@ class MatchupBoard
 
   def row_for(player)
     rating = ratings.for(player.id)
-    Row.new(player: player, pupr: rating&.pupr, rating: rating&.elo&.round, sub: roster.exclude?(player))
+    Row.new(player: player, pupr: rating&.pupr, rating: rating&.elo&.round, sub: roster.exclude?(player),
+            status: statuses[player.id], preferences: preferences.fetch(player.id, {}))
   end
 
-  def sub_statuses
-    @match.match_night.match_availabilities.where(player: form.eligible_subs).to_h { |row| [row.player_id, row.status] }
+  def statuses
+    @statuses ||= @match.match_night.match_availabilities.where(player: roster + form.eligible_subs)
+                        .to_h { |row| [row.player_id, row.status] }
+  end
+
+  def preferences
+    @preferences ||= SlotAvailability.where(match_slot: slots, player: roster + form.eligible_subs)
+                                     .group_by(&:player_id)
+                                     .transform_values do |list|
+      list.to_h do |row|
+        [row.match_slot_id, row.preference]
+      end
+    end
   end
 
   def players

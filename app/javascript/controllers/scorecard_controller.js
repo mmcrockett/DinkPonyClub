@@ -1,11 +1,10 @@
 import { Controller } from "@hotwired/stimulus"
 
-const ROTATION = [[0, 1], [0, 2], [1, 2]]
 const DEBOUNCE_MS = 600
 const WINNING_SCORE = 11
 
 export default class extends Controller {
-  static targets = ["score", "row", "player", "fingerprint", "status", "summary", "editor", "scores"]
+  static targets = ["score", "row", "player", "fingerprint", "status"]
   static values = { url: String, doneUrl: String, persisted: Boolean }
 
   connect() {
@@ -46,56 +45,6 @@ export default class extends Controller {
     next.focus()
   }
 
-  editLineup() {
-    this.summaryTarget.hidden = true
-    this.editorTarget.hidden = false
-  }
-
-  async setLineup() {
-    if (!this.lineupReady()) {
-      this.status("Every line needs at least two players per team", true)
-      return
-    }
-    await this.settled()
-    if (!this.clean()) {
-      this.fullSave = true
-      await this.save()
-    }
-    if (this.dirty) return
-    this.renderSummary()
-    this.editorTarget.hidden = true
-    this.summaryTarget.hidden = false
-    this.scoresTarget.hidden = false
-  }
-
-  addThirdPlayer(event) {
-    const button = event.currentTarget
-    const select = button.parentElement.querySelector("select[hidden]")
-    select.hidden = false
-    select.focus()
-    button.remove()
-  }
-
-  lineupReady() {
-    const lines = new Set(this.playerTargets.map((select) => select.dataset.line))
-    return Array.from(lines).every((line) => ["home", "away"].every((side) => this.names(line, side).length >= 2))
-  }
-
-  renderSummary() {
-    this.summaryTarget.querySelectorAll("[data-summary-line]").forEach((item) => {
-      const line = item.dataset.summaryLine
-      item.querySelectorAll("[data-summary-side]").forEach((cell) => {
-        cell.textContent = this.names(line, cell.dataset.summarySide).join(" & ")
-      })
-    })
-  }
-
-  playersChanged(event) {
-    this.relabel(event.target.dataset.line)
-    this.fullSave = true
-    this.queueSave()
-  }
-
   focusNext(input) {
     const next = this.scoreTargets[this.scoreTargets.indexOf(input) + 1]
     if (next) next.focus()
@@ -118,28 +67,6 @@ export default class extends Controller {
     }
   }
 
-  relabel(line) {
-    const names = { home: this.names(line, "home"), away: this.names(line, "away") }
-    this.rowTargets.filter((row) => row.dataset.line === line).forEach((row) => {
-      const game = Number(row.dataset.game) - 1
-      row.querySelectorAll("[data-pair]").forEach((cell) => {
-        cell.textContent = this.pair(names[cell.dataset.pair], game)
-      })
-    })
-  }
-
-  names(line, side) {
-    return this.playerTargets
-      .filter((select) => select.dataset.line === line && select.dataset.side === side)
-      .map((select) => (select.value ? select.selectedOptions[0].dataset.short : null))
-      .filter(Boolean)
-  }
-
-  pair(names, game) {
-    if (names.length === 2) return names.join(" & ")
-    return ROTATION[game].map((index) => names[index]).filter(Boolean).join(" & ")
-  }
-
   halfFilledRow() {
     return this.rowTargets.find((row) => {
       const filled = this.rowScores(row).filter((value) => value !== "").length
@@ -152,10 +79,6 @@ export default class extends Controller {
     this.dirty = true
     if (!this.saved) this.fullSave = true
     clearTimeout(this.timer)
-    if (!this.lineupReady()) {
-      this.status("Not saved - every line needs at least two players per team", true)
-      return
-    }
     const half = this.halfFilledRow()
     if (half) {
       this.status(`Not saved - finish Line ${half.dataset.line} Game ${half.dataset.game}`, true)

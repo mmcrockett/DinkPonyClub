@@ -66,7 +66,33 @@ class MatchesControllerTest < ActionDispatch::IntegrationTest
     get edit_match_path(@match)
 
     assert_response :success
-    assert_select 'button[data-action="scorecard#setLineup"] svg'
+    assert_select 'select', count: 0
+  end
+
+  test 'edit disables score entry and points to the matchup page until the lineup is complete' do
+    sign_in_as players(:sc_home_captain)
+
+    get edit_match_path(@match)
+
+    assert_select 'input[data-scorecard-target=score]:not([disabled])', count: 0
+    assert_select 'a[href=?]', season_matchup_path(@match.season_id, team_id: @match.home_team_id, match_id: @match.id),
+                  text: 'enter lineup'
+  end
+
+  test 'edit shows score entry once both teams have a full lineup' do
+    @match.line_positions.each do |position|
+      [@match.home_team, @match.away_team].each do |team|
+        team.roster_for(@match.season).first(2).each_with_index do |player, seat|
+          LineupPick.create!(match: @match, team: team, player: player, position: position, seat: seat + 1)
+        end
+      end
+    end
+    sign_in_as players(:sc_home_captain)
+
+    get edit_match_path(@match)
+
+    assert_select 'input[data-scorecard-target=score]:not([disabled])', minimum: 1
+    assert_select 'input[type=hidden][data-scorecard-target=player]', minimum: 4
   end
 
   test 'edit renders for the away captain' do

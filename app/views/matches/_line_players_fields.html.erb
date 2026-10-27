@@ -1,0 +1,6 @@
+<% %i[home away].each do |side| %>
+  <% line.public_send(:"#{side}_player_ids").each do |player_id| %>
+    <%= hidden_field_tag "scorecard[lines][#{line.position}][#{side}_player_ids][]", player_id, id: nil,
+                         data: { scorecard_target: 'player', line: line.position, side: side } %>
+  <% end %>
+<% end %>

@@ -4,7 +4,7 @@ export default class extends Controller {
   static targets = ["seat", "save", "subSources", "subPanel", "subList"]
   static values = {
     empty: String, move: String, cancel: String,
-    subsUrl: String, here: String, extraHere: String, loading: String, noSubs: String, failed: String
+    subsUrl: String, oddsUrl: String, here: String, extraHere: String, loading: String, noSubs: String, failed: String
   }
 
   move(event) {
@@ -159,6 +159,43 @@ export default class extends Controller {
       field.disabled = !id
     })
     this.refreshStates()
+    this.refreshAverages()
+    this.refreshOdds()
+  }
+
+  refreshAverages() {
+    const mean = (rows, slot, digits) => {
+      const numbers = rows.map((row) => parseFloat(row.querySelector(`[data-slot=${slot}]`).textContent)).filter((n) => !isNaN(n))
+      return numbers.length ? (numbers.reduce((a, b) => a + b, 0) / numbers.length).toFixed(digits) : "-"
+    }
+    const filled = this.seatTargets.filter((row) => row.dataset.position && row.dataset.playerId)
+    const pupr = document.querySelector("[data-score=pupr]")
+    const elo = document.querySelector("[data-score=elo]")
+    if (pupr) pupr.textContent = mean(filled, "pupr", 2)
+    if (elo) elo.textContent = mean(filled, "elo", 0)
+  }
+
+  refreshOdds() {
+    clearTimeout(this.oddsTimer)
+    this.oddsTimer = setTimeout(() => this.loadOdds(), 300)
+  }
+
+  async loadOdds() {
+    const params = new URLSearchParams()
+    this.element.querySelectorAll("input[data-field]:not(:disabled)").forEach((field) => params.append(field.name, field.value))
+    try {
+      const response = await fetch(`${this.oddsUrlValue}?${params}`, { headers: { Accept: "application/json" } })
+      if (!response.ok) return
+      const odds = await response.json()
+      document.querySelector("[data-odds=mine]").textContent = odds.mine || "-"
+      document.querySelector("[data-odds=theirs]").textContent = odds.theirs || "-"
+      document.querySelectorAll("[data-line-odds]").forEach((pill) => {
+        const line = (odds.lines || {})[pill.dataset.position] || {}
+        pill.textContent = line[pill.dataset.lineOdds] || "-"
+      })
+    } catch {
+      // keep the previous odds on a failed request
+    }
   }
 
   refreshStates() {

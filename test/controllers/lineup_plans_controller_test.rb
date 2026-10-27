@@ -4,27 +4,32 @@ class LineupPlansControllerTest < ActionDispatch::IntegrationTest
   setup do
     @match = matches(:scorecard_match)
     @home = teams(:sc_home)
+    @matchup_path = season_matchup_path(@match.season, team_id: @home.id, match_id: @match.id)
   end
 
-  test 'edit redirects to root when signed out' do
-    get edit_match_team_lineup_path(@match, @home)
+  test 'update redirects to root when signed out' do
+    patch match_team_lineup_path(@match, @home), params: { lineup: { lines: {} } }
 
     assert_redirected_to root_path
   end
 
-  test 'home captain can edit and save their lineup' do
+  test 'home captain can save their lineup and lands back on the matchup page' do
     sign_in_as players(:sc_home_captain)
-
-    get edit_match_team_lineup_path(@match, @home)
-
-    assert_response :success
-
     picked = [players(:sc_home_player1).id, players(:sc_home_player2).id, '']
 
     assert_difference('LineupPick.count', 2) do
       patch match_team_lineup_path(@match, @home), params: { lineup: { lines: { '1' => picked } } }
     end
-    assert_redirected_to edit_match_team_lineup_path(@match, @home)
+    assert_redirected_to @matchup_path
+  end
+
+  test 'a one-player line can be saved' do
+    sign_in_as players(:sc_home_captain)
+    lone = [players(:sc_home_player1).id]
+
+    assert_difference('LineupPick.count', 1) do
+      patch match_team_lineup_path(@match, @home), params: { lineup: { lines: { '1' => lone } } }
+    end
   end
 
   test 'save returns to a same-site return_to and ignores off-site ones' do
@@ -38,30 +43,41 @@ class LineupPlansControllerTest < ActionDispatch::IntegrationTest
     patch match_team_lineup_path(@match, @home),
           params: { return_to: 'https://evil.example/', lineup: { lines: { '1' => picked } } }
 
-    assert_redirected_to edit_match_team_lineup_path(@match, @home)
+    assert_redirected_to @matchup_path
   end
 
-  test 'invalid save with return_to redirects back with the error' do
+  test 'invalid save redirects back with the error' do
     sign_in_as players(:sc_home_captain)
 
     twice = [players(:sc_home_player1).id, players(:sc_home_player2).id]
-    patch match_team_lineup_path(@match, @home),
-          params: { return_to: '/matchup', lineup: { lines: { '1' => twice, '2' => twice } } }
+    patch match_team_lineup_path(@match, @home), params: { lineup: { lines: { '1' => twice, '2' => twice } } }
 
-    assert_redirected_to '/matchup'
+    assert_redirected_to @matchup_path
     assert_match(/twice/, flash[:alert])
   end
 
-  test 'away captain cannot set the home lineup' do
+  test 'odds endpoint previews money lines for an unsaved lineup' do
+    LineupPick.create!(match: @match, team: teams(:sc_away), player: players(:sc_away_player1), position: 1, seat: 1)
+    LineupPick.create!(match: @match, team: teams(:sc_away), player: players(:sc_away_player2), position: 1, seat: 2)
+    sign_in_as players(:sc_home_captain)
+    ids = [players(:sc_home_player1).id, players(:sc_home_player2).id]
+
+    get match_team_odds_path(@match, @home), params: { lineup: { lines: { '1' => ids } } }
+
+    assert_response :success
+    assert_equal %w[mine theirs], response.parsed_body.keys.sort
+  end
+
+  test 'odds endpoint is closed to the other teams captain' do
     sign_in_as players(:sc_away_captain)
 
-    get edit_match_team_lineup_path(@match, @home)
+    get match_team_odds_path(@match, @home)
 
     assert_redirected_to match_path(@match)
   end
 
-  test 'a captain of an unrelated team is rejected' do
-    sign_in_as players(:sc_other_captain)
+  test 'away captain cannot set the home lineup' do
+    sign_in_as players(:sc_away_captain)
 
     patch match_team_lineup_path(@match, @home), params: { lineup: { lines: {} } }
 
@@ -71,7 +87,7 @@ class LineupPlansControllerTest < ActionDispatch::IntegrationTest
   test 'a team not in the match is not found' do
     sign_in_as players(:sc_home_captain)
 
-    get edit_match_team_lineup_path(@match, teams(:sc_other))
+    patch match_team_lineup_path(@match, teams(:sc_other)), params: { lineup: { lines: {} } }
 
     assert_response :not_found
   end
@@ -80,24 +96,16 @@ class LineupPlansControllerTest < ActionDispatch::IntegrationTest
     sign_in_as players(:sc_home_captain)
     @match.lineups.create!(position: 1)
 
-    get edit_match_team_lineup_path(@match, @home)
+    patch match_team_lineup_path(@match, @home), params: { lineup: { lines: {} } }
 
     assert_redirected_to match_path(@match)
-  end
-
-  test 'admin can edit a lineup for either team' do
-    sign_in_as players(:zoe)
-
-    get edit_match_team_lineup_path(@match, @home)
-
-    assert_response :success
   end
 
   test 'redirects when the night is canceled' do
     sign_in_as players(:sc_home_captain)
     @match.match_night.update!(canceled: true)
 
-    get edit_match_team_lineup_path(@match, @home)
+    patch match_team_lineup_path(@match, @home), params: { lineup: { lines: {} } }
 
     assert_redirected_to match_path(@match)
   end
@@ -107,8 +115,8 @@ class LineupPlansControllerTest < ActionDispatch::IntegrationTest
 
     get season_match_nights_path(@match.season)
 
-    assert_select "a[href='#{edit_match_team_lineup_path(@match, @home)}']"
-    assert_select "a[href='#{edit_match_team_lineup_path(@match, teams(:sc_away))}']", count: 0
+    assert_select "a[href='#{@matchup_path}']"
+    assert_select "a[href*='team_id=#{teams(:sc_away).id}']", count: 0
   end
 
   test 'schedule shows an admin both set-lineup links' do
@@ -116,8 +124,8 @@ class LineupPlansControllerTest < ActionDispatch::IntegrationTest
 
     get season_match_nights_path(@match.season)
 
-    assert_select "a[href='#{edit_match_team_lineup_path(@match, @home)}']"
-    assert_select "a[href='#{edit_match_team_lineup_path(@match, teams(:sc_away))}']"
+    assert_select "a[href='#{@matchup_path}']"
+    assert_select "a[href*='team_id=#{teams(:sc_away).id}']"
   end
 
   test 'schedule shows a plain player no set-lineup links' do
@@ -125,7 +133,7 @@ class LineupPlansControllerTest < ActionDispatch::IntegrationTest
 
     get season_match_nights_path(@match.season)
 
-    assert_select "a[href*='/lineup/edit']", count: 0
+    assert_select "a[href*='/matchup']", count: 0
   end
 
   test 'match page hides set-lineup links once results are entered' do
@@ -134,50 +142,7 @@ class LineupPlansControllerTest < ActionDispatch::IntegrationTest
 
     get match_path(@match)
 
-    assert_select "a[href*='/lineup/edit']", count: 0
-  end
-
-  test 'edit offers eligible subs in the picker but not in the seat selects' do
-    sign_in_as players(:sc_home_captain)
-
-    get edit_match_team_lineup_path(@match, @home)
-
-    assert_select "select[data-lineup-subs-target='picker'] option", text: players(:ada).full_name
-    assert_select "select[data-lineup-subs-target='seat'] option", text: players(:ada).full_name, count: 0
-  end
-
-  test 'a saved sub shows in the roster panel and the seat selects' do
-    sign_in_as players(:sc_home_captain)
-    LineupPick.create!(match: @match, team: @home, player: players(:ada), position: 1, seat: 1)
-    LineupPick.create!(match: @match, team: @home, player: players(:sc_home_player1), position: 1, seat: 2)
-
-    get edit_match_team_lineup_path(@match, @home)
-
-    assert_select "select[data-lineup-subs-target='seat'] option[selected]", text: players(:ada).full_name
-    assert_select "select[data-lineup-subs-target='picker'] option", text: players(:ada).full_name, count: 0
-  end
-
-  test 'a player marked out is left out of the seat options unless already selected' do
-    sign_in_as players(:sc_home_captain)
-    MatchAvailability.create!(match_night: @match.match_night, player: players(:sc_home_player2), status: 'out')
-    MatchAvailability.create!(match_night: @match.match_night, player: players(:sc_home_player3), status: 'out')
-    LineupPick.create!(match: @match, team: @home, player: players(:sc_home_player3), position: 1, seat: 1)
-
-    get edit_match_team_lineup_path(@match, @home)
-
-    assert_select "select[data-lineup-subs-target='seat'] option", text: players(:sc_home_player2).full_name, count: 0
-    selected = Regexp.new(Regexp.escape(players(:sc_home_player3).full_name))
-
-    assert_select "select[data-lineup-subs-target='seat'] option[selected]", text: selected
-  end
-
-  test 'invalid lineup re-renders with errors' do
-    sign_in_as players(:sc_home_captain)
-
-    lone = [players(:sc_home_player1).id]
-    patch match_team_lineup_path(@match, @home), params: { lineup: { lines: { '1' => lone } } }
-
-    assert_response :unprocessable_content
+    assert_select "a[href*='/matchup']", count: 0
   end
 
   private

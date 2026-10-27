@@ -1,0 +1,23 @@
+<%# locals: (board:, team:) %>
+<% moneylines = board.odds.moneylines %>
+<% sides = [
+     { name: team.name, summary: board.team_summary, odds: moneylines&.fetch(:mine), side: 'mine', align: 'text-left' },
+     { name: board.opponent.name, summary: board.opponent_team_summary, odds: moneylines&.fetch(:theirs), side: 'theirs', align: 'text-right' }
+   ] %>
+<div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+  <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+    <% sides.each_with_index do |entry, index| %>
+      <% if index == 1 %><span class="text-sm font-bold uppercase text-gray-400"><%= t('matchups.show.scoreboard.vs') %></span><% end %>
+      <div class="<%= entry[:align] %>">
+        <p class="truncate text-xs font-bold uppercase text-gray-500"><%= entry[:name] %></p>
+        <p class="text-3xl font-extrabold text-dpc-navy" <%= 'data-score=pupr' if index.zero? %>><%= entry[:summary].pupr ? number_with_precision(entry[:summary].pupr, precision: 2) : '-' %></p>
+        <p class="text-xs text-gray-500"><%= t('matchups.show.pupr') %> &middot;
+          <span <%= 'data-score=elo' if index.zero? %>><%= entry[:summary].rating || '-' %></span> <%= t('matchups.show.elo') %></p>
+        <p class="mt-1">
+          <span class="inline-block rounded-full border border-dpc-navy px-3 py-0.5 text-sm font-bold text-dpc-navy" data-odds="<%= entry[:side] %>"
+                title="<%= t('matchups.show.scoreboard.odds') %>"><%= entry[:odds] || '-' %></span>
+        </p>
+      </div>
+    <% end %>
+  </div>
+</div>

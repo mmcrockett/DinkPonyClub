@@ -1,12 +1,24 @@
-<%# locals: (row:, label:, state:, position: nil, editable: false, bench_new: false, sub_source: false, extra: false) %>
+<%# locals: (row:, label:, state:, position: nil, editable: false, bench_new: false, sub_source: false, extra: false, slots: [], line_odds: nil, odds_side: nil, odds_span: 1) %>
 <% player_id = row.player&.id %>
 <tr <%= "hidden data-sub-source data-sub-id=#{player_id}" if sub_source %> <%= "data-extra#{' hidden' unless row.player}" if extra %> class="group border-t border-gray-100 first:border-t-0 data-[state=bench]:bg-gray-50 data-[state=complete]:bg-green-50 data-[state=incomplete]:bg-amber-50 data-[source]:outline-2 data-[source]:-outline-offset-2 data-[source]:outline-dpc-navy"
     data-state="<%= state %>"
     <% if editable && !sub_source %>data-lineup-move-target="seat" data-position="<%= position %>" data-player-id="<%= player_id %>"<%= ' data-bench-new' if bench_new %><% end %>>
-  <td class="border-l-4 px-4 py-3 text-gray-600 group-data-[state=bench]:border-transparent group-data-[state=complete]:border-solid group-data-[state=complete]:border-green-700 group-data-[state=incomplete]:border-dashed group-data-[state=incomplete]:border-amber-500"><%= label %></td>
+  <td class="border-l-4 px-4 py-3 text-gray-600 group-data-[state=bench]:border-transparent group-data-[state=complete]:border-solid group-data-[state=complete]:border-green-700 group-data-[state=incomplete]:border-dashed group-data-[state=incomplete]:border-amber-500">
+    <%= label %>
+  </td>
   <td class="px-4 py-3" data-slot="name">
     <% if row.player %>
       <span class="font-bold text-dpc-navy"><%= row.player.full_name %></span>
+      <% icon, color = { 'in' => %w[check-circle text-green-700], 'maybe' => %w[question-mark-circle text-amber-500],
+                         'out' => %w[x-circle text-red-700] }[row.status] %>
+      <% if icon %>
+        <span class="ml-1 inline-flex align-middle <%= color %>" title="<%= availability_status_label(row.status) %>">
+          <%= render 'shared/icon', name: icon, class: 'h-5 w-5' %><span class="sr-only"><%= availability_status_label(row.status) %></span>
+        </span>
+      <% end %>
+      <% if row.status != 'out' && slots.any? && row.preferences.any? %>
+        <span class="ml-1 inline-flex gap-1 text-xs"><%= slot_preference_marks(slots, row.preferences) %></span>
+      <% end %>
       <% if row.sub %><span class="ml-1 rounded-full bg-gray-200 px-2 py-0.5 text-xs font-bold uppercase text-gray-600"><%= t('matchups.show.sub_tag') %></span>
         <% if editable %>
           <button type="button" class="ml-2 inline-flex rounded-md border border-gray-400 bg-white p-1.5 align-middle text-gray-600 hover:border-red-700 hover:text-red-700" data-role="remove" data-action="lineup-move#remove"
@@ -28,6 +40,12 @@
       <% if position %>
         <input type="hidden" name="lineup[lines][<%= position %>][]" value="<%= player_id %>" <%= 'disabled' unless player_id %> data-field>
       <% end %>
+    </td>
+  <% end %>
+  <% if line_odds %>
+    <td rowspan="<%= odds_span %>" class="border-l border-gray-100 bg-white px-2 text-center align-middle">
+      <span class="inline-block rounded-full border border-gray-400 px-2 py-0.5 text-xs font-bold text-dpc-navy" data-line-odds="<%= odds_side %>"
+            data-position="<%= position %>" title="<%= t('matchups.show.scoreboard.line_odds') %>"><%= line_odds %></span>
     </td>
   <% end %>
 </tr>

@@ -32,6 +32,6 @@ module ScheduleActionsHelper
     return unless lineup_teams.include?(team)
 
     schedule_icon_link('clipboard-document-list', t('match_nights.schedule.set_lineup', team: team.name),
-                       edit_match_team_lineup_path(match, team))
+                       season_matchup_path(match.season_id, team_id: team.id, match_id: match.id))
   end
 end

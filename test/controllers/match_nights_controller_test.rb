@@ -67,7 +67,8 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
     get season_match_nights_path(seasons(:fall))
 
     assert_select "##{dom_id(match_nights(:fall_upcoming))} a[href=?][title=?]",
-                  edit_match_team_lineup_path(match, match.home_team), "Set #{match.home_team.name} lineup"
+                  season_matchup_path(match.season_id, team_id: match.home_team_id, match_id: match.id),
+                  "Set #{match.home_team.name} lineup"
   end
 
   test 'hides team availability for a non-captain' do

@@ -23,8 +23,8 @@ Rails.application.routes.draw do
       resources :games, param: :number, only: :update
     end
   end
-  get   'matches/:match_id/teams/:team_id/lineup/edit', to: 'lineup_plans#edit', as: :edit_match_team_lineup
   get   'matches/:match_id/teams/:team_id/subs', to: 'lineup_plans#subs', as: :match_team_subs
+  get   'matches/:match_id/teams/:team_id/odds', to: 'lineup_plans#odds', as: :match_team_odds
   patch 'matches/:match_id/teams/:team_id/lineup', to: 'lineup_plans#update', as: :match_team_lineup
   resources :players, only: %i[index show]
   get 'rules', to: 'rules#show', as: :rules

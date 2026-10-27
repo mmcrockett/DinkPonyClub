@@ -219,32 +219,16 @@ en:
   lineup_plans:
     forbidden: "Only the captain of this team can set its lineup."
     locked: "The lineup can't be changed once results are entered or the night is canceled."
-    edit:
-      title: "%{team} lineup vs %{opponent}"
-      roster: "Roster"
-      add_sub: "+ Sub"
-      choose_sub: "Choose a sub"
-      close: "Close"
-      loading_subs: "Loading..."
-      no_subs: "No subs available"
-      subs_failed: "Could not load subs"
-      choose_sub: "Choose a sub"
-      sub_tag: "Sub"
-      line: "Line %{position}"
-      player: "Player %{seat}"
-      third: "Player 3 (optional)"
-      seat_label: "Line %{position} player %{seat}"
-      save: "Save lineup"
-      back: "Back to match"
     update:
       saved: "Lineup saved."
   matches:
     forbidden: "Only captains of the two teams in this match can enter results."
     locked: "This match is locked. Ask an admin to make changes."
     stale: "Scores were changed on another device - reload to see them."
-    line_players:
-      roster: "Roster"
-      subs: "Subs"
+    edit:
+      incomplete: "Lineups not complete -"
+      enter_lineup: "enter lineup"
+      enter_team_lineup: "enter %{team} lineup"
     update:
       saved: "Scorecard saved."
   match_nights:
@@ -381,13 +365,17 @@ en:
       team: "Team"
       view: "View"
       no_match: "No upcoming match for this team."
-      edit_lineup: "Edit lineup"
       slot: "Slot"
       action: "Action"
       move: "Move"
       extra: "Extra"
       extra_here: "+1"
       add_sub: "+ Sub"
+      choose_sub: "Choose a sub"
+      close: "Close"
+      loading_subs: "Loading..."
+      no_subs: "No subs available"
+      subs_failed: "Could not load subs"
       remove_sub: "Remove sub"
       sub_tag: "Sub"
       here: "Here"
@@ -401,6 +389,11 @@ en:
       player: "Player"
       pupr: "PUPR"
       elo: "ELO"
+      ml: "ML"
+      scoreboard:
+        vs: "vs"
+        odds: "Money line"
+        line_odds: "Line money line"
   rules:
     show:
       title: "Rules & Format"

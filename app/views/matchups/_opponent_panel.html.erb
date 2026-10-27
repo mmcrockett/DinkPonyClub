@@ -1,0 +1,24 @@
+<%# locals: (board:) %>
+<h2 class="mb-2 text-sm font-bold uppercase text-gray-500"><%= board.opponent.name %></h2>
+<div class="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
+  <table class="w-full text-left text-sm">
+    <thead class="border-b border-gray-200 text-xs font-bold uppercase text-gray-500" data-line-group="head">
+      <tr>
+        <th class="px-4 py-2"><%= t('matchups.show.slot') %></th>
+        <th class="px-4 py-2"><%= t('matchups.show.player') %></th>
+        <th class="px-4 py-2 text-right"><%= t('matchups.show.pupr') %></th>
+        <th class="px-4 py-2 text-right"><%= t('matchups.show.elo') %></th>
+        <th class="px-2 py-2 text-center"><%= t('matchups.show.ml') %></th>
+      </tr>
+    </thead>
+    <% board.opponent_lines.each do |position, rows| %>
+      <% state = rows.count(&:player) >= 2 ? 'complete' : 'incomplete' %>
+      <tbody class="border-b border-gray-200" data-line-group="<%= position %>">
+        <% rows.each_with_index do |row, index| %>
+          <%= render 'matchups/row', row: row, label: t('matchups.show.line', number: position), state: state,
+                                     line_odds: (board.odds.line_moneylines.dig(position, :theirs) || '-' if index.zero?), odds_side: 'theirs', odds_span: rows.size, position: position %>
+        <% end %>
+      </tbody>
+    <% end %>
+  </table>
+</div>

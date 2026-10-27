@@ -91,6 +91,45 @@ class MatchupsControllerTest < ActionDispatch::IntegrationTest
     assert_select 'tr[data-extra][hidden]', minimum: 1
   end
 
+  test 'availability chips show on players who answered' do
+    pick = players(:sc_home_player1)
+    LineupPick.create!(match: @match, team: teams(:sc_home), player: pick, position: 1, seat: 1)
+    MatchAvailability.create!(match_night: @match.match_night, player: pick, status: 'out')
+    sign_in_as players(:sc_home_captain)
+
+    get season_matchup_path(@season)
+
+    assert_select 'td[data-slot=name] span', text: 'Out'
+  end
+
+  test 'captain sees the opponent panel with their planned players' do
+    away = teams(:sc_away)
+    LineupPick.create!(match: @match, team: away, player: players(:sc_away_player1), position: 1, seat: 1)
+    sign_in_as players(:sc_home_captain)
+
+    get season_matchup_path(@season)
+
+    assert_select 'h2', text: away.name
+    assert_select 'td[data-slot=name]', text: /#{players(:sc_away_player1).full_name}/
+  end
+
+  test 'scoreboard shows both teams and a money line for each' do
+    sign_in_as players(:sc_home_captain)
+
+    get season_matchup_path(@season)
+
+    assert_select '[data-odds=mine]'
+    assert_select '[data-odds=theirs]'
+  end
+
+  test 'the season dropdown has no all-time entry' do
+    sign_in_as players(:sc_home_captain)
+
+    get season_matchup_path(@season)
+
+    assert_select 'a', text: 'All time', count: 0
+  end
+
   test 'captain cannot view another team' do
     sign_in_as players(:sc_home_captain)
 

@@ -11,23 +11,27 @@ class MatchupsController < ApplicationController
     @season = current_season
     @teams = selectable_teams
     @team = @teams.find { |team| team.id.to_s == params[:team_id] } || @teams.first
-    @match = next_match_for(@team)
+    @match = match_for(@team)
     @board = MatchupBoard.new(@match, @team) if @match
-    @editable = @match.present? && @match.lineups.none?
+    @editable = editable?(@match)
   end
 
   private
+
+  def editable?(match)
+    match.present? && !match.match_night.canceled? && match.lineups.none?
+  end
 
   def selectable_teams
     teams = Team.where(id: RosterSpot.where(season: @season).select(:team_id)).order(:name)
     admin? ? teams.to_a : teams.where(id: captain_team_ids_in(@season.id)).to_a
   end
 
-  def next_match_for(team)
+  def match_for(team)
     return unless team
 
-    Match.chronological.where(season: @season)
-         .merge(MatchNight.upcoming.where(canceled: false))
-         .where('matches.home_team_id = :id OR matches.away_team_id = :id', id: team.id).first
+    matches = Match.chronological.where(season: @season)
+                   .where('matches.home_team_id = :id OR matches.away_team_id = :id', id: team.id)
+    matches.find_by(id: params[:match_id]) || matches.merge(MatchNight.upcoming.where(canceled: false)).first
   end
 end

@@ -1,4 +1,4 @@
-<div class="mx-auto flex max-w-2xl flex-col gap-6 pb-16">
+<div class="mx-auto flex max-w-2xl flex-col gap-3 pb-16">
   <div>
     <p class="text-sm font-medium text-gray-500"><%= @match.match_night.label %> &middot; <%= @match.played_on.strftime('%A, %B %-d') %></p>
     <h1 class="text-2xl font-extrabold text-dpc-navy">
@@ -6,7 +6,7 @@
     </h1>
   </div>
 
-  <%= form_with url: match_path(@match), method: :patch, class: 'flex flex-col gap-6',
+  <%= form_with url: match_path(@match), method: :patch, class: 'flex flex-col gap-3',
         data: { controller: 'scorecard', action: 'submit->scorecard#finish',
                 scorecard_url_value: match_path(@match, format: :json),
                 scorecard_done_url_value: match_path(@match),
@@ -23,46 +23,32 @@
       </div>
     <% end %>
 
+    <% editable_teams = [@match.home_team, @match.away_team].select { |team| admin? || captain_team_ids_in(@match.season_id).include?(team.id) } %>
+
     <% ready = @form.lineup_ready? %>
-
-    <div class="rounded-md bg-white px-4 py-3 shadow-sm" data-scorecard-target="summary" <%= 'hidden' unless ready %>>
-      <div class="flex items-center justify-between">
-        <h2 class="text-sm font-bold uppercase text-dpc-navy">Lineup</h2>
-        <button type="button" class="text-sm font-semibold text-dpc-green underline" data-action="scorecard#editLineup">Edit</button>
-      </div>
-      <ul class="mt-2 flex flex-col gap-1 text-xs text-gray-700">
-        <% @form.lines.each do |line| %>
-          <li data-summary-line="<%= line.position %>">
-            <span class="font-semibold">Line <%= line.position %></span>
-            <span data-summary-side="home"><%= side_names(line.home_player_ids, @players_by_id) %></span> vs
-            <span data-summary-side="away"><%= side_names(line.away_player_ids, @players_by_id) %></span>
-          </li>
+    <% unless ready %>
+      <p class="rounded-md bg-amber-50 px-4 py-3 text-sm text-amber-900">
+        <%= t('.incomplete') %>
+        <% editable_teams.each do |team| %>
+          <%= link_to (editable_teams.one? ? t('.enter_lineup') : t('.enter_team_lineup', team: team.name)),
+                      season_matchup_path(@match.season_id, team_id: team.id, match_id: @match.id), class: 'font-semibold underline' %>
         <% end %>
-      </ul>
-    </div>
-
-    <div class="flex flex-col gap-3" data-scorecard-target="editor" <%= 'hidden' if ready %>>
-      <h2 class="text-sm font-bold uppercase text-dpc-navy">Set the lineup</h2>
-      <% @form.lines.each do |line| %>
-        <%= render 'line_players', line: line %>
-      <% end %>
-      <p class="text-xs italic text-gray-500">
-        Three players rotate P1/P2, P1/P3, P2/P3. Two players play all three games.
       </p>
-      <button type="button" class="btn btn-primary w-full gap-2 sm:w-auto sm:self-start" data-action="scorecard#setLineup">
-        Set lineup <%= render 'shared/icon', name: 'arrow-right', class: 'h-4 w-4' %>
-      </button>
-    </div>
+    <% end %>
 
-    <div class="flex flex-col gap-6" data-scorecard-target="scores" <%= 'hidden' unless ready %>>
+    <% @form.lines.each do |line| %>
+      <%= render 'line_players_fields', line: line %>
+    <% end %>
+
+    <div class="flex flex-col gap-3 <%= 'opacity-40 grayscale select-none' unless ready %>">
       <% @form.lines.each do |line| %>
-        <%= render 'line_scores', line: line %>
+        <%= render 'line_scores', line: line, ready: ready %>
       <% end %>
 
-      <%= form.submit 'Done', class: 'btn btn-primary w-full sm:w-auto sm:self-start' %>
+      <%= form.submit 'Done', disabled: !ready, class: 'btn btn-primary w-full sm:w-auto sm:self-start disabled:cursor-not-allowed' %>
     </div>
 
-    <div class="fixed inset-x-0 bottom-0 bg-white px-4 py-2 text-center text-sm text-gray-600 shadow-[0_-1px_3px_rgba(0,0,0,0.1)]"
-         data-scorecard-target="status" role="status" aria-live="polite">Changes save automatically.</div>
+    <div class="fixed inset-x-0 bottom-0 bg-white px-4 py-2 text-center text-sm text-gray-600 shadow-[0_-1px_3px_rgba(0,0,0,0.1)] empty:hidden"
+         data-scorecard-target="status" role="status" aria-live="polite"></div>
   <% end %>
 </div>
