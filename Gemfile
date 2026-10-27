@@ -26,7 +26,7 @@ gem 'jbuilder'
 
 # Google sign-in [https://github.com/zquestz/omniauth-google-oauth2]
 gem 'omniauth-google-oauth2', '~> 1.2'
-gem 'omniauth-rails_csrf_protection', '~> 1.0'
+gem 'omniauth-rails_csrf_protection', '~> 2.0'
 
 # Subscribable schedule feed [https://github.com/icalendar/icalendar]
 gem 'icalendar', '~> 2.12'
