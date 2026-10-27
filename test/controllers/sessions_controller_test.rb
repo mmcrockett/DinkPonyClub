@@ -63,10 +63,37 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_nil session[:player_id]
   end
 
+  test 'google sign-in request needs a csrf token' do
+    with_real_omniauth_and_forgery_protection do
+      get sign_in_path
+      token = css_select('meta[name=csrf-token]').first['content']
+
+      post '/auth/google_oauth2'
+
+      assert_not_equal 302, response.status, 'tokenless request must not reach Google'
+
+      post '/auth/google_oauth2', params: { authenticity_token: token }
+
+      assert_redirected_to(%r{\Ahttps://accounts\.google\.com/})
+    end
+  end
+
   test 'omniauth failure redirects home with an alert' do
     get auth_failure_path, params: { message: 'invalid_credentials' }
 
     assert_redirected_to root_path
     assert_equal 'Google sign-in failed. Please try again.', flash[:alert]
+  end
+
+  private
+
+  def with_real_omniauth_and_forgery_protection
+    previous_forgery = ActionController::Base.allow_forgery_protection
+    ActionController::Base.allow_forgery_protection = true
+    OmniAuth.config.test_mode = false
+    yield
+  ensure
+    OmniAuth.config.test_mode = true
+    ActionController::Base.allow_forgery_protection = previous_forgery
   end
 end
