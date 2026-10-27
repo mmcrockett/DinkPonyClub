@@ -33,7 +33,7 @@ class LineupPlansController < ApplicationController
   end
 
   def return_path
-    url_from(params[:return_to]) || season_matchup_path(@match.season, team_id: @team.id, match_id: @match.id)
+    url_from(params[:return_to]) || season_matchup_path(@match.season_id, team_id: @team.id, match_id: @match.id)
   end
 
   def set_match_and_team
