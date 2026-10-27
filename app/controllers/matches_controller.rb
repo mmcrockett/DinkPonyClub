@@ -21,6 +21,7 @@ class MatchesController < ApplicationController
   def update
     @form = ScorecardForm.new(match: @match, lines: lines_params)
     return render_stale if stale?
+    return render_unscored unless @form.scored? || @match.lineups.any?
 
     if @form.save
       render_saved
@@ -49,6 +50,13 @@ class MatchesController < ApplicationController
         render :edit, status: :unprocessable_content
       end
       format.json { render json: { errors: @form.errors.full_messages }, status: :unprocessable_content }
+    end
+  end
+
+  def render_unscored
+    respond_to do |format|
+      format.html { redirect_to match_path(@match) }
+      format.json { render json: { errors: [t('matches.unscored')] }, status: :unprocessable_content }
     end
   end
 

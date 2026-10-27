@@ -353,6 +353,34 @@ class MatchesControllerTest < ActionDispatch::IntegrationTest
     assert_response :forbidden
   end
 
+  test 'saving a scorecard with no scores creates no lineups' do
+    sign_in_as players(:sc_home_captain)
+    unscored = valid_lines.transform_values { |attrs| attrs.reject { |key, _| key.to_s.include?('score') } }
+
+    assert_no_difference('Lineup.count') do
+      patch match_path(@match), params: { scorecard: { lines: unscored } }
+    end
+    assert_redirected_to match_path(@match)
+  end
+
+  test 'a json save with no scores is rejected' do
+    sign_in_as players(:sc_home_captain)
+    unscored = valid_lines.transform_values { |attrs| attrs.reject { |key, _| key.to_s.include?('score') } }
+
+    patch match_path(@match, format: :json), params: { scorecard: { lines: unscored } }
+
+    assert_response :unprocessable_content
+  end
+
+  test 'edit keeps score entry enabled once lineups exist' do
+    sign_in_as players(:sc_home_captain)
+    @match.lineups.create!(position: 1)
+
+    get edit_match_path(@match)
+
+    assert_select 'input[data-scorecard-target=score]:not([disabled])', minimum: 1
+  end
+
   private
 
   def sign_in_as(player)
