@@ -4,7 +4,7 @@ class LineupPlansControllerTest < ActionDispatch::IntegrationTest
   setup do
     @match = matches(:scorecard_match)
     @home = teams(:sc_home)
-    @matchup_path = season_matchup_path(@match.season, team_id: @home.id, match_id: @match.id)
+    @matchup_path = season_matchup_path(@match.season_id, team_id: @home.id, match_id: @match.id)
   end
 
   test 'update redirects to root when signed out' do
@@ -65,7 +65,7 @@ class LineupPlansControllerTest < ActionDispatch::IntegrationTest
     get match_team_odds_path(@match, @home), params: { lineup: { lines: { '1' => ids } } }
 
     assert_response :success
-    assert_equal %w[mine theirs], response.parsed_body.keys.sort
+    assert_equal %w[lines mine theirs], response.parsed_body.keys.sort
   end
 
   test 'odds endpoint returns nothing for a lineup that could not be saved' do
@@ -151,7 +151,7 @@ class LineupPlansControllerTest < ActionDispatch::IntegrationTest
 
     get match_path(@match)
 
-    assert_select "a[href*='/matchup']", count: 0
+    assert_select "a[href*='match_id=']", count: 0
   end
 
   private

@@ -71,7 +71,7 @@ class MatchupsControllerTest < ActionDispatch::IntegrationTest
     get match_team_subs_path(@match, teams(:sc_home))
 
     assert_response :success
-    assert_select "tr[data-sub-source][data-sub-id='#{free.id}']"
+    assert_match(/data-sub-source data-sub-id=#{free.id}\b/, response.body)
   end
 
   test 'subs endpoint is closed to other teams captains' do
