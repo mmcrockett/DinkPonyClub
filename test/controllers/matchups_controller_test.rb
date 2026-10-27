@@ -146,6 +146,25 @@ class MatchupsControllerTest < ActionDispatch::IntegrationTest
     assert_select 'p', text: /#{teams(:sc_away).name} vs/
   end
 
+  test 'admin captain lands on their own team by default' do
+    players(:sc_home_captain).update!(admin: true)
+    sign_in_as players(:sc_home_captain)
+
+    get season_matchup_path(@season)
+
+    assert_select 'p', text: /#{teams(:sc_home).name} vs/
+  end
+
+  test 'opponent panel lists unpicked opponent roster players on the bench' do
+    LineupPick.create!(match: @match, team: teams(:sc_away), player: players(:sc_away_player1), position: 1, seat: 1)
+    sign_in_as players(:sc_home_captain)
+
+    get season_matchup_path(@season)
+
+    assert_select 'tr[data-state=bench] td[data-slot=name]', text: /#{players(:sc_away_player2).full_name}/
+    assert_select 'tr[data-state=bench] td[data-slot=name]', text: /#{players(:sc_away_player1).full_name}/, count: 0
+  end
+
   private
 
   def sign_in_as(player)

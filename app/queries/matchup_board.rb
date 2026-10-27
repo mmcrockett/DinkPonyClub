@@ -34,6 +34,10 @@ class MatchupBoard
     opponent_side.rows
   end
 
+  def opponent_bench
+    opponent_side.bench
+  end
+
   def team_summary
     MatchupSummary.build(lines.flat_map { |_position, rows| rows.filter_map(&:player) }, ratings)
   end

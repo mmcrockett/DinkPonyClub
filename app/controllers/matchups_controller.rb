@@ -10,7 +10,7 @@ class MatchupsController < ApplicationController
   def show
     @season = current_season
     @teams = selectable_teams
-    @team = @teams.find { |team| team.id.to_s == params[:team_id] } || @teams.first
+    @team = @teams.find { |team| team.id.to_s == params[:team_id] } || default_team
     @match = match_for(@team)
     @board = MatchupBoard.new(@match, @team) if @match
     @editable = editable?(@match)
@@ -20,6 +20,11 @@ class MatchupsController < ApplicationController
 
   def editable?(match)
     match.present? && !match.match_night.canceled? && match.lineups.none?
+  end
+
+  def default_team
+    captain_ids = captain_team_ids_in(@season.id)
+    @teams.find { |team| captain_ids.include?(team.id) } || @teams.first
   end
 
   def selectable_teams

@@ -20,5 +20,10 @@
         <% end %>
       </tbody>
     <% end %>
+    <tbody>
+      <% board.opponent_bench.each do |row| %>
+        <%= render 'matchups/row', row: row, label: t('matchups.show.bench'), state: 'bench' %>
+      <% end %>
+    </tbody>
   </table>
 </div>
