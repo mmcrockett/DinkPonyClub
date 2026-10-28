@@ -25,7 +25,7 @@ module NavigationHelper
   end
 
   def app_built_at
-    Time.zone.parse(ENV['APP_BUILT_AT'].to_s)&.utc&.strftime('%Y-%m-%d %H:%M UTC')
+    Time.zone.parse(ENV['APP_BUILT_AT'].to_s)&.strftime('%Y-%m-%d %H:%M %Z')
   end
 
   def app_version_title
