@@ -363,9 +363,8 @@ en:
     show:
       title: "Matchup"
       versus: "%{team} vs %{opponent}"
-      team: "Team"
-      view: "View"
-      no_match: "No upcoming match for this team."
+      week: "Week"
+      no_match: "No matchups scheduled yet."
       slot: "Slot"
       action: "Action"
       move: "Move"

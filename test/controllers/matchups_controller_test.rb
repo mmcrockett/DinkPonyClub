@@ -30,9 +30,9 @@ class MatchupsControllerTest < ActionDispatch::IntegrationTest
 
     get season_matchup_path(@season)
 
-    assert_select 'div[aria-current=true] a', count: 2
-    assert_select 'div[aria-current=true] a', text: /#{teams(:sc_away).name}/
-    assert_select 'div[aria-current=true] a', text: /#{teams(:sc_home).name}\s+\d+-\d+-\d+/
+    assert_select 'section a[aria-current=true]', count: 1
+    assert_select 'section a[aria-current=true]', text: /#{teams(:sc_away).name}/
+    assert_select 'section a[aria-current=true]', text: /#{teams(:sc_home).name}\s+\d+-\d+-\d+/
   end
 
   test 'captain is read-only when viewing the other team via a card' do

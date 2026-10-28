@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class MatchupCards
-  Side = Data.define(:team, :record, :pupr)
+  Side = Data.define(:team, :record, :pupr, :odds)
   Card = Data.define(:match, :home, :away)
 
   def initialize(match_night, ratings:, records:)
@@ -11,9 +11,7 @@ class MatchupCards
   end
 
   def cards
-    @cards ||= matches.map do |match|
-      Card.new(match: match, home: side(match, match.home_team), away: side(match, match.away_team))
-    end
+    @cards ||= matches.map { |match| card_for(match) }
   end
 
   private
@@ -22,18 +20,37 @@ class MatchupCards
     @match_night.matches.includes(:home_team, :away_team).order(:id).to_a
   end
 
-  def side(match, team)
-    Side.new(team: team, record: @records[team.id], pupr: pupr(picks.fetch([match.id, team.id], [])))
+  def card_for(match)
+    home = lines(match, match.home_team)
+    away = lines(match, match.away_team)
+    odds = moneylines(match, home, away)
+    Card.new(match: match, home: side(match.home_team, home, odds&.fetch(:mine)),
+             away: side(match.away_team, away, odds&.fetch(:theirs)))
   end
 
-  def pupr(player_ids)
-    MatchupSummary.mean(player_ids.filter_map { |id| @ratings.for(id)&.pupr }, 2)
+  def moneylines(match, home, away)
+    by_position = match.line_positions.index_with { |position| [elos(home[position]), elos(away[position])] }
+    MatchOdds.new(lines: by_position, sweep_bonus: match.season.sweep_bonus).moneylines
+  end
+
+  def side(team, lines, odds)
+    ratings = lines.values.flatten.filter_map { |id| @ratings.for(id) }
+    Side.new(team: team, record: @records[team.id], pupr: MatchupSummary.mean(ratings.map(&:pupr), 2), odds: odds)
+  end
+
+  def elos(ids)
+    ids.to_a.map { |id| @ratings.elo_for(id) }
+  end
+
+  def lines(match, team)
+    picks.fetch([match.id, team.id], {})
   end
 
   def picks
-    @picks ||= LineupPick.where(match_id: @match_night.matches.select(:id))
-                         .pluck(:match_id, :team_id, :player_id)
-                         .group_by { |match_id, team_id, _player_id| [match_id, team_id] }
-                         .transform_values { |rows| rows.map(&:last) }
+    @picks ||= LineupPick.where(match_id: @match_night.matches.select(:id)).ordered
+                         .pluck(:match_id, :team_id, :position, :player_id)
+                         .each_with_object({}) do |(match_id, team_id, position, player_id), found|
+      ((found[[match_id, team_id]] ||= {})[position] ||= []) << player_id
+    end
   end
 end
