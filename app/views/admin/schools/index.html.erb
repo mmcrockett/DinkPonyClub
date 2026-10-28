@@ -1,0 +1,65 @@
+<% content_for :title, t('.title') %>
+
+<div class="mx-auto flex max-w-2xl flex-col gap-6">
+  <div>
+    <h1 class="text-2xl font-extrabold text-dpc-navy"><%= t('.title') %></h1>
+    <p class="text-gray-500"><%= t('.subtitle') %></p>
+  </div>
+
+  <% persisted = @schools.select(&:persisted?) %>
+  <% if persisted.any? %>
+    <ul class="flex flex-col gap-2">
+      <% persisted.each do |school| %>
+        <li class="flex flex-wrap items-center gap-3 rounded-md bg-white px-4 py-3 shadow-sm">
+          <% if school.icon.attached? %>
+            <%= image_tag school.icon, alt: '', class: 'h-10 w-10 object-contain' %>
+          <% else %>
+            <span class="h-10 w-10 rounded bg-gray-100"></span>
+          <% end %>
+
+          <%= form_with model: [:admin, school], class: 'flex min-w-0 flex-1 flex-wrap items-center gap-2' do |form| %>
+            <%= form.text_field :name, class: 'form-input min-w-0 flex-1', aria: { label: t('.name') } %>
+            <%= form.file_field :icon, accept: School::ICON_TYPES.join(','), class: 'text-sm' %>
+            <%= form.submit t('.save'), class: 'btn btn-secondary' %>
+          <% end %>
+
+          <span class="text-sm text-gray-500"><%= t('.players', count: school.players.size) %></span>
+          <%= button_to t('.remove'), admin_school_path(school), method: :delete, class: 'btn btn-secondary',
+                        form: { data: { turbo_confirm: t('.confirm_remove', name: school.name) } } %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="text-gray-500"><%= t('.empty') %></p>
+  <% end %>
+
+  <%= form_with model: [:admin, @school], class: 'flex flex-col gap-4' do |form| %>
+    <% if @school.errors.any? %>
+      <div class="rounded-md bg-red-50 px-4 py-3 text-sm text-red-700">
+        <ul class="list-disc pl-4">
+          <% @school.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="flex flex-col gap-4 rounded-md bg-white p-5 shadow-sm">
+      <h2 class="font-bold text-dpc-navy"><%= t('.add') %></h2>
+
+      <div class="flex flex-col gap-1">
+        <%= form.label :name, class: 'text-sm font-semibold text-dpc-navy' %>
+        <%= form.text_field :name, class: 'form-input' %>
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <%= form.label :icon, t('.icon'), class: 'text-sm font-semibold text-dpc-navy' %>
+        <%= form.file_field :icon, accept: School::ICON_TYPES.join(','), class: 'text-sm' %>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-end">
+      <%= form.submit t('.add'), class: 'btn btn-primary' %>
+    </div>
+  <% end %>
+</div>

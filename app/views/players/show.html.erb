@@ -12,6 +12,7 @@
       </span>
       <div class="min-w-0 flex-1">
         <h1 class="text-2xl font-extrabold text-dpc-navy"><%= @player.full_name %></h1>
+        <%= render 'shared/school_badge', school: @player.school %>
         <p class="text-gray-500">
           <%= @row ? player_team_label(@row) : t('players.show.not_playing') %>
           <% if @season %> - <%= @season.name %><% end %>

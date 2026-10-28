@@ -10,7 +10,35 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_06_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_28_195800) do
+  create_table "active_storage_attachments", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "record_type", null: false
+    t.bigint "record_id", null: false
+    t.bigint "blob_id", null: false
+    t.datetime "created_at", null: false
+    t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
+    t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
+  end
+
+  create_table "active_storage_blobs", force: :cascade do |t|
+    t.string "key", null: false
+    t.string "filename", null: false
+    t.string "content_type"
+    t.text "metadata"
+    t.string "service_name", null: false
+    t.bigint "byte_size", null: false
+    t.string "checksum"
+    t.datetime "created_at", null: false
+    t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
+  end
+
+  create_table "active_storage_variant_records", force: :cascade do |t|
+    t.bigint "blob_id", null: false
+    t.string "variation_digest", null: false
+    t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
   create_table "charges", force: :cascade do |t|
     t.integer "roster_spot_id", null: false
     t.integer "fee_id", null: false
@@ -134,9 +162,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_06_120000) do
     t.string "status", limit: 20, default: "active", null: false
     t.string "phone", limit: 40
     t.string "calendar_token", limit: 64, null: false
+    t.integer "school_id"
     t.index ["calendar_token"], name: "index_players_on_calendar_token", unique: true
     t.index ["email"], name: "index_players_on_email", unique: true
     t.index ["google_uid"], name: "index_players_on_google_uid", unique: true
+    t.index ["school_id"], name: "index_players_on_school_id"
   end
 
   create_table "roster_spots", force: :cascade do |t|
@@ -151,6 +181,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_06_120000) do
     t.index ["season_id", "player_id"], name: "index_roster_spots_on_season_and_player", unique: true
     t.index ["season_id", "team_id"], name: "index_roster_spots_on_season_id_and_team_id"
     t.index ["team_id"], name: "index_roster_spots_on_team_id"
+  end
+
+  create_table "schools", force: :cascade do |t|
+    t.string "name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_schools_on_name", unique: true
   end
 
   create_table "seasons", force: :cascade do |t|
@@ -183,6 +220,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_06_120000) do
     t.index ["name"], name: "index_teams_on_name", unique: true
   end
 
+  add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "charges", "fees"
   add_foreign_key "charges", "roster_spots"
   add_foreign_key "fees", "seasons"
@@ -203,6 +242,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_06_120000) do
   add_foreign_key "matches", "seasons"
   add_foreign_key "matches", "teams", column: "away_team_id"
   add_foreign_key "matches", "teams", column: "home_team_id"
+  add_foreign_key "players", "schools"
   add_foreign_key "roster_spots", "players"
   add_foreign_key "roster_spots", "seasons"
   add_foreign_key "roster_spots", "teams"

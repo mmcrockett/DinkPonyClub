@@ -67,6 +67,7 @@ en:
         fees: "Fees"
         email: "Email"
         payments: "Payments"
+        schools: "Schools"
         roster: "Roster"
         no_season: "Create a season first."
     players:
@@ -151,6 +152,24 @@ en:
         applies_to_all: "Charge every rostered player (leave unticked for opt-in items like shirts)"
       create:
         created: "%{name} was added."
+      destroy:
+        destroyed: "%{name} was removed."
+    schools:
+      index:
+        title: "Schools"
+        subtitle: "Players pick one on their profile. Players with no school show as unknown."
+        empty: "No schools yet."
+        name: "School name"
+        players: "%{count} players"
+        save: "Save"
+        remove: "Remove"
+        confirm_remove: "Remove %{name}? Its players go back to unknown."
+        add: "Add school"
+        icon: "Icon (PNG, JPEG or WebP, under 1 MB)"
+      create:
+        created: "%{name} was added."
+      update:
+        updated: "%{name} was saved."
       destroy:
         destroyed: "%{name} was removed."
     charges:
@@ -336,8 +355,15 @@ en:
         maybe: "Maybe"
         out: "Out"
         not_set: "Not set"
+  schools:
+    unknown: "Unknown"
   profiles:
+    update:
+      saved: "School saved."
     show:
+      school:
+        title: "School"
+        save: "Save"
       calendar:
         title: "Calendar feed"
         description: "Subscribe to see your team's match nights in Google or Apple Calendar. It updates as the schedule changes."
@@ -485,3 +511,12 @@ en:
     attributes:
       fee:
         amount_cents: "Amount"
+      player:
+        school_id: "School"
+    errors:
+      models:
+        school:
+          attributes:
+            icon:
+              invalid: "must be a PNG, JPEG or WebP image"
+              too_big: "must be under 1 MB"

@@ -19,6 +19,31 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select 'a', text: 'Edit contact details', count: 0
   end
 
+  test 'sets and clears the player school' do
+    mock_google_auth(email: players(:ada).email)
+    post '/auth/google_oauth2'
+    follow_redirect!
+
+    patch profile_path, params: { player: { school_id: schools(:lincoln).id } }
+
+    assert_redirected_to profile_path
+    assert_equal schools(:lincoln), players(:ada).reload.school
+
+    patch profile_path, params: { player: { school_id: '' } }
+
+    assert_nil players(:ada).reload.school
+  end
+
+  test 'ignores attributes other than school' do
+    mock_google_auth(email: players(:ada).email)
+    post '/auth/google_oauth2'
+    follow_redirect!
+
+    patch profile_path, params: { player: { school_id: schools(:lincoln).id, admin: true } }
+
+    assert_not players(:ada).reload.admin
+  end
+
   test 'shows the private calendar feed links and reset button' do
     mock_google_auth(email: players(:ada).email)
     post '/auth/google_oauth2'

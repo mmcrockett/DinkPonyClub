@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class Player < ApplicationRecord
+  belongs_to :school, optional: true
   has_many :roster_spots, dependent: :destroy
   has_many :teams, through: :roster_spots
   has_many :seasons, through: :roster_spots

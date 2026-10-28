@@ -45,7 +45,7 @@ Rails.application.routes.draw do
   resource :magic_link, only: %i[create show], path: 'sign_in/link' do
     post :redeem
   end
-  resource :profile, only: %i[show] do
+  resource :profile, only: %i[show update] do
     resource :calendar_token, only: %i[create]
   end
 
@@ -63,6 +63,7 @@ Rails.application.routes.draw do
     resource :payment_requests, only: %i[create]
     resource :announcement, only: %i[new create]
     resources :fees, only: %i[index create destroy]
+    resources :schools, only: %i[index create update destroy]
     resource :roster, only: %i[show update]
   end
 

@@ -1,0 +1,8 @@
+<% if school %>
+  <span class="inline-flex items-center gap-1 text-sm text-gray-500">
+    <% if school.icon.attached? %>
+      <%= image_tag school.icon, alt: '', class: 'h-5 w-5 object-contain' %>
+    <% end %>
+    <%= school.name %>
+  </span>
+<% end %>

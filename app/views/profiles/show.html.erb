@@ -11,7 +11,18 @@
     <div>
       <h1 class="text-2xl font-extrabold text-dpc-navy"><%= @player.full_name %></h1>
       <p class="text-gray-500"><%= @player.email %></p>
+      <%= render 'shared/school_badge', school: @player.school %>
     </div>
+  </div>
+
+  <div id="school">
+    <h2 class="text-lg font-bold text-dpc-navy mb-2"><%= t('.school.title') %></h2>
+    <%= form_with model: @player, url: profile_path, method: :patch,
+                  class: 'flex items-center gap-2 rounded-md bg-white px-4 py-3 shadow-sm' do |form| %>
+      <%= form.collection_select :school_id, School.by_name, :id, :name, { include_blank: t('schools.unknown') },
+                                 class: 'form-input flex-1', aria: { label: t('.school.title') } %>
+      <%= form.submit t('.school.save'), class: 'btn btn-primary' %>
+    <% end %>
   </div>
 
   <div>

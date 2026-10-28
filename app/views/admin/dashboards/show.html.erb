@@ -32,6 +32,12 @@
         <% end %>
         <span><%= t('.roster') %></span>
       </div>
+      <div class="<%= tile %>">
+        <%= link_to admin_schools_path, title: t('admin.schools.index.title'), class: box do %>
+          <%= render 'shared/icon', name: 'academic-cap', class: 'h-10 w-10' %>
+        <% end %>
+        <span><%= t('.schools') %></span>
+      </div>
     </nav>
   <% else %>
     <p class="text-gray-500"><%= t('.no_season') %></p>
