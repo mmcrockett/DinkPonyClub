@@ -23,6 +23,20 @@ class ScheduleAvailabilityTest < ApplicationSystemTestCase
     end
   end
 
+  test 'a captain opens team availability and sets a teammate without a page reload' do
+    sign_in_as players(:ada), return_to: season_match_nights_path(seasons(:fall))
+    night = match_nights(:fall_upcoming)
+    frame = "##{dom_id(night, :team_availability)}"
+
+    assert_no_selector "#{frame} select", visible: :all
+    find("#{dom_id(night).prepend('#')} summary", text: 'Team availability').click
+
+    assert_selector "#{frame} select"
+    first("#{frame} select:not([disabled])").select('Out')
+
+    assert_selector "#{frame} select.bg-red-700"
+  end
+
   test 'setting a slot preference saves and persists' do
     sign_in_as players(:ada), return_to: season_match_nights_path(seasons(:fall))
     slot = match_slots(:fall_future_slot_one)

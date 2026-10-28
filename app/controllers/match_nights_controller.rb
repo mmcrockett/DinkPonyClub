@@ -14,11 +14,9 @@ class MatchNightsController < ApplicationController
   def index
     @season = current_season
     @can_enter_results = captain_or_admin?(@season)
-    @team_view = params[:view] == 'availability' && @can_enter_results
     @match_nights = load_match_nights(@season)
     @next_match_night = next_match_night_of(@match_nights)
     @weeks_completed = weeks_completed_in(@match_nights)
-    load_team_view(@season) if @team_view
     @availabilities = current_player_availabilities(@match_nights)
     @slot_preferences = current_player_slot_preferences(@match_nights)
   end
@@ -42,8 +40,7 @@ class MatchNightsController < ApplicationController
   def load_match_nights(season)
     return [] unless season
 
-    nights = season.match_nights.chronological.includes(MATCH_NIGHT_INCLUDES)
-    @team_view ? nights.includes(:match_availabilities, :slot_availabilities) : nights
+    season.match_nights.chronological.includes(MATCH_NIGHT_INCLUDES)
   end
 
   def load_team_view(season)

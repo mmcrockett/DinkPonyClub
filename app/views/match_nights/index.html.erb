@@ -13,11 +13,6 @@
           <%= render 'shared/icon', name: 'plus', class: 'h-5 w-5' %>
         <% end %>
       <% end %>
-      <% if captain_or_admin?(@season) %>
-        <%= link_to(@team_view ? t('match_nights.schedule.show_matchups') : t('match_nights.schedule.team_availability'),
-                     url_for(view: @team_view ? nil : 'availability'),
-                     class: 'btn border border-dpc-navy text-dpc-navy') %>
-      <% end %>
     </div>
   </div>
 

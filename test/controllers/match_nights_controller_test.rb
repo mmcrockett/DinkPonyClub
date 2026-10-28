@@ -73,26 +73,43 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
 
   test 'hides team availability for a non-captain' do
     sign_in_as(players(:grace))
+    night = match_nights(:fall_upcoming)
 
-    get season_match_nights_path(seasons(:fall), view: 'availability')
+    get season_match_nights_path(seasons(:fall))
 
-    assert_select "##{dom_id(match_nights(:fall_upcoming), :team_availability)}", count: 0
+    assert_select "##{dom_id(night, :team_availability)}", count: 0
+
+    get match_night_path(night, view: 'availability')
+
+    assert_select "##{dom_id(night, :team_availability)}", count: 0
   end
 
-  test 'shows team availability for a captain' do
+  test 'a captain gets a collapsed team availability section that loads lazily' do
     sign_in_as
+    night = match_nights(:fall_upcoming)
 
-    get season_match_nights_path(seasons(:fall), view: 'availability')
+    get season_match_nights_path(seasons(:fall))
 
-    assert_select "##{dom_id(match_nights(:fall_upcoming), :team_availability)}"
+    assert_select "details turbo-frame##{dom_id(night, :team_availability)}[loading=lazy][src=?]",
+                  match_night_path(night, view: 'availability')
+    assert_select 'a', text: 'Team availability', count: 0
   end
 
-  test 'team view drops the personal availability buttons so each player is set in one place' do
+  test 'the team availability frame loads rosters for a captain' do
+    sign_in_as
+    night = match_nights(:fall_upcoming)
+
+    get match_night_path(night, view: 'availability')
+
+    assert_select "##{dom_id(night, :team_availability)} select"
+  end
+
+  test 'captains keep their own availability buttons alongside the team section' do
     sign_in_as
 
-    get season_match_nights_path(seasons(:fall), view: 'availability')
+    get season_match_nights_path(seasons(:fall))
 
-    assert_select "##{dom_id(match_nights(:fall_upcoming), :my_availability)}", count: 0
+    assert_select "##{dom_id(match_nights(:fall_upcoming), :my_availability)}"
   end
 
   test 'matchups view keeps the personal availability buttons' do
@@ -190,7 +207,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   test 'team view shows ??? for players who have not answered and counts them separately' do
     sign_in_as
 
-    get season_match_nights_path(seasons(:fall), view: 'availability')
+    get match_night_path(match_nights(:fall_upcoming), view: 'availability')
 
     frame = "##{dom_id(match_nights(:fall_upcoming), :team_availability)}"
 
@@ -201,7 +218,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   test 'shows team availability for an admin' do
     sign_in_as(players(:zoe))
 
-    get season_match_nights_path(seasons(:fall), view: 'availability')
+    get match_night_path(match_nights(:fall_upcoming), view: 'availability')
 
     assert_select "##{dom_id(match_nights(:fall_upcoming), :team_availability)}"
   end
@@ -209,7 +226,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   test 'disables the availability select for a team the captain does not control' do
     sign_in_as
 
-    get season_match_nights_path(seasons(:fall), view: 'availability')
+    get match_night_path(match_nights(:fall_upcoming), view: 'availability')
 
     frame = "##{dom_id(match_nights(:fall_upcoming), :team_availability)}"
 
@@ -220,7 +237,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   test 'team view shows each in player slot preferences in time order with ? for unanswered' do
     sign_in_as
 
-    get season_match_nights_path(seasons(:fall), view: 'availability')
+    get match_night_path(match_nights(:fall_upcoming), view: 'availability')
 
     frame = "##{dom_id(match_nights(:fall_upcoming), :team_availability)}"
 
@@ -232,7 +249,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
     sign_in_as
     match_slots(:fall_future_slot_one).slot_availabilities.create!(player: players(:grace), preference: 'thumbs_up')
 
-    get season_match_nights_path(seasons(:fall), view: 'availability')
+    get match_night_path(match_nights(:fall_upcoming), view: 'availability')
 
     frame = "##{dom_id(match_nights(:fall_upcoming), :team_availability)}"
 
@@ -397,22 +414,11 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
     assert_equal before, after
   end
 
-  test 'team availability query count does not grow with more match nights' do
-    sign_in_as
-    season = seasons(:fall)
-
-    before = count_queries { get season_match_nights_path(season, view: 'availability') }
-    add_match_nights(season)
-    after = count_queries { get season_match_nights_path(season, view: 'availability') }
-
-    assert_equal before, after
-  end
-
-  test 'past team availability shows results without selection controls' do
+  test 'past nights show results without selection controls or a team availability section' do
     sign_in_as
 
     travel_to Time.zone.local(2026, 9, 24) do
-      get season_match_nights_path(seasons(:fall), view: 'availability')
+      get season_match_nights_path(seasons(:fall))
     end
 
     frame = "##{dom_id(match_nights(:fall_week_one))}"
@@ -428,7 +434,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
     night.match_availabilities.create!(player: players(:ben), status: 'maybe')
     night.match_availabilities.where(player: players(:grace)).destroy_all
 
-    get season_match_nights_path(seasons(:fall), view: 'availability')
+    get match_night_path(night, view: 'availability')
 
     frame = "##{dom_id(night, :team_availability)}"
 

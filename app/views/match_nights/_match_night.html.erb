@@ -70,10 +70,17 @@
     </div>
 
     <% if match_night.availability_relevant? %>
+      <%= render 'match_nights/availability_control', match_night: match_night %>
       <% if @team_view %>
         <%= render 'match_nights/team_availability', match_night: match_night %>
-      <% else %>
-        <%= render 'match_nights/availability_control', match_night: match_night %>
+      <% elsif captain_or_admin?(match_night.season) %>
+        <details class="border-t border-gray-100">
+          <summary class="cursor-pointer px-4 py-3 text-sm font-bold text-dpc-navy"><%= t('match_nights.schedule.team_availability') %></summary>
+          <%= turbo_frame_tag dom_id(match_night, :team_availability), loading: :lazy,
+                              src: match_night_path(match_night, view: 'availability') do %>
+            <p class="px-4 pb-3 text-sm text-gray-500"><%= t('match_nights.schedule.loading_team_availability') %></p>
+          <% end %>
+        </details>
       <% end %>
     <% end %>
   <% end %>

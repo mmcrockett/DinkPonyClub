@@ -257,7 +257,7 @@ en:
       add_night: "Add night"
       edit_night: "Edit night"
       team_availability: "Team availability"
-      show_matchups: "Show matchups"
+      loading_team_availability: "Loading..."
       empty: "No match nights are scheduled yet."
       weeks_completed: "Weeks completed"
       up_next: "Up next"
