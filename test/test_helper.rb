@@ -24,3 +24,12 @@ module ActiveSupport
     end
   end
 end
+
+module ActionDispatch
+  class IntegrationTest
+    def sign_in_as(player = players(:ada))
+      get test_sign_in_path(player_id: player.id)
+      follow_redirect!
+    end
+  end
+end

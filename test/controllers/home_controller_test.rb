@@ -72,12 +72,4 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
 
     assert_select 'img[alt=?]', I18n.t('home.index.banner_alt'), count: 0
   end
-
-  private
-
-  def sign_in_as(player)
-    mock_google_auth(email: player.email)
-    post '/auth/google_oauth2'
-    follow_redirect!
-  end
 end

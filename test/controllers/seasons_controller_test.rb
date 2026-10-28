@@ -17,7 +17,7 @@ class SeasonsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'show has the celebration images only for Summer 2026' do
-    sign_in_as_ada
+    sign_in_as
 
     get season_path(seasons(:summer))
 
@@ -30,7 +30,7 @@ class SeasonsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'show is a 404 for an unknown season' do
-    sign_in_as_ada
+    sign_in_as
 
     get '/seasons/0-nope'
 
@@ -38,7 +38,7 @@ class SeasonsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'show lists the up next night and recent results for that season' do
-    sign_in_as_ada
+    sign_in_as
 
     get season_path(seasons(:fall))
 
@@ -49,7 +49,7 @@ class SeasonsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'show up next card lists slot preferences with the saved choice' do
-    sign_in_as_ada
+    sign_in_as
     slot = match_slots(:fall_future_slot_one)
 
     get season_path(seasons(:fall))
@@ -59,7 +59,7 @@ class SeasonsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'show standings include streak and next opponent' do
-    sign_in_as_ada
+    sign_in_as
 
     get season_path(seasons(:fall))
 
@@ -68,19 +68,11 @@ class SeasonsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'show scopes to the requested season and the breadcrumb switches seasons' do
-    sign_in_as_ada
+    sign_in_as
 
     get season_path(seasons(:spring))
 
     assert_select 'h1', text: seasons(:spring).name
     assert_select "nav[aria-label=Breadcrumb] a[href='#{season_path(seasons(:fall))}']", text: seasons(:fall).name
-  end
-
-  private
-
-  def sign_in_as_ada
-    mock_google_auth(email: players(:ada).email)
-    post '/auth/google_oauth2'
-    follow_redirect!
   end
 end

@@ -13,7 +13,7 @@ class AvailabilitiesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'saves status and slot preferences when signed in' do
-    sign_in_as_ada
+    sign_in_as
 
     patch match_night_availability_path(@match_night), params: {
       match_availability: { status: 'in' },
@@ -49,7 +49,7 @@ class AvailabilitiesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'a captain can still set their own availability after the cutoff' do
-    sign_in_as_ada
+    sign_in_as
 
     travel_to @match_night.played_on.in_time_zone.change(hour: 13) do
       patch match_night_availability_path(@match_night), params: { match_availability: { status: 'out' } }
@@ -60,7 +60,7 @@ class AvailabilitiesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'rejects an invalid status without saving or flashing success' do
-    sign_in_as_ada
+    sign_in_as
     availability = match_availabilities(:fall_future_ada)
 
     patch match_night_availability_path(@match_night), params: { match_availability: { status: 'nope' } }
@@ -71,7 +71,7 @@ class AvailabilitiesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'ignores a slot id that belongs to a different match night' do
-    sign_in_as_ada
+    sign_in_as
     other_slot = MatchSlot.create!(match_night: match_nights(:fall_week_one), position: 1, starts_at: Time.current)
 
     patch match_night_availability_path(@match_night), params: {
@@ -84,7 +84,7 @@ class AvailabilitiesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'a captain can set a teammate after the cutoff' do
-    sign_in_as_ada
+    sign_in_as
 
     travel_to @match_night.played_on.in_time_zone.change(hour: 13) do
       patch match_night_player_availability_path(@match_night, players(:grace)),
@@ -96,7 +96,7 @@ class AvailabilitiesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'a captain cannot set a player on another team' do
-    sign_in_as_ada
+    sign_in_as
 
     patch match_night_player_availability_path(@match_night, players(:sam)),
           params: { match_availability: { status: 'out' } }
@@ -127,7 +127,7 @@ class AvailabilitiesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'refuses a player with no roster spot in the season' do
-    sign_in_as_ada
+    sign_in_as
 
     patch match_night_player_availability_path(@match_night, players(:wade)),
           params: { match_availability: { status: 'in' } }
@@ -150,7 +150,7 @@ class AvailabilitiesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'a captain cannot change team availability on a canceled night' do
-    sign_in_as_ada
+    sign_in_as
     @match_night.update!(canceled: true)
 
     patch match_night_player_availability_path(@match_night, players(:grace)),
@@ -161,7 +161,7 @@ class AvailabilitiesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'a captain cannot change their own availability on a past night' do
-    sign_in_as_ada
+    sign_in_as
     availability = match_availabilities(:fall_future_ada)
 
     travel_to @match_night.played_on.in_time_zone + 1.day do
@@ -170,17 +170,5 @@ class AvailabilitiesControllerTest < ActionDispatch::IntegrationTest
 
     assert_predicate availability.reload, :in?
     assert_equal I18n.t('availabilities.update.closed'), flash[:alert]
-  end
-
-  private
-
-  def sign_in_as_ada
-    sign_in_as(players(:ada))
-  end
-
-  def sign_in_as(player)
-    mock_google_auth(email: player.email)
-    post '/auth/google_oauth2'
-    follow_redirect!
   end
 end

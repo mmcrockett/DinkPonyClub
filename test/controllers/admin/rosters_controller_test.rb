@@ -108,13 +108,5 @@ module Admin
       assert_predicate roster_spots(:spring_alpha_ada).reload, :captain?
       assert_not roster_spots(:fall_bravo_sam).reload.captain?
     end
-
-    private
-
-    def sign_in_as(player)
-      mock_google_auth(email: player.email, uid: player.google_uid)
-      post '/auth/google_oauth2'
-      follow_redirect!
-    end
   end
 end

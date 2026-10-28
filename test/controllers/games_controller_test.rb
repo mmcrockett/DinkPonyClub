@@ -128,10 +128,4 @@ class GamesControllerTest < ActionDispatch::IntegrationTest
                         away_player_ids: [players(:sc_away_captain).id.to_s, players(:sc_away_player1).id.to_s] }]
     end
   end
-
-  def sign_in_as(player)
-    mock_google_auth(email: player.email, uid: player.google_uid)
-    post '/auth/google_oauth2'
-    follow_redirect!
-  end
 end

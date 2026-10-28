@@ -153,12 +153,4 @@ class LineupPlansControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "a[href*='match_id=']", count: 0
   end
-
-  private
-
-  def sign_in_as(player)
-    mock_google_auth(email: player.email, uid: player.google_uid)
-    post '/auth/google_oauth2'
-    follow_redirect!
-  end
 end

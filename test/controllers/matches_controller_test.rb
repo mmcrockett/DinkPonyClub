@@ -344,12 +344,6 @@ class MatchesControllerTest < ActionDispatch::IntegrationTest
 
   private
 
-  def sign_in_as(player)
-    mock_google_auth(email: player.email, uid: player.google_uid)
-    post '/auth/google_oauth2'
-    follow_redirect!
-  end
-
   def with_forgery_protection
     previous = ActionController::Base.allow_forgery_protection
     ActionController::Base.allow_forgery_protection = true

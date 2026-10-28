@@ -10,7 +10,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'index renders nights in chronological order' do
-    sign_in_as_ada
+    sign_in_as
 
     get season_match_nights_path(seasons(:fall))
 
@@ -20,7 +20,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'marks the first upcoming night as up next' do
-    sign_in_as_ada
+    sign_in_as
 
     get season_match_nights_path(seasons(:fall))
 
@@ -28,7 +28,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'shows a final pill for a completed night and scheduled for an upcoming one' do
-    sign_in_as_ada
+    sign_in_as
 
     get season_match_nights_path(seasons(:fall))
 
@@ -37,7 +37,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'shows canceled and playoffs pills' do
-    sign_in_as_ada
+    sign_in_as
 
     get season_match_nights_path(seasons(:fall))
 
@@ -61,7 +61,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'shows a lineup icon link for a captain on their own team' do
-    sign_in_as_ada
+    sign_in_as
     match = matches(:fall_future)
 
     get season_match_nights_path(seasons(:fall))
@@ -80,7 +80,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'shows team availability for a captain' do
-    sign_in_as_ada
+    sign_in_as
 
     get season_match_nights_path(seasons(:fall), view: 'availability')
 
@@ -88,7 +88,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'team view drops the personal availability buttons so each player is set in one place' do
-    sign_in_as_ada
+    sign_in_as
 
     get season_match_nights_path(seasons(:fall), view: 'availability')
 
@@ -96,7 +96,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'matchups view keeps the personal availability buttons' do
-    sign_in_as_ada
+    sign_in_as
 
     get season_match_nights_path(seasons(:fall))
 
@@ -104,7 +104,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'shows slot preference radios with the saved choice for a player who is in' do
-    sign_in_as_ada
+    sign_in_as
     slot = match_slots(:fall_future_slot_one)
 
     get season_match_nights_path(seasons(:fall))
@@ -126,7 +126,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'hides slot preference radios on a night with no slots' do
-    sign_in_as_ada
+    sign_in_as
     match_nights(:fall_upcoming).match_slots.destroy_all
 
     get season_match_nights_path(seasons(:fall))
@@ -154,7 +154,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'keeps saved slot preferences when a player switches to out' do
-    sign_in_as_ada
+    sign_in_as
     slot = match_slots(:fall_future_slot_one)
 
     patch match_night_availability_path(match_nights(:fall_upcoming)), params: { match_availability: { status: 'out' } }
@@ -177,7 +177,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'leaves every personal button unselected on a night the player has not answered' do
-    sign_in_as_ada
+    sign_in_as
 
     get season_match_nights_path(seasons(:fall))
 
@@ -188,7 +188,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'team view shows ??? for players who have not answered and counts them separately' do
-    sign_in_as_ada
+    sign_in_as
 
     get season_match_nights_path(seasons(:fall), view: 'availability')
 
@@ -207,7 +207,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'disables the availability select for a team the captain does not control' do
-    sign_in_as_ada
+    sign_in_as
 
     get season_match_nights_path(seasons(:fall), view: 'availability')
 
@@ -218,7 +218,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'team view shows each in player slot preferences in time order with ? for unanswered' do
-    sign_in_as_ada
+    sign_in_as
 
     get season_match_nights_path(seasons(:fall), view: 'availability')
 
@@ -229,7 +229,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'team view hides slot preferences for a player who is out' do
-    sign_in_as_ada
+    sign_in_as
     match_slots(:fall_future_slot_one).slot_availabilities.create!(player: players(:grace), preference: 'thumbs_up')
 
     get season_match_nights_path(seasons(:fall), view: 'availability')
@@ -242,7 +242,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'scopes the list to the requested season' do
-    sign_in_as_ada
+    sign_in_as
 
     get season_match_nights_path(seasons(:spring))
 
@@ -251,7 +251,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'show renders the single night' do
-    sign_in_as_ada
+    sign_in_as
 
     get match_night_path(match_nights(:fall_week_one))
 
@@ -287,7 +287,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'shows an enter results link on an unplayed match for a captain' do
-    sign_in_as_ada
+    sign_in_as
 
     get season_match_nights_path(seasons(:fall))
 
@@ -304,7 +304,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'hides the enter results link from a captain once the match night is locked' do
-    sign_in_as_ada
+    sign_in_as
     night = match_nights(:fall_upcoming)
 
     travel_to(night.results_locked_at + 1.minute) { get season_match_nights_path(seasons(:fall)) }
@@ -331,7 +331,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'links a completed match to its scorecard rather than the edit form for a captain' do
-    sign_in_as_ada
+    sign_in_as
 
     get season_match_nights_path(seasons(:fall))
 
@@ -353,7 +353,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'hides the availability control on a past night' do
-    sign_in_as_ada
+    sign_in_as
 
     get season_match_nights_path(seasons(:fall))
 
@@ -369,7 +369,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'hides the add and edit night links from a captain' do
-    sign_in_as_ada
+    sign_in_as
 
     get season_match_nights_path(seasons(:fall))
 
@@ -378,7 +378,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'treats a player deactivated mid-session as signed out' do
-    sign_in_as_ada
+    sign_in_as
     players(:ada).inactive!
 
     get season_match_nights_path(seasons(:fall))
@@ -387,7 +387,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'index query count does not grow with more match nights' do
-    sign_in_as_ada
+    sign_in_as
     season = seasons(:fall)
 
     before = count_queries { get season_match_nights_path(season) }
@@ -398,7 +398,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'team availability query count does not grow with more match nights' do
-    sign_in_as_ada
+    sign_in_as
     season = seasons(:fall)
 
     before = count_queries { get season_match_nights_path(season, view: 'availability') }
@@ -409,7 +409,7 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'past team availability shows results without selection controls' do
-    sign_in_as_ada
+    sign_in_as
 
     travel_to Time.zone.local(2026, 9, 24) do
       get season_match_nights_path(seasons(:fall), view: 'availability')
@@ -445,19 +445,10 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
   end
 
   def count_queries(&)
+    ActiveRecord::Base.connection_pool.clear_query_cache
     count = 0
     counter = ->(*, payload) { count += 1 unless payload[:cached] || %w[SCHEMA TRANSACTION].include?(payload[:name]) }
     ActiveSupport::Notifications.subscribed(counter, 'sql.active_record', &)
     count
-  end
-
-  def sign_in_as_ada
-    sign_in_as(players(:ada))
-  end
-
-  def sign_in_as(player)
-    mock_google_auth(email: player.email)
-    post '/auth/google_oauth2'
-    follow_redirect!
   end
 end

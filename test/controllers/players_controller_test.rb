@@ -525,10 +525,4 @@ class PlayersControllerTest < ActionDispatch::IntegrationTest
   def row_ids
     css_select('tbody tr').pluck('id')
   end
-
-  def sign_in_as(player)
-    mock_google_auth(email: player.email, uid: "mock-uid-#{player.id}")
-    post '/auth/google_oauth2'
-    follow_redirect!
-  end
 end

@@ -178,12 +178,4 @@ class MatchupsControllerTest < ActionDispatch::IntegrationTest
     assert_select 'tr[data-state=bench] td[data-slot=name]', text: /#{players(:sc_away_player2).full_name}/
     assert_select 'tr[data-state=bench] td[data-slot=name]', text: /#{players(:sc_away_player1).full_name}/, count: 0
   end
-
-  private
-
-  def sign_in_as(player)
-    mock_google_auth(email: player.email, uid: player.google_uid)
-    post '/auth/google_oauth2'
-    follow_redirect!
-  end
 end

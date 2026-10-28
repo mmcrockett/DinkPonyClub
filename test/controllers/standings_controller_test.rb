@@ -10,7 +10,7 @@ class StandingsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'ranks teams by wins then point differential' do
-    sign_in_as_ada
+    sign_in_as
 
     get season_standings_path(seasons(:fall))
 
@@ -20,7 +20,7 @@ class StandingsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'all time lists teams from every season' do
-    sign_in_as_ada
+    sign_in_as
 
     get season_standings_path(seasons(:fall), period: 'lifetime')
 
@@ -29,7 +29,7 @@ class StandingsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'season standings leave out teams from other seasons' do
-    sign_in_as_ada
+    sign_in_as
 
     get season_standings_path(seasons(:fall))
 
@@ -37,7 +37,7 @@ class StandingsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'all time drops the race title and podium' do
-    sign_in_as_ada
+    sign_in_as
 
     get season_standings_path(seasons(:fall), period: 'lifetime')
 
@@ -46,7 +46,7 @@ class StandingsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'shows the leader on the first podium card' do
-    sign_in_as_ada
+    sign_in_as
 
     get season_standings_path(seasons(:fall))
 
@@ -55,7 +55,7 @@ class StandingsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'counts posted results' do
-    sign_in_as_ada
+    sign_in_as
 
     get season_standings_path(seasons(:fall))
 
@@ -64,7 +64,7 @@ class StandingsControllerTest < ActionDispatch::IntegrationTest
 
   test 'excludes playoff results' do
     complete_playoff_match
-    sign_in_as_ada
+    sign_in_as
 
     get season_standings_path(seasons(:fall))
 
@@ -73,7 +73,7 @@ class StandingsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'footnote reports the season sweep bonus' do
-    sign_in_as_ada
+    sign_in_as
 
     get season_standings_path(seasons(:fall))
 
@@ -81,7 +81,7 @@ class StandingsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'scopes the table to the requested season' do
-    sign_in_as_ada
+    sign_in_as
 
     get season_standings_path(seasons(:spring))
 
@@ -92,7 +92,7 @@ class StandingsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'hides the podium until a result is posted' do
-    sign_in_as_ada
+    sign_in_as
 
     get season_standings_path(seasons(:spring))
 
@@ -102,7 +102,7 @@ class StandingsControllerTest < ActionDispatch::IntegrationTest
 
   test 'shows an empty state for a season with no teams' do
     season = Season.create!(name: 'Winter 2027', starts_on: Date.new(2027, 1, 4))
-    sign_in_as_ada
+    sign_in_as
 
     get season_standings_path(season)
 
@@ -127,15 +127,5 @@ class StandingsControllerTest < ActionDispatch::IntegrationTest
                            home_player_a: players(:sam), home_player_b: players(:ben),
                            away_player_a: players(:ada), away_player_b: players(:grace))
     end
-  end
-
-  def sign_in_as_ada
-    sign_in_as(players(:ada))
-  end
-
-  def sign_in_as(player)
-    mock_google_auth(email: player.email)
-    post '/auth/google_oauth2'
-    follow_redirect!
   end
 end

@@ -108,13 +108,5 @@ module Admin
 
       assert_redirected_to edit_admin_match_night_path(@night)
     end
-
-    private
-
-    def sign_in_as(player)
-      mock_google_auth(email: player.email, uid: player.google_uid)
-      post '/auth/google_oauth2'
-      follow_redirect!
-    end
   end
 end

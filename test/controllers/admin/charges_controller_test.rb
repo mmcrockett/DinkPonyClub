@@ -90,11 +90,5 @@ module Admin
       patch admin_player_charges_path(player),
             params: { season: seasons(:fall).id, charges: entries.transform_keys(&:id) }
     end
-
-    def sign_in_as(player)
-      mock_google_auth(email: player.email, uid: player.google_uid)
-      post '/auth/google_oauth2'
-      follow_redirect!
-    end
   end
 end

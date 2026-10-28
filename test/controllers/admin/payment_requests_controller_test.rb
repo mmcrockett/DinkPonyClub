@@ -54,11 +54,5 @@ module Admin
 
       assert_includes flash[:notice], 'No email on file for Ben Stubfield.'
     end
-
-    def sign_in_as(player)
-      mock_google_auth(email: player.email, uid: player.google_uid)
-      post '/auth/google_oauth2'
-      follow_redirect!
-    end
   end
 end

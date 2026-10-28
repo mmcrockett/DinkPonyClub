@@ -33,13 +33,5 @@ module Admin
       assert_select 'nav[aria-label=Admin]', count: 0
       assert_select 'p', text: 'Create a season first.'
     end
-
-    private
-
-    def sign_in_as(player)
-      mock_google_auth(email: player.email, uid: player.google_uid)
-      post '/auth/google_oauth2'
-      follow_redirect!
-    end
   end
 end
