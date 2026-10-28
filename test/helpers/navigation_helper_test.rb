@@ -24,15 +24,13 @@ class NavigationHelperTest < ActionView::TestCase
     with_env('KAMAL_VERSION' => nil, 'APP_BUILT_AT' => '') { assert_nil app_version_title }
   end
 
-  test 'sidebar shows Matchup only to captains and admins' do
-    stubs = { nav_season: seasons(:scorecard), admin?: false }
-
-    assert_not_includes sidebar_labels(stubs.merge(captain_or_admin?: false)), 'Matchup'
-    assert_includes sidebar_labels(stubs.merge(captain_or_admin?: true)), 'Matchup'
+  test 'sidebar shows Matchup to every player once a season is in scope' do
+    assert_includes sidebar_labels(nav_season: seasons(:scorecard), admin?: false), 'Matchup'
+    assert_not_includes sidebar_labels(nav_season: nil, admin?: false), 'Matchup'
   end
 
   test 'Matchup sits right after Standings' do
-    labels = sidebar_labels(nav_season: seasons(:scorecard), admin?: false, captain_or_admin?: true)
+    labels = sidebar_labels(nav_season: seasons(:scorecard), admin?: false)
 
     assert_equal 'Matchup', labels[labels.index('Standings') + 1]
   end

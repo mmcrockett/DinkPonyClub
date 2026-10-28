@@ -18,9 +18,10 @@ class MatchupBoard
 
   delegate :bench, to: :opponent_side, prefix: :opponent
 
-  def initialize(match, team)
+  def initialize(match, team, ratings: PlayerRatings.new(match.season))
     @match = match
     @team = team
+    @ratings = ratings
   end
 
   def opponent
@@ -128,7 +129,5 @@ class MatchupBoard
     @roster ||= form.roster
   end
 
-  def ratings
-    @ratings ||= PlayerRatings.new(@match.season)
-  end
+  attr_reader :ratings
 end

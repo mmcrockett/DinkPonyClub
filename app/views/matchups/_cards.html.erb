@@ -1,0 +1,25 @@
+<%# locals: (cards:, season:, selected_match:, selected_team:) %>
+<section aria-label="<%= t('matchups.show.cards.title') %>">
+  <div class="flex snap-x gap-3 overflow-x-auto pb-1">
+    <% cards.each do |card| %>
+      <% current = card.match.id == selected_match.id %>
+      <div class="w-56 shrink-0 snap-start rounded-lg border bg-white shadow-sm <%= current ? 'border-dpc-navy ring-2 ring-dpc-navy' : 'border-gray-200' %>"
+           <%= 'aria-current=true' if current %>>
+        <% [card.home, card.away].each_with_index do |side, index| %>
+          <%= link_to season_matchup_path(season, team_id: side.team.id, match_id: card.match.id),
+                      class: "flex items-center gap-2 px-3 py-2 hover:bg-gray-50 #{'border-t border-gray-100' if index.positive?} #{'font-bold' if current && side.team == selected_team}" do %>
+            <%= team_logo(side.team, class: 'h-7 w-7 shrink-0 rounded-full object-cover') %>
+            <span class="min-w-0 flex-1">
+              <span class="block truncate text-sm text-dpc-navy"><%= side.team.name %></span>
+              <span class="block text-xs text-gray-500"><%= side.record %></span>
+            </span>
+            <span class="text-right">
+              <span class="block text-sm font-extrabold text-dpc-navy"><%= side.pupr ? number_with_precision(side.pupr, precision: 2) : '-' %></span>
+              <span class="block text-[10px] uppercase text-gray-400"><%= t('matchups.show.cards.pupr') %></span>
+            </span>
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</section>

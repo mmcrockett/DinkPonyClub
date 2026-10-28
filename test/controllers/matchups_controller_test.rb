@@ -13,12 +13,34 @@ class MatchupsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_path
   end
 
-  test 'regular players are redirected' do
+  test 'regular players see a read-only matchup' do
     sign_in_as players(:sc_home_player1)
 
     get season_matchup_path(@season)
 
-    assert_redirected_to root_path
+    assert_response :success
+    assert_select 'p', text: /#{teams(:sc_home).name} vs/
+    assert_select 'button[data-role=move]', count: 0
+    assert_select '#matchup-lineup input[type=submit]', count: 0
+  end
+
+  test 'cards show each match with both teams and a PUPR' do
+    LineupPick.create!(match: @match, team: teams(:sc_home), player: players(:sc_home_player1), position: 1, seat: 1)
+    sign_in_as players(:sc_home_player1)
+
+    get season_matchup_path(@season)
+
+    assert_select 'div[aria-current=true] a', count: 2
+    assert_select 'div[aria-current=true] a', text: /#{teams(:sc_away).name}/
+    assert_select 'div[aria-current=true] a', text: /#{teams(:sc_home).name}\s+\d+-\d+-\d+/
+  end
+
+  test 'captain is read-only when viewing the other team via a card' do
+    sign_in_as players(:sc_home_captain)
+
+    get season_matchup_path(@season, team_id: teams(:sc_away).id, match_id: @match.id)
+
+    assert_select 'button[data-role=move]', count: 0
   end
 
   test 'captain sees own team lines with ratings columns' do
@@ -128,14 +150,6 @@ class MatchupsControllerTest < ActionDispatch::IntegrationTest
     get season_matchup_path(@season)
 
     assert_select 'a', text: 'All time', count: 0
-  end
-
-  test 'captain cannot view another team' do
-    sign_in_as players(:sc_home_captain)
-
-    get season_matchup_path(@season, team_id: teams(:sc_away).id)
-
-    assert_select 'p', text: /#{teams(:sc_home).name} vs/
   end
 
   test 'admin can pick any team' do

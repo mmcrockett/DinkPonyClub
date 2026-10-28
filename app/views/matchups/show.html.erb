@@ -17,6 +17,8 @@
   </div>
 
   <% if @board %>
+    <%= render 'cards', cards: @cards, season: @season, selected_match: @match, selected_team: @team %>
+
     <div class="flex flex-wrap items-center justify-between gap-2">
       <p class="font-bold text-dpc-navy">
         <%= t('.versus', team: @team.name, opponent: @board.opponent.name) %>

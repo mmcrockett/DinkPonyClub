@@ -391,6 +391,9 @@ en:
       pupr: "PUPR"
       elo: "ELO"
       ml: "ML"
+      cards:
+        title: "Matchups"
+        pupr: "PUPR"
       scoreboard:
         vs: "vs"
         odds: "Money line"

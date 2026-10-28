@@ -9,7 +9,7 @@ module NavigationHelper
       { label: 'Schedule', icon: 'calendar', path: season_nav_path(:match_nights) },
       { label: 'Players', icon: 'user', path: season_nav_path(:players) },
       { label: 'Standings', icon: 'trophy', path: season_nav_path(:standings) },
-      (matchup_item if matchup_visible?),
+      (matchup_item if nav_season),
       { label: 'Rules & Format', icon: 'book-open', path: rules_path }
     ].compact
     items << { label: 'Admin', icon: 'cog', path: admin_root_path(season: nav_season) } if admin?
@@ -40,10 +40,6 @@ module NavigationHelper
 
   def matchup_item
     { label: 'Matchup', icon: 'clipboard-document-list', path: season_nav_path(:matchup) }
-  end
-
-  def matchup_visible?
-    nav_season.present? && captain_or_admin?(nav_season)
   end
 
   def season_nav_path(resource)

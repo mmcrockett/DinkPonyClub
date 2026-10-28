@@ -5,31 +5,43 @@ class MatchupsController < ApplicationController
 
   before_action :require_sign_in
   before_action :redirect_to_season_scope
-  before_action -> { require_captain_or_admin(current_season) }
 
   def show
     @season = current_season
     @teams = selectable_teams
     @team = @teams.find { |team| team.id.to_s == params[:team_id] } || default_team
     @match = match_for(@team)
-    @board = MatchupBoard.new(@match, @team) if @match
+    load_board if @match
     @editable = editable?(@match)
   end
 
   private
 
+  def load_board
+    ratings = PlayerRatings.new(@season)
+    @board = MatchupBoard.new(@match, @team, ratings: ratings)
+    @cards = MatchupCards.new(@match.match_night, ratings: ratings, records: records).cards
+  end
+
+  def records
+    Standings.new(@season).rows.to_h { |row| [row.team.id, row.record] }
+  end
+
   def editable?(match)
-    match.present? && !match.match_night.canceled? && match.lineups.none?
+    match.present? && !match.match_night.canceled? && match.lineups.none? && can_edit_team?(@team)
+  end
+
+  def can_edit_team?(team)
+    admin? || captain_team_ids_in(@season.id).include?(team.id)
   end
 
   def default_team
-    captain_ids = captain_team_ids_in(@season.id)
-    @teams.find { |team| captain_ids.include?(team.id) } || @teams.first
+    own_ids = captain_team_ids_in(@season.id) + current_player.roster_spots.where(season_id: @season.id).pluck(:team_id)
+    own_ids.filter_map { |id| @teams.find { |team| team.id == id } }.first || @teams.first
   end
 
   def selectable_teams
-    teams = Team.where(id: RosterSpot.where(season: @season).select(:team_id)).order(:name)
-    admin? ? teams.to_a : teams.where(id: captain_team_ids_in(@season.id)).to_a
+    Team.where(id: RosterSpot.where(season: @season).select(:team_id)).order(:name).to_a
   end
 
   def match_for(team)

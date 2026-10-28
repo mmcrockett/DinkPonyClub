@@ -142,7 +142,7 @@ class LineupPlansControllerTest < ActionDispatch::IntegrationTest
 
     get season_match_nights_path(@match.season)
 
-    assert_select "a[href*='/matchup']", count: 0
+    assert_select "a[href*='team_id=']", count: 0
   end
 
   test 'match page hides set-lineup links once results are entered' do
