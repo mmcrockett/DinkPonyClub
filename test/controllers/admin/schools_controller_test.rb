@@ -58,13 +58,5 @@ module Admin
 
       assert_nil players(:ada).reload.school_id
     end
-
-    private
-
-    def sign_in_as(player)
-      mock_google_auth(email: player.email, uid: player.google_uid)
-      post '/auth/google_oauth2'
-      follow_redirect!
-    end
   end
 end
