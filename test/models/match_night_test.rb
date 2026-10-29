@@ -70,6 +70,23 @@ class MatchNightTest < ActiveSupport::TestCase
     assert_not LineupPick.exists?(pick.id)
   end
 
+  test 'reducing lines_count drops court assignments beyond the new count' do
+    night = match_nights(:fall_upcoming)
+    beyond = CourtAssignment.create!(match: matches(:fall_future), match_slot: match_slots(:fall_future_slot_two),
+                                     position: 5, court: 1)
+
+    night.update!(lines_count: 4)
+
+    assert_not CourtAssignment.exists?(beyond.id)
+    assert CourtAssignment.exists?(court_assignments(:fall_future_line_one).id)
+  end
+
+  test 'removing a time drops its court assignments' do
+    assert_difference 'CourtAssignment.count', -1 do
+      match_slots(:fall_future_slot_one).destroy!
+    end
+  end
+
   test 'label longer than 60 characters is invalid' do
     night = match_nights(:fall_week_one)
     night.label = 'x' * 61

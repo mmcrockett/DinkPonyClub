@@ -24,6 +24,19 @@ class MatchupsControllerTest < ActionDispatch::IntegrationTest
     assert_select '#matchup-lineup input[type=submit]', count: 0
   end
 
+  test 'a placed line shows its time and court and warns about a declined time' do
+    slot = @match.match_night.match_slots.create!(position: 1, starts_at: Time.zone.local(2026, 1, 10, 19))
+    CourtAssignment.create!(match: @match, match_slot: slot, position: 1, court: 2)
+    SlotAvailability.create!(match_slot: slot, player: players(:sc_home_player1), preference: 'thumbs_down')
+    LineupPick.create!(match: @match, team: teams(:sc_home), player: players(:sc_home_player1), position: 1, seat: 1)
+    sign_in_as players(:sc_home_player1)
+
+    get season_matchup_path(@season)
+
+    assert_select 'td', text: "Line 1 - #{slot.label}, Ct 2"
+    assert_select 'span[title=?]', 'Said no to this time'
+  end
+
   test 'cards show each match with both teams and a PUPR' do
     LineupPick.create!(match: @match, team: teams(:sc_home), player: players(:sc_home_player1), position: 1, seat: 1)
     sign_in_as players(:sc_home_player1)

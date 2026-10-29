@@ -18,6 +18,7 @@ module Admin
       @season = @match_night.season
       @played = @match_night.played?
       @teams = @season.teams.order(:name).to_a
+      @court_schedule = CourtSchedule.new(@match_night)
     end
 
     def create

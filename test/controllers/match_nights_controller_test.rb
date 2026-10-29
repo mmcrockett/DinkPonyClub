@@ -19,6 +19,25 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
                     :<, response.body.index(dom_id(match_nights(:fall_playoff)))
   end
 
+  test 'show lists the court schedule with the placed line' do
+    sign_in_as
+
+    get match_night_path(match_nights(:fall_upcoming))
+
+    assert_response :success
+    assert_select 'h2', text: 'Courts'
+    assert_select 'th', text: match_slots(:fall_future_slot_one).label
+  end
+
+  test 'show omits the court schedule when nothing is placed' do
+    CourtAssignment.delete_all
+    sign_in_as
+
+    get match_night_path(match_nights(:fall_upcoming))
+
+    assert_select 'h2', text: 'Courts', count: 0
+  end
+
   test 'marks the first upcoming night as up next' do
     sign_in_as
 

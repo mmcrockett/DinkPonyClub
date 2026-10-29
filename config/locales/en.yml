@@ -111,6 +111,15 @@ en:
         remove_time: "Remove %{time}"
         confirm_remove_time: "Remove %{time}? This also deletes every player's preference for it."
         no_times: "No times yet - players can't pick time preferences."
+        courts: "Court schedule"
+        time: "Time"
+        court: "Court %{number}"
+        unplaced: "Not placed yet"
+        none_unplaced: "Every line is placed."
+        line_option: "%{home} v %{away} - L%{number}"
+        conflict:
+          declined: "%{player} said no to %{time}."
+          double_booked: "%{player} is in two lines at %{time}."
       matchups:
         vs: "vs"
         home_team: "Home team"
@@ -130,6 +139,11 @@ en:
         updated: "%{label} is now %{matchup}."
       destroy:
         removed: "%{matchup} removed from %{label}."
+    court_schedules:
+      canceled: "%{label} is canceled - the court schedule can't be changed."
+      update:
+        saved: "Court schedule saved for %{label}."
+        invalid: "Could not save court schedule: %{errors}"
     match_slots:
       played: "%{label} has games on record - times can't be changed."
       create:
@@ -252,6 +266,14 @@ en:
     update:
       saved: "Scorecard saved."
   match_nights:
+    court_schedule:
+      title: "Courts"
+      time: "Time"
+      court: "Court %{number}"
+      tbd: "TBD"
+      line: "L%{number}"
+      declined: "Said no to this time"
+      double_booked: "In two lines at once"
     schedule:
       title: "The season schedule"
       add_night: "Add night"
@@ -409,6 +431,8 @@ en:
       cancel: "Cancel"
       to_bench: "Move to bench"
       line: "Line %{number}"
+      line_at: "Line %{number} - %{time}, Ct %{court}"
+      declined: "Said no to this time"
       bench: "Bench"
       empty: "Empty"
       sub: "Sub"

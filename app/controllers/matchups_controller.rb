@@ -21,6 +21,7 @@ class MatchupsController < ApplicationController
   def load_board
     ratings = PlayerRatings.new(@season)
     @board = MatchupBoard.new(@match, @team, ratings: ratings)
+    @line_assignments = @match.court_assignments.includes(:match_slot).index_by(&:position)
     @cards = MatchupCards.new(@night, ratings: ratings, records: records).cards
   end
 

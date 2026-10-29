@@ -58,6 +58,7 @@ Rails.application.routes.draw do
     resources :match_nights, only: %i[new create edit update] do
       patch :cancel, on: :member
       resources :match_slots, only: %i[create destroy]
+      resource :court_schedule, only: :update
       resources :matches, only: %i[create update destroy]
     end
     resource :payment_requests, only: %i[create]

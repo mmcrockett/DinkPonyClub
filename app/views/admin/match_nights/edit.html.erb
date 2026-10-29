@@ -74,6 +74,10 @@
     </section>
     <% end %>
 
+    <% if @match_night.match_slots.any? && @match_night.matches.any? %>
+      <%= render 'court_schedule', night: @match_night, schedule: @court_schedule %>
+    <% end %>
+
     <section class="flex flex-col gap-3 rounded-md bg-white p-5 shadow-sm">
       <h2 class="font-semibold text-dpc-navy"><%= t('.matchups') %></h2>
       <%= render 'matchups', night: @match_night, played: @played, teams: @teams %>

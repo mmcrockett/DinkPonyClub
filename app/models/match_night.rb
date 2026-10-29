@@ -7,6 +7,7 @@ class MatchNight < ApplicationRecord
   has_many :match_slots, -> { order(:starts_at) }, dependent: :destroy, inverse_of: :match_night
   has_many :slot_availabilities, through: :match_slots
   has_many :games, through: :matches
+  has_many :court_assignments, through: :matches
 
   validates :played_on, presence: true
   validates :label, presence: true, length: { maximum: 60 }
@@ -16,7 +17,7 @@ class MatchNight < ApplicationRecord
   validate :lines_count_unchanged_once_played, on: :update
 
   after_update :move_slots_to_played_on, if: :saved_change_to_played_on?
-  after_update :drop_picks_beyond_line_count, if: :saved_change_to_lines_count?
+  after_update :drop_lines_beyond_line_count, if: :saved_change_to_lines_count?
 
   scope :chronological, -> { order(:played_on) }
   scope :upcoming, -> { where(played_on: Date.current..) }
@@ -88,8 +89,10 @@ class MatchNight < ApplicationRecord
     errors.add(:lines_count, 'cannot change after a game has been played')
   end
 
-  def drop_picks_beyond_line_count
-    LineupPick.where(match_id: matches.select(:id), position: (line_count + 1)..).delete_all
+  def drop_lines_beyond_line_count
+    beyond = ((line_count + 1)..)
+    LineupPick.where(match_id: matches.select(:id), position: beyond).delete_all
+    CourtAssignment.where(match_id: matches.select(:id), position: beyond).delete_all
   end
 
   def move_slots_to_played_on

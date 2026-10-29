@@ -1,0 +1,52 @@
+<%# locals: (night:, schedule:) %>
+<% options = schedule.lines.map do |match, position|
+     [t('admin.match_nights.edit.line_option', home: match.home_team.name, away: match.away_team.name, number: position),
+      "#{match.id}-#{position}"]
+   end %>
+<section class="flex flex-col gap-3 rounded-md bg-white p-5 shadow-sm">
+  <h2 class="font-semibold text-dpc-navy"><%= t('admin.match_nights.edit.courts') %></h2>
+  <%= form_with url: admin_match_night_court_schedule_path(night), method: :patch, class: 'flex flex-col gap-3' do %>
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-sm">
+        <thead class="text-xs font-bold uppercase text-gray-500">
+          <tr>
+            <th class="py-2 pr-3"><%= t('admin.match_nights.edit.time') %></th>
+            <% CourtAssignment::COURTS.each do |court| %>
+              <th class="px-1 py-2"><%= t('admin.match_nights.edit.court', number: court) %></th>
+            <% end %>
+          </tr>
+        </thead>
+        <tbody>
+          <% schedule.rows.each do |slot, _cells| %>
+            <tr>
+              <th class="whitespace-nowrap py-1 pr-3 font-semibold text-dpc-navy"><%= slot.label %></th>
+              <% CourtAssignment::COURTS.each do |court| %>
+                <td class="px-1 py-1">
+                  <%= select_tag "cells[#{slot.id}][#{court}]", options_for_select(options, schedule.selected(slot, court)),
+                                 include_blank: true, class: 'form-input w-full min-w-40',
+                                 aria: { label: "#{slot.label} #{t('admin.match_nights.edit.court', number: court)}" } %>
+                </td>
+              <% end %>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <div class="flex flex-wrap items-center justify-between gap-2">
+      <p class="text-sm text-gray-500">
+        <% if schedule.unplaced.any? %>
+          <%= t('admin.match_nights.edit.unplaced') %>:
+          <%= schedule.unplaced.map { |match, position| "#{match.home_team.name} v #{match.away_team.name} L#{position}" }.to_sentence %>
+        <% else %>
+          <%= t('admin.match_nights.edit.none_unplaced') %>
+        <% end %>
+      </p>
+      <%= submit_tag t('admin.match_nights.edit.save'), class: 'btn btn-secondary' %>
+    </div>
+    <% schedule.conflicts.each do |conflict| %>
+      <p class="text-sm font-semibold text-red-700">
+        <%= t("admin.match_nights.edit.conflict.#{conflict.kind}", player: conflict.player.full_name, time: conflict.slot.label) %>
+      </p>
+    <% end %>
+  <% end %>
+</section>

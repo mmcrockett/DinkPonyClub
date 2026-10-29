@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_28_195800) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_28_200000) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -49,6 +49,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_28_195800) do
     t.index ["fee_id"], name: "index_charges_on_fee_id"
     t.index ["roster_spot_id", "fee_id"], name: "index_charges_on_roster_spot_id_and_fee_id", unique: true
     t.index ["roster_spot_id"], name: "index_charges_on_roster_spot_id"
+  end
+
+  create_table "court_assignments", force: :cascade do |t|
+    t.integer "match_id", null: false
+    t.integer "match_slot_id", null: false
+    t.integer "position", null: false
+    t.integer "court", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["match_id", "position"], name: "index_court_assignments_on_match_id_and_position", unique: true
+    t.index ["match_id"], name: "index_court_assignments_on_match_id"
+    t.index ["match_slot_id", "court"], name: "index_court_assignments_on_match_slot_id_and_court", unique: true
+    t.index ["match_slot_id"], name: "index_court_assignments_on_match_slot_id"
   end
 
   create_table "fees", force: :cascade do |t|
@@ -224,6 +237,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_28_195800) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "charges", "fees"
   add_foreign_key "charges", "roster_spots"
+  add_foreign_key "court_assignments", "match_slots"
+  add_foreign_key "court_assignments", "matches"
   add_foreign_key "fees", "seasons"
   add_foreign_key "games", "lineups"
   add_foreign_key "games", "players", column: "away_player_a_id"

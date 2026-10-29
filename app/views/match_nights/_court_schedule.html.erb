@@ -1,0 +1,43 @@
+<%# locals: (schedule:) %>
+<% names = lambda do |slot, players, team|
+     next tag.span(team.name) if players.empty?
+
+     safe_join(players.map do |player|
+       if schedule.flagged?(slot, player)
+         tag.span(player.full_name, class: 'font-semibold text-red-700', title: t('match_nights.court_schedule.declined'))
+       else
+         player.full_name
+       end
+     end, ' & ')
+   end %>
+<section class="flex flex-col gap-3 rounded-md bg-white p-4 shadow-sm">
+  <h2 class="font-bold text-dpc-navy"><%= t('match_nights.court_schedule.title') %></h2>
+  <div class="overflow-x-auto">
+    <table class="w-full text-left text-sm">
+      <thead class="border-b border-gray-200 text-xs font-bold uppercase text-gray-500">
+        <tr>
+          <th class="py-2 pr-3"><%= t('match_nights.court_schedule.time') %></th>
+          <% CourtAssignment::COURTS.each do |court| %>
+            <th class="px-2 py-2"><%= t('match_nights.court_schedule.court', number: court) %></th>
+          <% end %>
+        </tr>
+      </thead>
+      <tbody>
+        <% schedule.rows.each do |slot, cells| %>
+          <tr class="border-t border-gray-100 align-top">
+            <th class="whitespace-nowrap py-2 pr-3 font-semibold text-dpc-navy"><%= slot.label %></th>
+            <% cells.each_value do |cell| %>
+              <td class="px-2 py-2">
+                <% if cell %>
+                  <span class="text-xs font-bold text-gray-500"><%= t('match_nights.court_schedule.line', number: cell.position) %></span>
+                  <div><%= names.call(slot, cell.home_players, cell.match.home_team) %></div>
+                  <div class="text-gray-500">vs <%= names.call(slot, cell.away_players, cell.match.away_team) %></div>
+                <% end %>
+              </td>
+            <% end %>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</section>

@@ -24,6 +24,7 @@ class MatchNightsController < ApplicationController
   def show
     @match_night = MatchNight.includes(MATCH_NIGHT_INCLUDES).find(params.expect(:id))
     @season = @match_night.season
+    @court_schedule = CourtSchedule.new(@match_night)
     @can_enter_results = captain_or_admin?(@season)
     @team_view = params[:view] == 'availability' && @can_enter_results
     if @team_view

@@ -8,6 +8,7 @@ class Match < ApplicationRecord
   has_many :lineups, -> { order(:position) }, dependent: :destroy, inverse_of: :match
   has_many :games, through: :lineups
   has_many :lineup_picks, dependent: :destroy
+  has_many :court_assignments, dependent: :delete_all
 
   delegate :played_on, :results_locked?, :line_positions, to: :match_night
 

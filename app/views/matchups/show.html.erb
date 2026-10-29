@@ -68,10 +68,17 @@
               </thead>
               <% @board.lines.each do |position, rows| %>
                 <% state = rows.count(&:player) >= 2 ? 'complete' : 'incomplete' %>
+                <% assignment = @line_assignments[position] %>
+                <% line_label = if assignment
+                                  t('.line_at', number: position, time: assignment.match_slot.label, court: assignment.court)
+                                else
+                                  t('.line', number: position)
+                                end %>
                 <tbody class="border-b border-gray-200" data-line-group="<%= position %>">
                   <% rows.each_with_index do |row, index| %>
                     <% extra = index >= MatchupBoard::MIN_SEATS %>
-                    <%= render 'row', row: row, label: extra ? t('.extra') : t('.line', number: position), state: state,
+                    <%= render 'row', row: row, label: extra ? t('.extra') : line_label, state: state,
+                                      assigned_slot_id: assignment&.match_slot_id,
                                       position: position, editable: @editable, extra: extra, slots: @board.slots,
                                       line_odds: (@board.odds.line_moneylines.dig(position, :mine) || '-' if index.zero?),
                                       odds_side: 'mine', odds_span: rows.size %>
