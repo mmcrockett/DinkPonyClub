@@ -21,15 +21,18 @@ test:
   <<: *default
   url: sqlite3:storage/test.sqlite3
 
-# Primary app data lives on the shared mysql.mmcrockett.com host (same
-# pattern as mikereader/streakalong). Solid Cache/Queue/Cable keep local
-# sqlite3 stores on the persistent Docker volume from config/deploy.yml.
+# Primary app data lives in a local sqlite3 file on the persistent Docker volume
+# from config/deploy.yml (queries over the network to the shared
+# mysql.mmcrockett.com host cost ~57ms each). DatabaseBackupJob copies it to
+# mysql_backup hourly; restore with
+# `FROM=mysql_backup TO=primary bin/rails db:sync:copy`. Solid Cache/Queue/Cable
+# keep their own local sqlite3 stores on the same volume.
 production:
   primary:
-    url: <%= Rails.application.credentials.mysql_url %>
-  sqlite_primary:
     <<: *default
     database: storage/production.sqlite3
+  mysql_backup:
+    url: <%= Rails.application.credentials.mysql_url %>
     migrations_paths: db/migrate
     schema_dump: false
   cache:

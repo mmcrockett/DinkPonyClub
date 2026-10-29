@@ -61,7 +61,8 @@ aliases:
   dbc: app exec --interactive --reuse "bin/rails dbconsole --include-password"
 
 # Use a persistent storage volume for sqlite database files and local Active Storage files.
-# Recommended to change this to a mounted volume path that is backed up off server.
+# Holds the primary database; DatabaseBackupJob copies it to MySQL hourly (see config/database.yml).
+# Active Storage files on this volume are not backed up off the server.
 volumes:
   - "dink_pony_club_storage:/rails/storage"
 

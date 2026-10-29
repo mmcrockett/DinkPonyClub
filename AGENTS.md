@@ -35,8 +35,8 @@ Run `bin/rubocop` and `bin/rails test` before declaring work done; CI fails on e
 
 ## Database
 
-- Dev and test use SQLite (`storage/*.sqlite3`); production uses MySQL. CI passing on SQLite does not prove a migration works in production.
-- Write migrations that are safe on MySQL: DDL is not transactional (a failure leaves it half-applied), and MySQL refuses to drop an index a foreign key still needs. The `migrate-mysql` CI job runs migrations against MySQL.
+- Dev, test, and production primary use SQLite (`storage/*.sqlite3`; production's lives on the Docker volume). The shared MySQL host is an hourly backup copy (`mysql_backup` in `config/database.yml`, filled by `DatabaseBackupJob`) that boot-time `db:prepare` migrates alongside the primary. Restore a lost volume with `FROM=mysql_backup TO=primary bin/rails db:sync:copy`.
+- Write migrations that are safe on MySQL, since they run there too: DDL is not transactional (a failure leaves it half-applied), and MySQL refuses to drop an index a foreign key still needs. CI passing on SQLite does not prove that; the `migrate-mysql` CI job runs migrations against MySQL.
 - Never hand-edit `db/schema.rb`; generate it by running migrations.
 - Production solid_cache/queue/cable use separate local SQLite files on the Docker volume (see `config/database.yml`).
 
