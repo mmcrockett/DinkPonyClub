@@ -182,6 +182,16 @@ class MatchupsControllerTest < ActionDispatch::IntegrationTest
     assert_select 'p', text: /#{teams(:sc_home).name} vs/
   end
 
+  test 'a warm page does not replay ratings or recompute standings' do
+    sign_in_as players(:sc_home_captain)
+    get season_matchup_path(@season)
+
+    queries = captured_sql { get season_matchup_path(@season) }
+
+    assert_empty queries.grep(/FROM "games"/)
+    assert_empty queries.grep(/MAX\("match_nights"."played_on"\)/)
+  end
+
   test 'opponent panel lists unpicked opponent roster players on the bench' do
     LineupPick.create!(match: @match, team: teams(:sc_away), player: players(:sc_away_player1), position: 1, seat: 1)
     sign_in_as players(:sc_home_captain)
@@ -190,5 +200,14 @@ class MatchupsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select 'tr[data-state=bench] td[data-slot=name]', text: /#{players(:sc_away_player2).full_name}/
     assert_select 'tr[data-state=bench] td[data-slot=name]', text: /#{players(:sc_away_player1).full_name}/, count: 0
+  end
+
+  private
+
+  def captured_sql(&)
+    queries = []
+    collector = ->(*, payload) { queries << payload[:sql] unless payload[:name] == 'SCHEMA' }
+    ActiveSupport::Notifications.subscribed(collector, 'sql.active_record', &)
+    queries
   end
 end

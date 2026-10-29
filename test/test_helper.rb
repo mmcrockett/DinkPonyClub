@@ -12,6 +12,8 @@ module ActiveSupport
     # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
     fixtures :all
 
+    setup { Rails.cache.clear }
+
     # Stubs the next OmniAuth callback with a mock Google identity. Pass
     # verified: false to simulate an unverified Google email.
     def mock_google_auth(email:, uid: 'mock-google-uid', verified: true, image: nil)

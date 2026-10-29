@@ -17,6 +17,7 @@ class PlayerRatings
   MAX_MARGIN_BONUS = 0.5
   MAX_MARGIN = 11
   DEFAULT_LINES = 4
+  INPUT_TABLES = %w[games lineups matches match_nights roster_spots].freeze
   PLUCKED = (Game::PLAYER_COLUMNS.map { |column| "games.#{column}" } +
              %w[games.home_score games.away_score lineups.position matches.season_id games.id]).freeze
 
@@ -41,12 +42,18 @@ class PlayerRatings
   private
 
   def replay
-    @replay ||= begin
-      table = {}
-      changes = played_games.reduce({}) { |all, played| all.merge!(rate(table, played)) }
-      seed_roster(table)
-      [table, changes]
-    end
+    @replay ||= Rails.cache.fetch(cache_key) { compute_replay }
+  end
+
+  def compute_replay
+    table = {}
+    changes = played_games.reduce({}) { |all, played| all.merge!(rate(table, played)) }
+    seed_roster(table)
+    [table, changes]
+  end
+
+  def cache_key
+    ['player_ratings', @season.id, Date.current.iso8601, *TableFingerprint.for(*INPUT_TABLES)]
   end
 
   def played_games

@@ -26,7 +26,7 @@ class MatchupsController < ApplicationController
   end
 
   def records
-    Standings.new(@season).rows.to_h { |row| [row.team.id, row.record] }
+    Standings.new(@season).records
   end
 
   def editable?(match)

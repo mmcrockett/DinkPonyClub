@@ -74,7 +74,7 @@ class MatchupBoard
   end
 
   def opponent_side
-    @opponent_side ||= MatchupOpponent.new(@match, opponent, ratings)
+    @opponent_side ||= MatchupOpponent.new(@match, opponent, ratings, statuses)
   end
 
   def build_odds(own_ids)
@@ -105,8 +105,7 @@ class MatchupBoard
   end
 
   def statuses
-    @statuses ||= @match.match_night.match_availabilities.where(player: roster + form.eligible_subs)
-                        .to_h { |row| [row.player_id, row.status] }
+    @statuses ||= @match.match_night.match_availabilities.pluck(:player_id, :status).to_h
   end
 
   def preferences
@@ -114,7 +113,7 @@ class MatchupBoard
   end
 
   def preference_rows
-    SlotAvailability.where(match_slot: slots, player: roster + form.eligible_subs).group_by(&:player_id)
+    SlotAvailability.where(match_slot: slots).group_by(&:player_id)
   end
 
   def players

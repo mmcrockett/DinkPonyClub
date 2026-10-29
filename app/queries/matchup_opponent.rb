@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
 class MatchupOpponent
-  def initialize(match, team, ratings)
+  def initialize(match, team, ratings, statuses)
     @match = match
     @team = team
     @ratings = ratings
+    @statuses = statuses
   end
 
   def rows
@@ -39,12 +40,7 @@ class MatchupOpponent
 
   def row_for(player)
     MatchupBoard::Row.build(player, @ratings.for(player.id), sub: roster.exclude?(player),
-                                                             status: statuses[player.id])
-  end
-
-  def statuses
-    @statuses ||= @match.match_night.match_availabilities.where(player: roster + players.values.flatten)
-                        .to_h { |row| [row.player_id, row.status] }
+                                                             status: @statuses[player.id])
   end
 
   def roster

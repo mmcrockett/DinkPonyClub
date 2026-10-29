@@ -108,7 +108,41 @@ class PlayerRatingsTest < ActiveSupport::TestCase
     assert_in_delta 2.0, PlayerRatings::Rating.new(0.0, 0).pupr
   end
 
+  test 'a second instance reuses the cached replay instead of reading games again' do
+    play(11, 9)
+    PlayerRatings.new(@season).for(@ada.id)
+
+    queries = capture_sql { PlayerRatings.new(@season).for(@ada.id) }
+
+    assert_equal(1, queries.count { |sql| sql.include?('COUNT(*) FROM games') })
+    assert_empty queries.grep(/JOIN .matches./)
+  end
+
+  test 'a new game invalidates the cached replay' do
+    play(11, 9)
+    PlayerRatings.new(@season).for(@ada.id)
+    play(11, 9, number: 2)
+
+    assert_equal 2, PlayerRatings.new(@season).for(@ada.id).games
+  end
+
+  test 'a changed draft rank invalidates the cached replay' do
+    Lineup.create!(match: matches(:fall_alpha_bravo), position: 4)
+    ranked = roster('Ranked', '2B')
+    PlayerRatings.new(seasons(:fall)).for(ranked.id)
+    RosterSpot.find_by!(season: seasons(:fall), player: ranked).update!(draft_rank: '1')
+
+    assert_in_delta 1755, PlayerRatings.new(Season.find(seasons(:fall).id)).for(ranked.id).elo
+  end
+
   private
+
+  def capture_sql(&)
+    queries = []
+    callback = ->(*, payload) { queries << payload[:sql] }
+    ActiveSupport::Notifications.subscribed(callback, 'sql.active_record', &)
+    queries
+  end
 
   def total(ratings)
     [@ada, players(:grace), @sam, players(:ben)].sum { |player| ratings.for(player.id).elo }

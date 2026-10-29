@@ -137,6 +137,18 @@ class StandingsTest < ActiveSupport::TestCase
     assert_equal [nil, nil], rows.map(&:next_opponent)
   end
 
+  test 'records maps team ids to their record and refreshes when a game is added' do
+    season = seasons(:fall)
+    before = Standings.new(season).records
+
+    assert_equal '1-0-0', before[teams(:alpha).id]
+
+    game = Game.joins(:lineup).where(lineups: { match_id: matches(:fall_alpha_bravo).id }).first
+    game.update!(home_score: 0, away_score: 11)
+
+    assert_equal '0-1-0', Standings.new(season).records[teams(:alpha).id]
+  end
+
   private
 
   def add_alpha_win_on(date)
