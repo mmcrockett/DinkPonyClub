@@ -32,8 +32,8 @@ class CourtSchedule
     @conflicts ||= players_by_slot.flat_map { |slot, players| conflicts_in(slot, players) }
   end
 
-  def flagged?(slot, player)
-    conflicts.any? { |conflict| conflict.slot == slot && conflict.player == player }
+  def conflict_kinds(slot, player)
+    conflicts.select { |conflict| conflict.slot == slot && conflict.player == player }.map(&:kind).uniq
   end
 
   private

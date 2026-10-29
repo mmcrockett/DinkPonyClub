@@ -29,6 +29,24 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
     assert_select 'th', text: match_slots(:fall_future_slot_one).label
   end
 
+  test 'show explains a double-booked player in the court schedule' do
+    night = match_nights(:fall_upcoming)
+    slot = match_slots(:fall_future_slot_one)
+    first = CourtAssignment.find_by!(match_slot: slot)
+    other = Match.create!(season: first.match.season, match_night: night, home_team: first.match.away_team,
+                          away_team: first.match.home_team)
+    CourtAssignment.create!(match: other, match_slot: slot, position: first.position, court: CourtAssignment::COURTS.last)
+    sub = players(:wade)
+    [first.match, other].each do |match|
+      LineupPick.create!(match: match, team: match.home_team, player: sub, position: first.position, seat: LineupPick::SEATS.last)
+    end
+    sign_in_as
+
+    get match_night_path(night)
+
+    assert_select 'span[title=?]', 'In two lines at once', text: sub.full_name
+  end
+
   test 'show omits the court schedule when nothing is placed' do
     CourtAssignment.delete_all
     sign_in_as

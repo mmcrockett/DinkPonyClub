@@ -3,8 +3,10 @@
      next tag.span(team.name) if players.empty?
 
      safe_join(players.map do |player|
-       if schedule.flagged?(slot, player)
-         tag.span(player.full_name, class: 'font-semibold text-red-700', title: t('match_nights.court_schedule.declined'))
+       kinds = schedule.conflict_kinds(slot, player)
+       if kinds.any?
+         title = kinds.map { |kind| t("match_nights.court_schedule.#{kind}") }.join('; ')
+         tag.span(player.full_name, class: 'font-semibold text-red-700', title: title)
        else
          player.full_name
        end

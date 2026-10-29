@@ -270,7 +270,6 @@ en:
       title: "Courts"
       time: "Time"
       court: "Court %{number}"
-      tbd: "TBD"
       line: "L%{number}"
       declined: "Said no to this time"
       double_booked: "In two lines at once"

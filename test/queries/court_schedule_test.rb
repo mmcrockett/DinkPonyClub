@@ -49,7 +49,7 @@ class CourtScheduleTest < ActiveSupport::TestCase
     pick(players(:grace), 1)
 
     assert_equal([[:declined, players(:grace), @one]], schedule.conflicts.map { |c| [c.kind, c.player, c.slot] })
-    assert schedule.flagged?(@one, players(:grace))
+    assert_equal [:declined], schedule.conflict_kinds(@one, players(:grace))
   end
 
   test 'flags a sub placed in two lines at the same time' do
@@ -61,6 +61,7 @@ class CourtScheduleTest < ActiveSupport::TestCase
     LineupPick.create!(match: other, team: teams(:bravo), player: sub, position: 1, seat: 1)
 
     assert_equal([[:double_booked, sub, @one]], schedule.conflicts.map { |c| [c.kind, c.player, c.slot] })
+    assert_equal [:double_booked], schedule.conflict_kinds(@one, sub)
   end
 
   test 'a clean schedule has no conflicts' do
