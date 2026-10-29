@@ -188,7 +188,7 @@ class MatchupsControllerTest < ActionDispatch::IntegrationTest
 
     queries = captured_sql { get season_matchup_path(@season) }
 
-    assert_empty queries.grep(/FROM "games"/)
+    assert_empty queries.grep(/FROM "games"/).grep_v(/COUNT/)
     assert_empty queries.grep(/MAX\("match_nights"."played_on"\)/)
   end
 

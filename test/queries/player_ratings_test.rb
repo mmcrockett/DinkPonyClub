@@ -114,7 +114,7 @@ class PlayerRatingsTest < ActiveSupport::TestCase
 
     queries = capture_sql { PlayerRatings.new(@season).for(@ada.id) }
 
-    assert_equal(1, queries.count { |sql| sql.include?('COUNT(*) FROM games') })
+    assert_equal(1, queries.count { |sql| sql.match?(/COUNT\(\*\) FROM .games./) })
     assert_empty queries.grep(/JOIN .matches./)
   end
 

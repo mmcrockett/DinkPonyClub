@@ -10,7 +10,7 @@ class Standings
 
   MATCH_INCLUDES = [:season, :match_night, :home_team, :away_team, { lineups: :games }].freeze
   FORM_LENGTH = 5
-  RECORD_TABLES = %w[games lineups matches match_nights].freeze
+  RECORD_MODELS = [Game, Lineup, Match, MatchNight].freeze
 
   attr_reader :season
 
@@ -25,7 +25,7 @@ class Standings
   end
 
   def records
-    key = ['standings_records', season.id, @lifetime, *TableFingerprint.for(*RECORD_TABLES)]
+    key = ['standings_records', season.id, @lifetime, *TableFingerprint.for(*RECORD_MODELS)]
     Rails.cache.fetch(key) { rows.to_h { |row| [row.team.id, row.record] } }
   end
 
