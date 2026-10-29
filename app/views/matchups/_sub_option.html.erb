@@ -31,7 +31,7 @@
     </div>
     <div class="flex items-center gap-2">
       <button type="button" class="<%= button_class %>" data-action="lineup-move#markSub" data-sub-id="<%= player.id %>"
-              data-status="<%= out ? 'maybe' : 'out' %>" data-url="<%= match_team_sub_path(match, team, player) %>">
+              data-status="<%= out ? 'clear' : 'out' %>" data-url="<%= match_team_sub_path(match, team, player) %>">
         <%= out ? t('matchups.show.undo_out') : t('matchups.show.mark_out') %>
       </button>
       <% unless out %>

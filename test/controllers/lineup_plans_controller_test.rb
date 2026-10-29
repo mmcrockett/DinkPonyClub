@@ -65,7 +65,7 @@ class LineupPlansControllerTest < ActionDispatch::IntegrationTest
 
     row = "tr[data-sub-id='#{sub.id}'] [data-slot=finder] li.opacity-60"
 
-    assert_select sub_rows, "#{row} button[data-status=maybe]", text: 'Undo'
+    assert_select sub_rows, "#{row} button[data-status=clear]", text: 'Undo'
     assert_select sub_rows, "#{row} button[data-action='lineup-move#addSub']", count: 0
     assert_select sub_rows, "#{row} a[href='tel:555-0100']"
   end
@@ -84,14 +84,25 @@ class LineupPlansControllerTest < ActionDispatch::IntegrationTest
     assert_select sub_rows, "tr[data-sub-id='#{sub.id}'] li.opacity-60"
   end
 
-  test 'undo sets an out sub back to maybe' do
+  test 'undo removes the out mark so the sub is unanswered again' do
     sub = Player.create!(first_name: 'Dana', last_name: 'Sub', calendar_token: SecureRandom.hex(16))
     MatchAvailability.create!(match_night: @match.match_night, player: sub, status: 'out')
     sign_in_as players(:sc_home_captain)
 
-    patch match_team_sub_path(@match, @home, sub), params: { status: 'maybe' }
+    patch match_team_sub_path(@match, @home, sub), params: { status: 'clear' }
 
-    assert_equal 'maybe', @match.match_night.match_availabilities.find_by!(player: sub).status
+    assert_response :no_content
+    assert_nil @match.match_night.match_availabilities.find_by(player: sub)
+  end
+
+  test 'marking out over a sub who said in replaces it' do
+    sub = Player.create!(first_name: 'Dana', last_name: 'Sub', calendar_token: SecureRandom.hex(16))
+    MatchAvailability.create!(match_night: @match.match_night, player: sub, status: 'in')
+    sign_in_as players(:sc_home_captain)
+
+    patch match_team_sub_path(@match, @home, sub), params: { status: 'out' }
+
+    assert_equal 'out', @match.match_night.match_availabilities.find_by!(player: sub).status
   end
 
   test 'a captain cannot mark a sub in' do
