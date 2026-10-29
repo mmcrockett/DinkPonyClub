@@ -60,7 +60,7 @@ class MatchupBoard
   end
 
   def sub_options
-    @sub_options ||= form.pickable_subs(statuses).map { |player| row_for(player) }
+    @sub_options ||= form.pickable_subs.map { |player| row_for(player) }.sort_by(&:bench_sort_key)
   end
 
   def picked_subs

@@ -94,7 +94,8 @@
                 <% end %>
                 <% if @editable %>
                   <% @board.picked_subs.each do |row| %>
-                    <%= render 'row', row: row, label: t('.bench'), state: 'bench', editable: true, sub_source: true, slots: @board.slots %>
+                    <%= render 'row', row: row, label: t('.bench'), state: 'bench', editable: true, sub_source: true, slots: @board.slots,
+                                      match: @match, team: @team %>
                   <% end %>
                 <% end %>
               </tbody>

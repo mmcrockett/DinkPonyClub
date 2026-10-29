@@ -6,9 +6,20 @@ class LineupPlansController < ApplicationController
   before_action :require_team_captain_or_admin
   before_action :require_unlocked
 
+  SUB_STATUSES = %w[out maybe].freeze
+
   def subs
     board = MatchupBoard.new(@match, @team)
-    render partial: 'matchups/sub_sources', locals: { rows: board.sub_options, slots: board.slots }
+    render partial: 'matchups/sub_sources',
+           locals: { rows: board.sub_options, slots: board.slots, match: @match, team: @team }
+  end
+
+  def sub_status
+    return head :unprocessable_content unless SUB_STATUSES.include?(params[:status])
+
+    availability = @match.match_night.match_availabilities.find_or_initialize_by(player: eligible_sub!)
+    availability.update!(status: params[:status])
+    head :no_content
   end
 
   def odds
@@ -26,6 +37,11 @@ class LineupPlansController < ApplicationController
   end
 
   private
+
+  def eligible_sub!
+    LineupPlanForm.from_match(@match, @team).eligible_subs.find { |sub| sub.id == params[:player_id].to_i } ||
+      raise(ActiveRecord::RecordNotFound)
+  end
 
   def odds_payload(lines)
     odds = MatchupBoard.new(@match, @team).odds(lines)

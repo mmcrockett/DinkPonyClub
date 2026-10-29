@@ -1,0 +1,43 @@
+<%# locals: (row:, match:, team:) %>
+<% player = row.player %>
+<% out = row.status == 'out' %>
+<% link_class = 'inline-flex rounded-md border border-gray-400 bg-white p-1.5 text-gray-600 hover:border-dpc-navy hover:text-dpc-navy' %>
+<% button_class = 'rounded-full border border-dpc-navy px-3 py-1 text-xs font-bold uppercase text-dpc-navy' %>
+<li class="mb-2 rounded-md border border-gray-300 bg-white px-3 py-3 text-sm last:mb-0 <%= 'opacity-60' if out %>">
+  <div class="grid grid-cols-[1fr_4rem_4rem] items-center">
+    <span class="flex items-center gap-1 font-bold text-dpc-navy">
+      <%= render 'matchups/status_icon', status: row.status %><%= player.full_name %>
+    </span>
+    <span class="text-right text-gray-600"><%= pupr_label(row) %></span>
+    <span class="text-right text-gray-600"><%= rating_label(row) %></span>
+  </div>
+  <div class="mt-2 flex items-center justify-between gap-2">
+    <div class="flex items-center gap-2">
+      <% if player.phone.present? %>
+        <%= link_to "tel:#{player.phone}", class: link_class, title: player.phone,
+                    aria: { label: t('matchups.show.call', name: player.full_name) } do %>
+          <%= render 'shared/icon', name: 'phone', class: 'h-5 w-5' %>
+        <% end %>
+        <%= link_to "sms:#{player.phone}", class: link_class, aria: { label: t('matchups.show.text_message', name: player.full_name) } do %>
+          <%= render 'shared/icon', name: 'chat-bubble-left', class: 'h-5 w-5' %>
+        <% end %>
+      <% end %>
+      <% if player.email.present? %>
+        <%= mail_to player.email, class: link_class, title: player.email,
+                    aria: { label: t('matchups.show.email_player', name: player.full_name) } do %>
+          <%= render 'shared/icon', name: 'envelope', class: 'h-5 w-5' %>
+        <% end %>
+      <% end %>
+    </div>
+    <div class="flex items-center gap-2">
+      <button type="button" class="<%= button_class %>" data-action="lineup-move#markSub" data-sub-id="<%= player.id %>"
+              data-status="<%= out ? 'maybe' : 'out' %>" data-url="<%= match_team_sub_path(match, team, player) %>">
+        <%= out ? t('matchups.show.undo_out') : t('matchups.show.mark_out') %>
+      </button>
+      <% unless out %>
+        <button type="button" class="<%= button_class %> border-2 bg-dpc-navy text-white" data-action="lineup-move#addSub"
+                data-sub-id="<%= player.id %>"><%= t('matchups.show.add') %></button>
+      <% end %>
+    </div>
+  </div>
+</li>

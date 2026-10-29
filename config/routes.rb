@@ -24,6 +24,7 @@ Rails.application.routes.draw do
     end
   end
   get   'matches/:match_id/teams/:team_id/subs', to: 'lineup_plans#subs', as: :match_team_subs
+  patch 'matches/:match_id/teams/:team_id/subs/:player_id', to: 'lineup_plans#sub_status', as: :match_team_sub
   get   'matches/:match_id/teams/:team_id/odds', to: 'lineup_plans#odds', as: :match_team_odds
   patch 'matches/:match_id/teams/:team_id/lineup', to: 'lineup_plans#update', as: :match_team_lineup
   resources :players, only: %i[index show]

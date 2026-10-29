@@ -26,8 +26,26 @@ export default class extends Controller {
 
   async openSubs() {
     this.subPanelTarget.showModal()
-    if (!this.subsLoaded) await this.loadSubs()
+    await this.loadSubs()
     this.renderSubList()
+  }
+
+  async markSub(event) {
+    const button = event.currentTarget
+    button.disabled = true
+    try {
+      const response = await fetch(button.dataset.url, {
+        method: "PATCH",
+        headers: { "X-CSRF-Token": document.querySelector("meta[name=csrf-token]")?.content },
+        body: new URLSearchParams({ status: button.dataset.status })
+      })
+      if (!response.ok) throw new Error(response.status)
+      await this.loadSubs()
+      this.renderSubList()
+    } catch {
+      button.disabled = false
+      this.subListTarget.prepend(this.listNote(this.failedValue))
+    }
   }
 
   closeSubs(event) {
@@ -35,11 +53,16 @@ export default class extends Controller {
   }
 
   async loadSubs() {
+    this.subsLoaded = false
     this.subListTarget.replaceChildren(this.listNote(this.loadingValue))
     try {
       const response = await fetch(this.subsUrlValue, { headers: { Accept: "text/html" } })
       if (!response.ok) throw new Error(response.status)
-      this.subSourcesTarget.insertAdjacentHTML("beforeend", await response.text())
+      const fetched = document.createElement("tbody")
+      fetched.innerHTML = await response.text()
+      this.subSourcesTarget.querySelectorAll("tr[data-fetched]").forEach((row) => row.remove())
+      for (const row of fetched.children) row.dataset.fetched = ""
+      this.subSourcesTarget.append(...fetched.children)
       this.subsLoaded = true
     } catch {
       this.subListTarget.replaceChildren(this.listNote(this.failedValue))
@@ -52,28 +75,9 @@ export default class extends Controller {
     const onPage = new Set(this.seatTargets.map((row) => row.dataset.playerId))
     const items = [...this.element.querySelectorAll("tr[data-sub-source]")]
       .filter((row) => !onPage.has(row.dataset.subId))
-      .map((row) => this.subItem(row))
+      .map((row) => row.querySelector("[data-slot=finder] li")?.cloneNode(true))
+      .filter(Boolean)
     this.subListTarget.replaceChildren(...(items.length ? items : [this.listNote(this.noSubsValue)]))
-  }
-
-  subItem(source) {
-    const item = document.createElement("li")
-    item.className = "mb-2 last:mb-0"
-    const button = document.createElement("button")
-    button.type = "button"
-    button.className = "grid w-full grid-cols-[1fr_4rem_4rem] items-center rounded-md border border-gray-300 bg-white px-3 py-3 text-left text-sm hover:bg-gray-50"
-    button.dataset.subId = source.dataset.subId
-    button.dataset.action = "lineup-move#addSub"
-    const text = (slot) => source.querySelector(`[data-slot=${slot}]`).textContent.trim()
-    const cells = [source.querySelector("[data-slot=name] span").textContent.trim(), text("pupr"), text("elo")]
-    cells.forEach((value, index) => {
-      const cell = document.createElement("span")
-      cell.className = index === 0 ? "font-bold text-dpc-navy" : "text-right text-gray-600"
-      cell.textContent = value
-      button.append(cell)
-    })
-    item.append(button)
-    return item
   }
 
   listNote(text) {

@@ -56,6 +56,81 @@ class LineupPlansControllerTest < ActionDispatch::IntegrationTest
     assert_match(/twice/, flash[:alert])
   end
 
+  test 'subs endpoint lists an out sub dimmed with an undo button and no add button' do
+    sub = Player.create!(first_name: 'Dana', last_name: 'Sub', phone: '555-0100', calendar_token: SecureRandom.hex(16))
+    MatchAvailability.create!(match_night: @match.match_night, player: sub, status: 'out')
+    sign_in_as players(:sc_home_captain)
+
+    get match_team_subs_path(@match, @home)
+
+    row = "tr[data-sub-id='#{sub.id}'] [data-slot=finder] li.opacity-60"
+
+    assert_select sub_rows, "#{row} button[data-status=maybe]", text: 'Undo'
+    assert_select sub_rows, "#{row} button[data-action='lineup-move#addSub']", count: 0
+    assert_select sub_rows, "#{row} a[href='tel:555-0100']"
+  end
+
+  test 'a captain marks an eligible sub out and the opponent captain sees it' do
+    sub = Player.create!(first_name: 'Dana', last_name: 'Sub', calendar_token: SecureRandom.hex(16))
+    sign_in_as players(:sc_home_captain)
+
+    patch match_team_sub_path(@match, @home, sub), params: { status: 'out' }
+
+    assert_response :no_content
+    assert_equal 'out', @match.match_night.match_availabilities.find_by!(player: sub).status
+    sign_in_as players(:sc_away_captain)
+    get match_team_subs_path(@match, teams(:sc_away))
+
+    assert_select sub_rows, "tr[data-sub-id='#{sub.id}'] li.opacity-60"
+  end
+
+  test 'undo sets an out sub back to maybe' do
+    sub = Player.create!(first_name: 'Dana', last_name: 'Sub', calendar_token: SecureRandom.hex(16))
+    MatchAvailability.create!(match_night: @match.match_night, player: sub, status: 'out')
+    sign_in_as players(:sc_home_captain)
+
+    patch match_team_sub_path(@match, @home, sub), params: { status: 'maybe' }
+
+    assert_equal 'maybe', @match.match_night.match_availabilities.find_by!(player: sub).status
+  end
+
+  test 'a captain cannot mark a sub in' do
+    sub = Player.create!(first_name: 'Dana', last_name: 'Sub', calendar_token: SecureRandom.hex(16))
+    sign_in_as players(:sc_home_captain)
+
+    patch match_team_sub_path(@match, @home, sub), params: { status: 'in' }
+
+    assert_response :unprocessable_content
+    assert_nil @match.match_night.match_availabilities.find_by(player: sub)
+  end
+
+  test 'a rostered player cannot be marked out through the sub endpoint' do
+    sign_in_as players(:sc_home_captain)
+
+    patch match_team_sub_path(@match, @home, players(:sc_home_player1)), params: { status: 'out' }
+
+    assert_response :not_found
+  end
+
+  test 'the other teams captain cannot mark a sub out for this team' do
+    sub = Player.create!(first_name: 'Dana', last_name: 'Sub', calendar_token: SecureRandom.hex(16))
+    sign_in_as players(:sc_away_captain)
+
+    patch match_team_sub_path(@match, @home, sub), params: { status: 'out' }
+
+    assert_redirected_to match_path(@match)
+  end
+
+  test 'sub status is locked once the night is canceled' do
+    sub = Player.create!(first_name: 'Dana', last_name: 'Sub', calendar_token: SecureRandom.hex(16))
+    @match.match_night.update!(canceled: true)
+    sign_in_as players(:sc_home_captain)
+
+    patch match_team_sub_path(@match, @home, sub), params: { status: 'out' }
+
+    assert_redirected_to match_path(@match)
+  end
+
   test 'odds endpoint previews money lines for an unsaved lineup' do
     LineupPick.create!(match: @match, team: teams(:sc_away), player: players(:sc_away_player1), position: 1, seat: 1)
     LineupPick.create!(match: @match, team: teams(:sc_away), player: players(:sc_away_player2), position: 1, seat: 2)
@@ -152,5 +227,11 @@ class LineupPlansControllerTest < ActionDispatch::IntegrationTest
     get match_path(@match)
 
     assert_select "a[href*='match_id=']", count: 0
+  end
+
+  private
+
+  def sub_rows
+    Nokogiri::HTML5("<table><tbody>#{response.body}</tbody></table>")
   end
 end

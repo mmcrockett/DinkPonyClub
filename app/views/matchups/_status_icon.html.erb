@@ -1,0 +1,10 @@
+<%# locals: (status:) %>
+<span class="inline-flex h-5 w-5 shrink-0 items-center justify-center">
+  <% icon, color = { 'in' => %w[check-circle text-green-700], 'maybe' => %w[question-mark-circle text-amber-500],
+                     'out' => %w[x-circle text-red-700] }[status] %>
+  <% if icon %>
+    <span class="inline-flex <%= color %>" title="<%= availability_status_label(status) %>">
+      <%= render 'shared/icon', name: icon, class: 'h-5 w-5' %><span class="sr-only"><%= availability_status_label(status) %></span>
+    </span>
+  <% end %>
+</span>

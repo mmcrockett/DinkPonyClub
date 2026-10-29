@@ -1,4 +1,5 @@
-<%# locals: (rows:, slots:) %>
+<%# locals: (rows:, slots:, match:, team:) %>
 <% rows.each do |row| %>
-  <%= render 'matchups/row', row: row, label: t('matchups.show.bench'), state: 'bench', editable: true, sub_source: true, slots: slots %>
+  <%= render 'matchups/row', row: row, label: t('matchups.show.bench'), state: 'bench', editable: true, sub_source: true, slots: slots,
+                             match: match, team: team %>
 <% end %>

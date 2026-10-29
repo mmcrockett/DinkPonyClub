@@ -20,14 +20,14 @@ class MatchupBoardTest < ActiveSupport::TestCase
     assert_not_empty @board.bench
   end
 
-  test 'sub_options offers unrostered players but not out ones or rostered ones' do
+  test 'sub_options offers unrostered players, out ones last, but not rostered ones' do
     free = Player.create!(first_name: 'Free', last_name: 'Agent', calendar_token: SecureRandom.hex(16))
     out = Player.create!(first_name: 'Out', last_name: 'Agent', calendar_token: SecureRandom.hex(16))
     MatchAvailability.create!(match_night: @match.match_night, player: out, status: 'out')
     options = MatchupBoard.new(@match, @team).sub_options.map(&:player)
 
     assert_includes options, free
-    assert_not_includes options, out
+    assert_equal out, options.last
     assert_not_includes options, @picked
   end
 
