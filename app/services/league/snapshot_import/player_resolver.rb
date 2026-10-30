@@ -28,12 +28,12 @@ module League
       end
 
       def find_by_name(person)
-        first_name, last_name = split_name(person['name'])
+        first_name, last_name = Player.split_name(person['name'])
         Player.find_by(first_name: first_name, last_name: last_name)
       end
 
       def create(person)
-        first_name, last_name = split_name(person['name'])
+        first_name, last_name = Player.split_name(person['name'])
         warn_missing_space(person, last_name)
         email = person['email'].to_s.strip.downcase.presence
         player = Player.create!(first_name: first_name, last_name: last_name, email: email, status: 'active')
@@ -45,13 +45,6 @@ module League
         return if person['name'].to_s.strip.include?(' ')
 
         report.warn("#{person['name']} has no space in its name; using \"#{last_name}\" as the last name.")
-      end
-
-      def split_name(name)
-        parts = name.to_s.strip.split
-        return [name.to_s.strip, '-'] if parts.size < 2
-
-        [parts[0..-2].join(' '), parts.last]
       end
 
       def fill_contact_details(player, person)

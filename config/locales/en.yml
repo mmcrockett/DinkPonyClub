@@ -68,6 +68,7 @@ en:
         email: "Email"
         payments: "Payments"
         schools: "Schools"
+        add_users: "Add users"
         roster: "Roster"
         no_season: "Create a season first."
         backup_warning: "Database backups are not working: no successful copy to MySQL in the last 3 hours. Check DatabaseBackupJob in the logs."
@@ -225,6 +226,14 @@ en:
           one: "Email sent to 1 player."
           other: "Email sent to %{count} players."
         no_email: "No email on file for %{names}."
+    player_imports:
+      new:
+        title: "Add users"
+        subtitle: "One per line: email, name, phone, school. Phone and school are optional; an unrecognised school is left unknown. Existing emails and phones are skipped."
+        lines: "Users"
+        submit: "Add users"
+      create:
+        summary: "Read %{read} imports, added %{added} users, %{existed} already existed, %{junk} was junk."
     rosters:
       show:
         title: "Roster & captains"

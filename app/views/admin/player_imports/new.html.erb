@@ -1,0 +1,20 @@
+<% content_for :title, t('.title') %>
+
+<div class="mx-auto flex max-w-2xl flex-col gap-6">
+  <div>
+    <h1 class="text-2xl font-extrabold text-dpc-navy"><%= t('.title') %></h1>
+    <p class="text-gray-500"><%= t('.subtitle') %></p>
+  </div>
+
+  <%= form_with scope: :player_import, url: admin_player_import_path(season: current_season),
+                class: 'flex flex-col gap-4' do |form| %>
+    <div class="flex flex-col gap-1 rounded-md bg-white p-5 shadow-sm">
+      <%= form.label :lines, t('.lines'), class: 'text-sm font-semibold text-dpc-navy' %>
+      <%= form.text_area :lines, rows: 15, class: 'form-input font-mono', placeholder: 'ada@example.com, Ada Lovelace, 512-555-0100, Lincoln High' %>
+    </div>
+
+    <div class="flex items-center justify-end">
+      <%= form.submit t('.submit'), class: 'btn btn-primary' %>
+    </div>
+  <% end %>
+</div>

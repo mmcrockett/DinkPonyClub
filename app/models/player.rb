@@ -48,6 +48,13 @@ class Player < ApplicationRecord
     player
   end
 
+  def self.split_name(name)
+    parts = name.to_s.strip.split
+    return [name.to_s.strip, '-'] if parts.size < 2
+
+    [parts[0..-2].join(' '), parts.last]
+  end
+
   def self.generate_calendar_token
     SecureRandom.urlsafe_base64(24)
   end

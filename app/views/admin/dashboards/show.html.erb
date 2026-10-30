@@ -37,6 +37,12 @@
         <span><%= t('.roster') %></span>
       </div>
       <div class="<%= tile %>">
+        <%= link_to new_admin_player_import_path(season: @season), title: t('admin.player_imports.new.title'), class: box do %>
+          <%= render 'shared/icon', name: 'user-plus', class: 'h-10 w-10' %>
+        <% end %>
+        <span><%= t('.add_users') %></span>
+      </div>
+      <div class="<%= tile %>">
         <%= link_to admin_schools_path, title: t('admin.schools.index.title'), class: box do %>
           <%= render 'shared/icon', name: 'academic-cap', class: 'h-10 w-10' %>
         <% end %>
