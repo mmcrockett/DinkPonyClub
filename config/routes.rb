@@ -64,6 +64,7 @@ Rails.application.routes.draw do
     end
     resource :payment_requests, only: %i[create]
     resource :announcement, only: %i[new create]
+    resource :player_import, only: %i[new create]
     resources :fees, only: %i[index create destroy]
     resources :schools, only: %i[index create update destroy]
     resource :roster, only: %i[show update]
