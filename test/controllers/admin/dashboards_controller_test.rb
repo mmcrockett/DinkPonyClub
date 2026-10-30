@@ -18,7 +18,7 @@ module Admin
       assert_select '[role=alert]', text: /Database backups are not working/
     end
 
-    test 'shows no backup warning when backups are healthy or not configured' do
+    test 'shows no backup warning when backups are not configured' do
       sign_in_as players(:zoe)
 
       get admin_root_path

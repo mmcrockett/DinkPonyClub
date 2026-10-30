@@ -10,7 +10,7 @@ class DatabaseBackupJob < ApplicationJob
     end
 
     started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-    counts = League::DatabaseCopy.new(source: :primary, target: :mysql_backup).call
+    counts = League::DatabaseCopy.new(source: :primary, target: :mysql_backup, protect_target: true).call
     DatabaseBackup.record_success
     log_result(counts, Process.clock_gettime(Process::CLOCK_MONOTONIC) - started)
   end

@@ -13,6 +13,8 @@ Every query to the shared MySQL host costs ~57ms, so the primary lives in `stora
 
 Deploy as normal (boot creates and migrates an empty SQLite file), then run `FROM=mysql_backup TO=primary bin/rails db:sync:copy`. Writes since the last hourly run are lost.
 
+Do this before the next minute-42 run. `DatabaseBackupJob` refuses to copy a completely empty primary over a populated backup, but it cannot tell a nearly empty primary from a real one, so if the restore will be delayed, remove `backup_database_to_mysql` from `config/recurring.yml` and redeploy first.
+
 ## Rollback
 
 Run `FROM=primary TO=mysql_backup bin/rails db:sync:copy`, then deploy a `database.yml` whose `primary` is the MySQL url.

@@ -16,13 +16,15 @@ module League
     BATCH_SIZE = 1000
     BASELINE_VERSION = '0'
 
-    def initialize(source:, target:)
+    def initialize(source:, target:, protect_target: false)
       @source = connect(Source, source)
       @target = connect(Target, target)
+      @protect_target = protect_target
     end
 
     def call
       verify_schema_versions!
+      verify_source_not_empty! if @protect_target
       @target.disable_referential_integrity do
         @target.transaction { tables.each { |table| replace(table) } }
       end
@@ -51,6 +53,16 @@ module League
       return if source_versions == target_versions
 
       raise Error, 'Schema versions differ; migrate both databases before copying'
+    end
+
+    def verify_source_not_empty!
+      return if total_rows(@source).positive? || total_rows(@target).zero?
+
+      raise Error, 'Refusing to replace a populated target with an empty source'
+    end
+
+    def total_rows(connection)
+      tables.sum { |table| count(connection, table) }
     end
 
     def versions(connection)

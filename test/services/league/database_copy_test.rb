@@ -47,6 +47,19 @@ module League
       assert_nothing_raised { DatabaseCopy.new(source: @source, target: @target).call }
     end
 
+    test 'protect_target refuses to replace a populated target with an empty source' do
+      error = assert_raises(DatabaseCopy::Error) do
+        DatabaseCopy.new(source: @target, target: @source, protect_target: true).call
+      end
+
+      assert_match(/empty source/, error.message)
+      assert_predicate Team, :any?
+    end
+
+    test 'protect_target still copies a populated source' do
+      assert_nothing_raised { DatabaseCopy.new(source: @source, target: @target, protect_target: true).call }
+    end
+
     test 'refuses to copy when schema versions differ' do
       DatabaseCopy::Target.establish_connection(@target)
       DatabaseCopy::Target.lease_connection.execute("INSERT INTO schema_migrations (version) VALUES ('1')")
