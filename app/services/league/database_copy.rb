@@ -14,6 +14,7 @@ module League
 
     SKIPPED_TABLES = %w[ar_internal_metadata schema_migrations].freeze
     BATCH_SIZE = 1000
+    BASELINE_VERSION = '0'
 
     def initialize(source:, target:)
       @source = connect(Source, source)
@@ -53,7 +54,7 @@ module League
     end
 
     def versions(connection)
-      connection.select_values('SELECT version FROM schema_migrations').sort
+      connection.select_values('SELECT version FROM schema_migrations').sort - [BASELINE_VERSION]
     end
 
     def replace(table)

@@ -40,6 +40,13 @@ module League
       assert_equal Team.order(:id).pluck(:name), target_rows('SELECT name FROM teams ORDER BY id').flatten
     end
 
+    test 'ignores the baseline schema version 0 when comparing schema versions' do
+      DatabaseCopy::Target.establish_connection(@target)
+      DatabaseCopy::Target.lease_connection.execute("INSERT INTO schema_migrations (version) VALUES ('0')")
+
+      assert_nothing_raised { DatabaseCopy.new(source: @source, target: @target).call }
+    end
+
     test 'refuses to copy when schema versions differ' do
       DatabaseCopy::Target.establish_connection(@target)
       DatabaseCopy::Target.lease_connection.execute("INSERT INTO schema_migrations (version) VALUES ('1')")
