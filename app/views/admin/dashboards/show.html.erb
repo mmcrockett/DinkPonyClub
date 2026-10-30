@@ -5,6 +5,10 @@
 <div class="mx-auto flex max-w-2xl flex-col gap-6">
   <h1 class="text-2xl font-extrabold text-dpc-navy"><%= t('.title') %></h1>
 
+  <% if @backup_warning %>
+    <p role="alert" class="rounded-md border border-amber-500 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-900"><%= t('.backup_warning') %></p>
+  <% end %>
+
   <% if @season %>
     <nav aria-label="Admin" class="flex flex-wrap items-start gap-4">
       <div class="<%= tile %>">

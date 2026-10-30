@@ -70,6 +70,7 @@ en:
         schools: "Schools"
         roster: "Roster"
         no_season: "Create a season first."
+        backup_warning: "Database backups are not working: no successful copy to MySQL in the last 3 hours. Check DatabaseBackupJob in the logs."
     players:
       create:
         created: "%{name} was added."

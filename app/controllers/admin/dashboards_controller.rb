@@ -8,6 +8,7 @@ module Admin
 
     def show
       @season = current_season
+      @backup_warning = DatabaseBackup.warn?
     end
   end
 end

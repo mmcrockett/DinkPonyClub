@@ -7,7 +7,7 @@ Every query to the shared MySQL host costs ~57ms, so the primary lives in `stora
 1. Deploy the branch with `League::DatabaseCopy` and the `sqlite_primary` config (still reading MySQL). Boot-time `db:prepare` creates and migrates the empty SQLite file.
 2. Pick a quiet time. In the web container run `FROM=primary TO=sqlite_primary bin/rails db:sync:copy` and check the printed row counts against MySQL.
 3. Deploy the branch that makes `primary` the SQLite file and adds `mysql_backup` plus `DatabaseBackupJob`. Writes made to MySQL after step 2 are not carried over, so keep the window short.
-4. After the first `DatabaseBackupJob` run (minute 42), check the log line `DatabaseBackupJob: copied in ...` has the same counts as the app.
+4. After the first `DatabaseBackupJob` run (minute 42), check the log line `DatabaseBackupJob: copied in ...` has the same counts as the app. The admin dashboard shows a backup warning from deploy until that first run succeeds, and again whenever no successful copy has been recorded in 3 hours.
 
 ## Restore after losing the volume
 
