@@ -131,14 +131,14 @@ export default class extends Controller {
 
   read(row) {
     const cell = (slot) => row.querySelector(`[data-slot=${slot}]`).innerHTML
-    return { id: row.dataset.playerId, name: cell("name"), pupr: cell("pupr"), elo: cell("elo") }
+    return { id: row.dataset.playerId, name: cell("name"), pupr: cell("pupr"), elo: row.dataset.elo }
   }
 
   write(row, payload) {
     row.dataset.playerId = payload.id
     row.querySelector("[data-slot=name]").innerHTML = payload.name
     row.querySelector("[data-slot=pupr]").innerHTML = payload.pupr
-    row.querySelector("[data-slot=elo]").innerHTML = payload.elo
+    row.dataset.elo = payload.elo
   }
 
   emptyPayload() {
@@ -168,15 +168,15 @@ export default class extends Controller {
   }
 
   refreshAverages() {
-    const mean = (rows, slot, digits) => {
-      const numbers = rows.map((row) => parseFloat(row.querySelector(`[data-slot=${slot}]`).textContent)).filter((n) => !isNaN(n))
+    const mean = (rows, read, digits) => {
+      const numbers = rows.map(read).map(parseFloat).filter((n) => !isNaN(n))
       return numbers.length ? (numbers.reduce((a, b) => a + b, 0) / numbers.length).toFixed(digits) : "-"
     }
     const filled = this.seatTargets.filter((row) => row.dataset.position && row.dataset.playerId)
     const pupr = document.querySelector("[data-score=pupr]")
     const elo = document.querySelector("[data-score=elo]")
-    if (pupr) pupr.textContent = mean(filled, "pupr", 2)
-    if (elo) elo.textContent = mean(filled, "elo", 0)
+    if (pupr) pupr.textContent = mean(filled, (row) => row.querySelector("[data-slot=pupr]").textContent, 2)
+    if (elo) elo.textContent = mean(filled, (row) => row.dataset.elo, 0)
   }
 
   refreshOdds() {

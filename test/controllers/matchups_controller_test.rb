@@ -33,7 +33,7 @@ class MatchupsControllerTest < ActionDispatch::IntegrationTest
 
     get season_matchup_path(@season)
 
-    assert_select 'td', text: "Line 1 - #{slot.label}, Ct 2"
+    assert_select 'td[title=?]', "#{slot.label}, Ct 2", text: 'L-1'
     assert_select 'span[title=?]', 'Said no to this time'
   end
 
@@ -64,7 +64,7 @@ class MatchupsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select 'th', text: 'PUPR'
-    assert_select 'td', text: 'Line 1', minimum: 2
+    assert_select 'td', text: 'L-1', minimum: 2
     assert_select 'td', text: players(:sc_home_player1).full_name
   end
 

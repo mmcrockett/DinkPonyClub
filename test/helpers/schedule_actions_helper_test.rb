@@ -22,4 +22,13 @@ class ScheduleActionsHelperTest < ActionView::TestCase
     assert_includes html, '2 - 1'
     assert_not_includes html, '<svg'
   end
+
+  test 'matchup_center shows the running score once any game is scored' do
+    match = matches(:fall_future)
+    lineup = match.lineups.create!(position: 1)
+    lineup.games.create!(number: 1, home_score: 11, away_score: 4, home_player_a: players(:ada),
+                         home_player_b: players(:grace), away_player_a: players(:sam), away_player_b: players(:ben))
+
+    assert_includes matchup_center(match.reload, nil), '1 - 0'
+  end
 end

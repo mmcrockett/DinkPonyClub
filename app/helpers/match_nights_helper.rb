@@ -18,7 +18,7 @@ module MatchNightsHelper
   end
 
   def match_score_label(match)
-    return t('match_nights.schedule.vs') unless match.complete?
+    return t('match_nights.schedule.vs') if match.lineups.none? { |lineup| lineup.games.any? }
 
     result = MatchResult.new(match)
     "#{format_points(result.home_points)} - #{format_points(result.away_points)}"

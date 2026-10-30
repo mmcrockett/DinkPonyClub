@@ -56,7 +56,6 @@
                   <th class="px-4 py-2"><%= t('.slot') %></th>
                   <th class="px-4 py-2"><%= t('.player') %></th>
                   <th class="px-4 py-2 text-right"><%= t('.pupr') %></th>
-                  <th class="px-4 py-2 text-right"><%= t('.elo') %></th>
                   <% if @editable %>
                     <th class="px-4 py-2 text-right">
                       <button type="button" class="rounded-full border border-dpc-navy px-3 py-1 text-xs font-bold uppercase text-dpc-navy"
@@ -69,15 +68,12 @@
               <% @board.lines.each do |position, rows| %>
                 <% state = rows.count(&:player) >= 2 ? 'complete' : 'incomplete' %>
                 <% assignment = @line_assignments[position] %>
-                <% line_label = if assignment
-                                  t('.line_at', number: position, time: assignment.match_slot.label, court: assignment.court)
-                                else
-                                  t('.line', number: position)
-                                end %>
+                <% line_label = t('.line', number: position) %>
+                <% line_title = (t('.line_at', time: assignment.match_slot.label, court: assignment.court) if assignment) %>
                 <tbody class="border-b border-gray-200" data-line-group="<%= position %>">
                   <% rows.each_with_index do |row, index| %>
                     <% extra = index >= MatchupBoard::MIN_SEATS %>
-                    <%= render 'row', row: row, label: extra ? t('.extra') : line_label, state: state,
+                    <%= render 'row', row: row, label: extra ? t('.extra') : line_label, label_title: line_title, state: state,
                                       assigned_slot_id: assignment&.match_slot_id,
                                       position: position, editable: @editable, extra: extra, slots: @board.slots,
                                       line_odds: (@board.odds.line_moneylines.dig(position, :mine) || '-' if index.zero?),
