@@ -148,7 +148,7 @@ class MatchupsControllerTest < ActionDispatch::IntegrationTest
     assert_select 'td[data-slot=name]', text: /#{players(:sc_away_player1).full_name}/
   end
 
-  test 'admin gets an edit link on the opponent panel' do
+  test 'admin gets an edit lineup link on the match cards' do
     sign_in_as players(:zoe)
 
     get season_matchup_path(@season, team_id: teams(:sc_home).id, match_id: @match.id)
