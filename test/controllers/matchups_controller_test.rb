@@ -148,6 +148,23 @@ class MatchupsControllerTest < ActionDispatch::IntegrationTest
     assert_select 'td[data-slot=name]', text: /#{players(:sc_away_player1).full_name}/
   end
 
+  test 'admin gets an edit lineup link on the match cards' do
+    sign_in_as players(:zoe)
+
+    get season_matchup_path(@season, team_id: teams(:sc_home).id, match_id: @match.id)
+
+    assert_select 'a[href=?]', season_matchup_path(@match.season_id, team_id: teams(:sc_away).id, match_id: @match.id)
+  end
+
+  test 'captain gets no edit link for the opposing team' do
+    sign_in_as players(:sc_home_captain)
+
+    get season_matchup_path(@season, team_id: teams(:sc_home).id, match_id: @match.id)
+
+    assert_select 'a[href=?]', season_matchup_path(@match.season_id, team_id: teams(:sc_away).id, match_id: @match.id),
+                  count: 0
+  end
+
   test 'scoreboard shows both teams and a money line for each' do
     sign_in_as players(:sc_home_captain)
 
