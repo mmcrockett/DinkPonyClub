@@ -81,6 +81,22 @@ class MatchupsControllerTest < ActionDispatch::IntegrationTest
     assert_select 'button[data-role=move]', count: 0
   end
 
+  test 'player names link to their season page except own team while editing' do
+    LineupPick.create!(match: @match, team: teams(:sc_home), player: players(:sc_home_player1), position: 1, seat: 1)
+    LineupPick.create!(match: @match, team: teams(:sc_away), player: players(:sc_away_player1), position: 1, seat: 1)
+    sign_in_as players(:sc_home_captain)
+
+    get season_matchup_path(@season)
+
+    assert_select 'td[data-slot=name] a[href=?]', season_player_path(@season, players(:sc_away_player1))
+    assert_select 'td[data-slot=name] a[href=?]', season_player_path(@season, players(:sc_home_player1)), count: 0
+
+    @match.lineups.create!(position: 1)
+    get season_matchup_path(@season)
+
+    assert_select 'td[data-slot=name] a[href=?]', season_player_path(@season, players(:sc_home_player1))
+  end
+
   test 'rows are marked complete, incomplete, or bench' do
     home = teams(:sc_home)
     LineupPick.create!(match: @match, team: home, player: players(:sc_home_player1), position: 1, seat: 1)
