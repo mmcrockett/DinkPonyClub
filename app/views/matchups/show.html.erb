@@ -80,7 +80,7 @@
                                       assigned_slot_id: assignment&.match_slot_id,
                                       position: position, editable: @editable, extra: extra, slots: @board.slots,
                                       line_odds: (@board.odds.line_moneylines.dig(position, :mine) || '-' if index.zero?),
-                                      odds_side: 'mine', odds_span: rows.size %>
+                                      odds_side: 'mine', odds_span: rows.size, season: @season %>
                   <% end %>
                 </tbody>
               <% end %>
@@ -89,7 +89,7 @@
                   <%= render 'row', row: MatchupBoard::EMPTY_ROW, label: t('.bench'), state: 'bench', editable: true, bench_new: true %>
                 <% end %>
                 <% @board.bench.each do |row| %>
-                  <%= render 'row', row: row, label: t('.bench'), state: 'bench', editable: @editable, slots: @board.slots %>
+                  <%= render 'row', row: row, label: t('.bench'), state: 'bench', editable: @editable, slots: @board.slots, season: @season %>
                 <% end %>
                 <% if @editable %>
                   <% @board.picked_subs.each do |row| %>
@@ -127,7 +127,7 @@
       </div>
 
       <div class="w-[88%] shrink-0 snap-center md:w-auto">
-        <%= render 'opponent_panel', board: @board %>
+        <%= render 'opponent_panel', board: @board, season: @season %>
       </div>
     </div>
   <% else %>
