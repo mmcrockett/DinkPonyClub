@@ -1,30 +1,37 @@
 <%# locals: (night:, schedule:) %>
 <% options = schedule.lines.map do |match, position|
      [t('admin.match_nights.edit.line_option', home: match.home_team.name, away: match.away_team.name, number: position),
-      "#{match.id}-#{position}"]
-   end %>
+      "#{match.id}-#{position}",
+      { data: { players: schedule.line_players(match, position) } }]
+   end
+   unplaced = schedule.unplaced.map { |match, position| "#{match.id}-#{position}" } %>
 <section class="flex flex-col gap-3 rounded-md bg-white p-5 shadow-sm">
   <h2 class="font-semibold text-dpc-navy"><%= t('admin.match_nights.edit.courts') %></h2>
-  <%= form_with url: admin_match_night_court_schedule_path(night), method: :patch, class: 'flex flex-col gap-3' do %>
+  <%= form_with url: admin_match_night_court_schedule_path(night), method: :patch, class: 'flex flex-col gap-3',
+                data: { controller: 'court-schedule', court_schedule_no_lineup_value: t('admin.match_nights.edit.lineup_not_set') } do %>
     <div class="overflow-x-auto">
-      <table class="w-full text-left text-sm">
+      <table class="w-full border-collapse text-left text-sm">
         <thead class="text-xs font-bold uppercase text-gray-500">
-          <tr>
+          <tr class="border-b-2 border-gray-300">
             <th class="py-2 pr-3"><%= t('admin.match_nights.edit.time') %></th>
             <% CourtAssignment::COURTS.each do |court| %>
-              <th class="px-1 py-2"><%= t('admin.match_nights.edit.court', number: court) %></th>
+              <th class="border-l border-gray-200 px-2 py-2"><%= t('admin.match_nights.edit.court', number: court) %></th>
             <% end %>
           </tr>
         </thead>
         <tbody>
-          <% schedule.rows.each do |slot, _cells| %>
-            <tr>
-              <th class="whitespace-nowrap py-1 pr-3 font-semibold text-dpc-navy"><%= slot.label %></th>
+          <% schedule.rows.each do |slot, cells| %>
+            <tr class="border-b border-gray-200 align-top">
+              <th class="whitespace-nowrap py-2 pr-3 font-semibold text-dpc-navy"><%= slot.label %></th>
               <% CourtAssignment::COURTS.each do |court| %>
-                <td class="px-1 py-1">
+                <% cell = cells[court] %>
+                <td class="border-l border-gray-200 px-2 py-2">
                   <%= select_tag "cells[#{slot.id}][#{court}]", options_for_select(options, schedule.selected(slot, court)),
-                                 include_blank: true, class: 'form-input w-full min-w-40',
+                                 include_blank: true, class: 'form-input w-full min-w-48',
+                                 data: { court_schedule_target: 'select', action: 'change->court-schedule#refresh' },
                                  aria: { label: "#{slot.label} #{t('admin.match_nights.edit.court', number: court)}" } %>
+                  <p class="mt-1 min-h-4 text-xs text-gray-600" data-court-schedule-target="players"><%=
+                    cell && (schedule.line_players(cell.match, cell.position) || t('admin.match_nights.edit.lineup_not_set')) %></p>
                 </td>
               <% end %>
             </tr>
@@ -33,14 +40,19 @@
       </table>
     </div>
     <div class="flex flex-wrap items-center justify-between gap-2">
-      <p class="text-sm text-gray-500">
-        <% if schedule.unplaced.any? %>
+      <div class="text-sm text-gray-500">
+        <div data-court-schedule-target="unplaced" <%= 'hidden' if unplaced.empty? %>>
           <%= t('admin.match_nights.edit.unplaced') %>:
-          <%= schedule.unplaced.map { |match, position| "#{match.home_team.name} v #{match.away_team.name} L#{position}" }.to_sentence %>
-        <% else %>
-          <%= t('admin.match_nights.edit.none_unplaced') %>
-        <% end %>
-      </p>
+          <ul class="inline-flex flex-wrap gap-x-3">
+            <% schedule.lines.each do |match, position| %>
+              <% key = "#{match.id}-#{position}" %>
+              <%= tag.li "#{match.home_team.name} v #{match.away_team.name} L#{position}",
+                         data: { line: key, court_schedule_target: 'unplacedItem' }, hidden: unplaced.exclude?(key) %>
+            <% end %>
+          </ul>
+        </div>
+        <div data-court-schedule-target="allPlaced" <%= 'hidden' if unplaced.any? %>><%= t('admin.match_nights.edit.none_unplaced') %></div>
+      </div>
       <%= submit_tag t('admin.match_nights.edit.save'), class: 'btn btn-secondary' %>
     </div>
     <% schedule.conflicts.each do |conflict| %>

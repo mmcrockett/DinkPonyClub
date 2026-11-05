@@ -35,6 +35,17 @@ class CourtScheduleTest < ActiveSupport::TestCase
     assert_equal [players(:sam)], cell.away_players
   end
 
+  test 'line_players names both sides, falling back to the team when a side is empty' do
+    pick(players(:grace), 1, seat: 2)
+    pick(players(:ada), 1, seat: 1)
+
+    assert_equal "Ada Testerson & Grace Fixture vs #{teams(:bravo).name}", schedule.line_players(@match, 1)
+  end
+
+  test 'line_players is nil when nobody is picked' do
+    assert_nil schedule.line_players(@match, 1)
+  end
+
   test 'unplaced lists the lines with no court yet' do
     assert_equal [2, 3, 4, 5], schedule.unplaced.map(&:last)
   end
