@@ -55,5 +55,15 @@ module Admin
       assert_response :success
       assert_select 'select[name=?]', "cells[#{@slot.id}][1]"
     end
+
+    test 'the grid labels options with the line number first and carries each line players' do
+      LineupPick.create!(match: @match, team: teams(:alpha), player: players(:ada), position: 1, seat: 1)
+      sign_in_as players(:zoe)
+
+      get edit_admin_match_night_path(@night)
+
+      assert_select 'option', text: /\AL1: /
+      assert_select 'option[data-players*=?]', players(:ada).full_name
+    end
   end
 end

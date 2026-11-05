@@ -118,7 +118,8 @@ en:
         court: "Court %{number}"
         unplaced: "Not placed yet"
         none_unplaced: "Every line is placed."
-        line_option: "%{home} v %{away} - L%{number}"
+        line_option: "L%{number}: %{home} v %{away}"
+        lineup_not_set: "Lineup not set"
         conflict:
           declined: "%{player} said no to %{time}."
           double_booked: "%{player} is in two lines at %{time}."

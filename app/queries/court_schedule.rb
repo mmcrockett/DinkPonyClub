@@ -23,6 +23,14 @@ class CourtSchedule
     @lines ||= matches.flat_map { |match| match.line_positions.map { |position| [match, position] } }
   end
 
+  def line_players(match, position)
+    home = players_for(match, match.home_team_id, position)
+    away = players_for(match, match.away_team_id, position)
+    return if home.empty? && away.empty?
+
+    "#{side_names(home, match.home_team)} vs #{side_names(away, match.away_team)}"
+  end
+
   def selected(slot, court)
     cell = cells[[slot.id, court]]
     "#{cell.match.id}-#{cell.position}" if cell
@@ -66,6 +74,10 @@ class CourtSchedule
   def players_for(match, team_id, position)
     match.lineup_picks.select { |pick| pick.team_id == team_id && pick.position == position }
          .sort_by(&:seat).map(&:player)
+  end
+
+  def side_names(players, team)
+    players.empty? ? team.name : players.map(&:full_name).join(' & ')
   end
 
   def players_by_slot
