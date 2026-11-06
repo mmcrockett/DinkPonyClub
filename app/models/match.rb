@@ -15,6 +15,9 @@ class Match < ApplicationRecord
   validate :teams_are_different
   validate :teams_rostered_in_season
   validate :season_matches_night
+  validate :round_only_on_playoff_night
+
+  enum :round, { semifinal: 'semifinal', final: 'final' }, validate: { allow_nil: true }
 
   after_update :drop_stale_lineup_picks, if: -> { saved_change_to_home_team_id? || saved_change_to_away_team_id? }
 
@@ -22,6 +25,10 @@ class Match < ApplicationRecord
 
   def complete?
     lineups.any? && lineups.all?(&:complete?)
+  end
+
+  def played?
+    lineups.any? { |lineup| lineup.games.any? }
   end
 
   private
@@ -49,5 +56,11 @@ class Match < ApplicationRecord
     return if season_id == match_night.season_id
 
     errors.add(:match_night, "must belong to this match's season")
+  end
+
+  def round_only_on_playoff_night
+    return if round.blank? || match_night&.playoff?
+
+    errors.add(:round, 'is only allowed on a playoff night')
   end
 end

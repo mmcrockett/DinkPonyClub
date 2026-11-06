@@ -100,6 +100,8 @@ en:
         details: "Details"
         times: "Times"
         matchups: "Matchups"
+        seed_playoffs: "Seed playoffs"
+        create_final: "Create final"
         label: "Label"
         date: "Date"
         lines: "Lines"
@@ -132,6 +134,11 @@ en:
         remove: "Delete matchup"
         confirm_remove: "Delete this matchup?"
         none: "No matchups yet."
+    playoff_brackets:
+      create:
+        seeded: "Semifinals seeded for %{label}."
+      final:
+        final_created: "Final created for %{label}."
     matches:
       played: "%{label} has games on record - matchups can't be changed."
       canceled: "%{label} is canceled - matchups can't be changed."
@@ -277,6 +284,12 @@ en:
     update:
       saved: "Scorecard saved."
   match_nights:
+    bracket:
+      title: "Playoff bracket"
+      semifinal: "Semifinal"
+      final: "Final"
+      champion: "Champion"
+      tbd: "TBD"
     court_schedule:
       title: "Courts"
       time: "Time"

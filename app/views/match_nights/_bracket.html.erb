@@ -1,0 +1,25 @@
+<section class="flex flex-col gap-3 rounded-md bg-white p-5 shadow-sm">
+  <h2 class="font-semibold text-dpc-navy"><%= t('match_nights.bracket.title') %></h2>
+  <div class="grid gap-3 sm:grid-cols-3">
+    <% slots = [[:semifinal, bracket.semifinals[0]], [:semifinal, bracket.semifinals[1]], [:final, bracket.final]] %>
+    <% slots.each do |round, match| %>
+      <div class="rounded-md border border-gray-200 p-3 text-sm">
+        <p class="text-xs font-bold uppercase text-gray-500"><%= t("match_nights.bracket.#{round}") %></p>
+        <% if match %>
+          <% winner = bracket.advancing(match) %>
+          <% [match.home_team, match.away_team].each do |team| %>
+            <p class="<%= team == winner ? 'font-bold text-dpc-navy' : 'text-gray-600' %>"><%= team.name %></p>
+          <% end %>
+          <% if match.complete? %>
+            <p class="text-gray-500"><%= match_score_label(match) %></p>
+          <% end %>
+        <% else %>
+          <p class="text-gray-400"><%= t('match_nights.bracket.tbd') %></p>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+  <% if bracket.champion %>
+    <p class="font-bold text-dpc-navy"><%= t('match_nights.bracket.champion') %>: <%= bracket.champion.name %></p>
+  <% end %>
+</section>

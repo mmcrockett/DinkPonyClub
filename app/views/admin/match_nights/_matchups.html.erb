@@ -1,6 +1,9 @@
 <div class="flex flex-col gap-3">
   <% night.matches.each do |match| %>
-    <% if played %>
+    <% if match.round %>
+      <span class="text-xs font-bold uppercase text-gray-500"><%= t("match_nights.bracket.#{match.round}") %></span>
+    <% end %>
+    <% if match.played? %>
       <p class="text-sm">
         <%= match.home_team.name %> <span class="text-gray-400"><%= t('.vs') %></span> <%= match.away_team.name %>
       </p>

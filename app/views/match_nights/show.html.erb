@@ -5,6 +5,10 @@
               class: 'text-dpc-navy font-semibold' %>
 
   <%= render 'match_night', match_night: @match_night %>
+  <% bracket = PlayoffBracket.new(@match_night) %>
+  <% if bracket.any? %>
+    <%= render 'bracket', bracket: bracket %>
+  <% end %>
   <% if @court_schedule&.any? && !@match_night.canceled? %>
     <%= render 'court_schedule', schedule: @court_schedule %>
   <% end %>
