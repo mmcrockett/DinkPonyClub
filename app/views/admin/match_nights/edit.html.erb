@@ -34,6 +34,10 @@
         <%= form.select :lines_count, @season.lines_per_match.downto(1).map { |n| [t('.lines_option', count: n), n] },
                         { selected: @match_night.line_count }, class: 'form-input', aria: { label: t('.lines') } %>
       <% end %>
+      <label class="flex items-center gap-2 text-sm text-dpc-navy">
+        <%= form.check_box :playoff %>
+        <%= t('match_nights.schedule.playoffs') %>
+      </label>
       <%= form.submit t('.save'), class: 'btn btn-secondary' %>
     <% end %>
   </section>

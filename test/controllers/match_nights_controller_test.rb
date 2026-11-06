@@ -80,6 +80,17 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "##{dom_id(match_nights(:fall_canceled))}", text: /Canceled/
     assert_select "##{dom_id(match_nights(:fall_playoff))}", text: /Playoffs/
+    assert_select "##{dom_id(match_nights(:fall_playoff))}", text: /Scheduled/
+  end
+
+  test 'a completed playoff night shows both the playoffs and final pills' do
+    sign_in_as
+    match_nights(:fall_week_one).update!(playoff: true)
+
+    get season_match_nights_path(seasons(:fall))
+
+    assert_select "##{dom_id(match_nights(:fall_week_one))}", text: /Playoffs/
+    assert_select "##{dom_id(match_nights(:fall_week_one))}", text: /Final/
   end
 
   test 'canceled night shows only its label and pill' do

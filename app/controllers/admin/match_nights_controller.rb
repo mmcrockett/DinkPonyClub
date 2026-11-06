@@ -33,7 +33,7 @@ module Admin
 
     def update
       match_night = MatchNight.find(params.expect(:id))
-      flash_key, message = if match_night.update(params.expect(match_night: %i[label played_on lines_count]))
+      flash_key, message = if match_night.update(params.expect(match_night: %i[label played_on lines_count playoff]))
                              [:notice, t('.updated', label: match_night.label)]
                            else
                              [:alert, match_night.errors.full_messages.to_sentence]

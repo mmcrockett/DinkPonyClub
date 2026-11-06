@@ -163,6 +163,26 @@ module Admin
       assert_equal 'Week 3', match_nights(:fall_upcoming).reload.label
     end
 
+    test 'sets and clears the playoff flag for an admin' do
+      sign_in_as players(:zoe)
+
+      patch admin_match_night_path(match_nights(:fall_upcoming)), params: { match_night: { playoff: '1' } }
+
+      assert_predicate match_nights(:fall_upcoming).reload, :playoff?
+
+      patch admin_match_night_path(match_nights(:fall_upcoming)), params: { match_night: { playoff: '0' } }
+
+      assert_not match_nights(:fall_upcoming).reload.playoff?
+    end
+
+    test 'edit offers the playoff checkbox' do
+      sign_in_as players(:zoe)
+
+      get edit_admin_match_night_path(match_nights(:fall_playoff))
+
+      assert_select "input[type=checkbox][name='match_night[playoff]'][checked]", count: 1
+    end
+
     test 'sets and clears a lower line count for an admin' do
       sign_in_as players(:zoe)
       night = match_nights(:fall_upcoming)
