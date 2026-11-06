@@ -33,7 +33,7 @@ export default class extends Controller {
     const row = input.closest("[data-line]")
     this.highlight(row)
     this.dirtyRows.add(row)
-    if (input.value.length >= 2) this.focusNext(input)
+    if (input.value.length >= 2 || (input.value !== "" && input.value !== "1")) this.focusNext(input)
     this.queueSave()
   }
 

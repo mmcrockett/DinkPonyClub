@@ -1,10 +1,11 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["seat", "save", "subSources", "subPanel", "subList"]
+  static targets = ["seat", "status", "subSources", "subPanel", "subList"]
   static values = {
     empty: String, move: String, cancel: String,
-    subsUrl: String, oddsUrl: String, here: String, extraHere: String, loading: String, noSubs: String, failed: String
+    subsUrl: String, oddsUrl: String, here: String, extraHere: String, loading: String, noSubs: String, failed: String,
+    saving: String, saved: String, saveFailed: String
   }
 
   move(event) {
@@ -21,7 +22,49 @@ export default class extends Controller {
     this.clearSource()
     this.source = null
     this.refresh()
-    this.saveTarget.disabled = false
+    this.queueSave()
+  }
+
+  disconnect() {
+    clearTimeout(this.saveTimer)
+  }
+
+  queueSave() {
+    this.statusTarget.textContent = this.savingValue
+    clearTimeout(this.saveTimer)
+    this.saveTimer = setTimeout(() => this.save(), 300)
+  }
+
+  async save() {
+    if (this.saving) {
+      this.saveAgain = true
+      return
+    }
+    this.saving = true
+    this.saveAgain = false
+    let ok = false
+    try {
+      const response = await fetch(this.element.action, {
+        method: "PATCH",
+        body: new FormData(this.element),
+        headers: { Accept: "application/json", "X-CSRF-Token": document.querySelector("meta[name=csrf-token]")?.content ?? "" }
+      })
+      ok = response.ok
+      this.showSaveResult(ok, ok ? "" : ((await response.json().catch(() => ({}))).errors || []).join(" "))
+    } catch {
+      this.showSaveResult(false, "")
+    } finally {
+      this.saving = false
+      if (this.saveAgain) this.queueSave()
+    }
+  }
+
+  showSaveResult(ok, detail) {
+    if (this.saveAgain) return
+    const time = new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })
+    this.statusTarget.textContent = ok ? `${this.savedValue} ${time}` : `${this.saveFailedValue} ${detail}`.trim()
+    this.statusTarget.classList.toggle("text-red-700", !ok)
+    this.statusTarget.classList.toggle("text-gray-600", ok)
   }
 
   async openSubs() {
@@ -101,7 +144,7 @@ export default class extends Controller {
     const row = event.currentTarget.closest("tr")
     if (row.dataset.position) {
       this.write(row, this.emptyPayload())
-      this.saveTarget.disabled = false
+      this.queueSave()
     } else {
       row.remove()
     }
