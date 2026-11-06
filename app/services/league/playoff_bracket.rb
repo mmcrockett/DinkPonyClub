@@ -27,9 +27,11 @@ module League
       raise Error, 'Both semifinals must be complete' unless bracket.ready_for_final?
 
       semifinals = bracket.semifinals
-      final = create_match(*semifinals.map { |semifinal| bracket.advancing(semifinal) }, :final)
-      semifinals.each { |semifinal| copy_picks(semifinal, final) }
-      final
+      Match.transaction do
+        final = create_match(*semifinals.map { |semifinal| bracket.advancing(semifinal) }, :final)
+        semifinals.each { |semifinal| copy_picks(semifinal, final) }
+        final
+      end
     end
 
     private
