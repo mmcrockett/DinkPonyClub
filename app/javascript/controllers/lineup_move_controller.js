@@ -49,7 +49,7 @@ export default class extends Controller {
         body: new FormData(this.element),
         headers: { Accept: "application/json", "X-CSRF-Token": document.querySelector("meta[name=csrf-token]")?.content ?? "" }
       })
-      ok = response.ok
+      ok = response.ok && !response.redirected
       this.showSaveResult(ok, ok ? "" : ((await response.json().catch(() => ({}))).errors || []).join(" "))
     } catch {
       this.showSaveResult(false, "")
