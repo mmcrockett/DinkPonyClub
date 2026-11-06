@@ -152,7 +152,7 @@ en:
     match_players:
       unscored: "No results are recorded for this match yet - set the lineup from the Matchup page."
       edit:
-        title: "Fix players"
+        title: "Admin override"
         hint: "Scores stay as entered. On a three-player line the seat order decides who played which game."
         save: "Save players"
         seat: "Seat %{number}"

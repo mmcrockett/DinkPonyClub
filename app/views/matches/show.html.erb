@@ -47,7 +47,7 @@
     <% end %>
 
     <% if admin? && @match.lineups.any? %>
-      <%= link_to 'Fix players', edit_admin_match_players_path(@match), class: 'btn ml-auto' %>
+      <%= link_to 'Admin override', edit_admin_match_players_path(@match), class: 'btn ml-auto' %>
     <% end %>
   </div>
 </div>
