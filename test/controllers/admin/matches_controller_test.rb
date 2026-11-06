@@ -83,6 +83,26 @@ module Admin
       assert_equal teams(:bravo), match.reload.away_team
     end
 
+    test 'edits a matchup without games on a night where another match has games' do
+      sign_in_as players(:zoe)
+      bracket = build_unplayed_second_semifinal
+      second = bracket.night.matches.order(:id).last
+
+      patch admin_match_night_match_path(bracket.night, second),
+            params: { match: { away_team_id: bracket.teams[0].id } }
+
+      assert_equal bracket.teams[0], second.reload.away_team
+    end
+
+    test 'removes a matchup without games on a night where another match has games' do
+      sign_in_as players(:zoe)
+      bracket = build_unplayed_second_semifinal
+
+      assert_difference 'Match.count', -1 do
+        delete admin_match_night_match_path(bracket.night, bracket.night.matches.order(:id).last)
+      end
+    end
+
     test 'refuses to add a matchup to a canceled night' do
       sign_in_as players(:zoe)
 
@@ -102,6 +122,15 @@ module Admin
 
       assert_equal teams(:bravo), match.reload.away_team
       assert_match(/is canceled/, flash[:alert])
+    end
+
+    private
+
+    def build_unplayed_second_semifinal
+      bracket = build_playoff_season
+      League::PlayoffBracket.new(bracket.night).seed!
+      score_match!(bracket.night.matches.order(:id).first, bracket.players, sweep(11, 5))
+      bracket
     end
   end
 end

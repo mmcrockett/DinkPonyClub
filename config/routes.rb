@@ -60,6 +60,9 @@ Rails.application.routes.draw do
       patch :cancel, on: :member
       resources :match_slots, only: %i[create destroy]
       resource :court_schedule, only: :update
+      resource :playoff_bracket, only: :create do
+        post :final
+      end
       resources :matches, only: %i[create update destroy]
     end
     resource :payment_requests, only: %i[create]

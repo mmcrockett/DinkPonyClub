@@ -5,7 +5,9 @@ module Admin
     before_action :require_admin
     before_action :set_match_night
     before_action :reject_canceled_night, only: %i[create update]
-    before_action :reject_played_night
+    before_action :reject_played_night, only: :create
+    before_action :set_match, only: %i[update destroy]
+    before_action :reject_played_match, only: %i[update destroy]
 
     def create
       match = @match_night.matches.new(season: @match_night.season, **match_params)
@@ -18,26 +20,33 @@ module Admin
     end
 
     def update
-      match = @match_night.matches.find(params.expect(:id))
-
-      if match.update(match_params)
-        redirect_back_to_night notice: t('.updated', matchup: matchup(match), label: @match_night.label)
+      if @match.update(match_params)
+        redirect_back_to_night notice: t('.updated', matchup: matchup(@match), label: @match_night.label)
       else
-        redirect_back_to_night alert: t('admin.matches.invalid', errors: match.errors.full_messages.to_sentence)
+        redirect_back_to_night alert: t('admin.matches.invalid', errors: @match.errors.full_messages.to_sentence)
       end
     end
 
     def destroy
-      match = @match_night.matches.find(params.expect(:id))
-      match.destroy!
+      @match.destroy!
 
-      redirect_back_to_night notice: t('.removed', matchup: matchup(match), label: @match_night.label)
+      redirect_back_to_night notice: t('.removed', matchup: matchup(@match), label: @match_night.label)
     end
 
     private
 
     def set_match_night
       @match_night = MatchNight.find(params.expect(:match_night_id))
+    end
+
+    def set_match
+      @match = @match_night.matches.find(params.expect(:id))
+    end
+
+    def reject_played_match
+      return unless @match.played?
+
+      redirect_back_to_night alert: t('admin.matches.played', label: @match_night.label)
     end
 
     def reject_canceled_night

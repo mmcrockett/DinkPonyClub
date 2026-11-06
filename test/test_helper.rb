@@ -1,6 +1,7 @@
 ENV['RAILS_ENV'] ||= 'test'
 require_relative '../config/environment'
 require 'rails/test_help'
+require_relative 'playoff_test_helper'
 
 OmniAuth.config.test_mode = true
 
@@ -11,6 +12,8 @@ module ActiveSupport
 
     # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
     fixtures :all
+
+    include PlayoffTestHelper
 
     setup { Rails.cache.clear }
 

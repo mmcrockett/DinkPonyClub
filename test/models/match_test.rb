@@ -5,6 +5,14 @@ class MatchTest < ActiveSupport::TestCase
     assert_predicate matches(:fall_alpha_bravo), :valid?
   end
 
+  test 'rejects a playoff round on a regular night' do
+    match = matches(:fall_alpha_bravo)
+    match.round = :final
+
+    assert_not match.valid?
+    assert_includes match.errors[:round], 'is only allowed on a playoff night'
+  end
+
   test 'played_on delegates to the match night' do
     assert_equal match_nights(:fall_week_one).played_on, matches(:fall_alpha_bravo).played_on
   end
