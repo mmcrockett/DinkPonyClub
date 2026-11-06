@@ -149,6 +149,17 @@ en:
         updated: "%{label} is now %{matchup}."
       destroy:
         removed: "%{matchup} removed from %{label}."
+    match_players:
+      unscored: "No results are recorded for this match yet - set the lineup from the Matchup page."
+      edit:
+        title: "Fix players"
+        hint: "Scores stay as entered. On a three-player line the seat order decides who played which game."
+        save: "Save players"
+        seat: "Seat %{number}"
+        roster: "Roster"
+        others: "Other players"
+      update:
+        saved: "Players updated."
     court_schedules:
       canceled: "%{label} is canceled - the court schedule can't be changed."
       update:
