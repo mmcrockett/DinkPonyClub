@@ -65,6 +65,9 @@ Rails.application.routes.draw do
       end
       resources :matches, only: %i[create update destroy]
     end
+    resources :matches, only: [] do
+      resource :players, only: %i[edit update], controller: 'match_players'
+    end
     resource :payment_requests, only: %i[create]
     resource :announcement, only: %i[new create]
     resource :player_import, only: %i[new create]

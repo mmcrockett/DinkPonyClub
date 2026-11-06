@@ -33,14 +33,24 @@ class LineupPlansController < ApplicationController
 
   def update
     form = LineupPlanForm.new(match: @match, team: @team, lines: lines_params)
-    if form.save
-      redirect_to return_path, notice: t('.saved')
-    else
-      redirect_to return_path, alert: form.errors.full_messages.to_sentence
-    end
+    form.save ? render_saved : render_invalid(form)
   end
 
   private
+
+  def render_saved
+    respond_to do |format|
+      format.html { redirect_to return_path, notice: t('lineup_plans.update.saved') }
+      format.json { head :no_content }
+    end
+  end
+
+  def render_invalid(form)
+    respond_to do |format|
+      format.html { redirect_to return_path, alert: form.errors.full_messages.to_sentence }
+      format.json { render json: { errors: form.errors.full_messages }, status: :unprocessable_content }
+    end
+  end
 
   def mark_sub_out(player)
     attempts ||= 0

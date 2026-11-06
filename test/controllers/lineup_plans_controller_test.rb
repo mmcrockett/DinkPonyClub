@@ -23,6 +23,27 @@ class LineupPlansControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to @matchup_path
   end
 
+  test 'json save returns no content and stores the picks' do
+    sign_in_as players(:sc_home_captain)
+    picked = [players(:sc_home_player1).id, players(:sc_home_player2).id]
+
+    assert_difference('LineupPick.count', 2) do
+      patch match_team_lineup_path(@match, @home, format: :json), params: { lineup: { lines: { '1' => picked } } }
+    end
+    assert_response :no_content
+  end
+
+  test 'json save returns the errors for an invalid lineup' do
+    sign_in_as players(:sc_home_captain)
+    twice = [players(:sc_home_player1).id, players(:sc_home_player2).id]
+
+    patch match_team_lineup_path(@match, @home, format: :json),
+          params: { lineup: { lines: { '1' => twice, '2' => twice } } }
+
+    assert_response :unprocessable_content
+    assert_match(/twice/, response.parsed_body['errors'].to_sentence)
+  end
+
   test 'a one-player line can be saved' do
     sign_in_as players(:sc_home_captain)
     lone = [players(:sc_home_player1).id]

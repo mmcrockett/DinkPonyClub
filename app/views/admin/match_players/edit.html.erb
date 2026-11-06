@@ -1,0 +1,52 @@
+<% content_for :title, t('.title') %>
+
+<div class="mx-auto flex max-w-2xl flex-col gap-3 pb-16">
+  <div>
+    <p class="text-sm font-medium text-gray-500"><%= @match.match_night.label %> &middot; <%= @match.played_on.strftime('%A, %B %-d') %></p>
+    <h1 class="text-2xl font-extrabold text-dpc-navy"><%= t('.title') %>: <%= @match.home_team.name %> <span class="text-gray-400">vs</span> <%= @match.away_team.name %></h1>
+    <p class="text-sm text-gray-500"><%= t('.hint') %></p>
+  </div>
+
+  <%= form_with url: admin_match_players_path(@match), method: :patch, class: 'flex flex-col gap-3' do %>
+    <%= hidden_field_tag :fingerprint, @form.fingerprint %>
+
+    <% if @form.errors.any? %>
+      <div class="rounded-md bg-red-50 px-4 py-3 text-sm text-red-700">
+        <ul class="list-disc pl-4">
+          <% @form.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <% @form.lines.each do |line| %>
+      <section class="rounded-md bg-white px-4 py-3 shadow-sm">
+        <h2 class="text-xs font-bold uppercase text-dpc-navy">Line <%= line.position %></h2>
+        <div class="mt-2 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <% %i[home away].each do |side| %>
+            <% ids = line.public_send(:"#{side}_player_ids") %>
+            <div class="flex flex-col gap-1">
+              <span class="truncate text-xs font-semibold uppercase text-gray-400"><%= @match.public_send(:"#{side}_team").name %></span>
+              <% 3.times do |seat| %>
+                <%= select_tag "lines[#{line.position}][#{side}_player_ids][]",
+                      grouped_options_for_select(@choices[side], ids[seat]),
+                      include_blank: seat >= 2, class: 'form-input',
+                      id: "lines_#{line.position}_#{side}_#{seat}",
+                      'aria-label': "Line #{line.position} #{side} #{t('.seat', number: seat + 1)}" %>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+        <p class="mt-2 text-xs text-gray-500">
+          <% line.scores.each_with_index do |(home, away), index| %>
+            <% next if home.blank? %>
+            G<%= index + 1 %> <%= home %>-<%= away %><%= ' | ' unless index == line.scores.size - 1 %>
+          <% end %>
+        </p>
+      </section>
+    <% end %>
+
+    <%= submit_tag t('.save'), class: 'btn btn-primary w-full sm:w-auto sm:self-start' %>
+  <% end %>
+</div>

@@ -38,7 +38,10 @@
          lineup_move_odds_url_value: match_team_odds_path(@match, @team),
          lineup_move_loading_value: t('.loading_subs'),
          lineup_move_no_subs_value: t('.no_subs'),
-         lineup_move_failed_value: t('.subs_failed')
+         lineup_move_failed_value: t('.subs_failed'),
+         lineup_move_saving_value: t('.saving'),
+         lineup_move_saved_value: t('.saved'),
+         lineup_move_save_failed_value: t('.save_failed')
        } %>
 
     <div class="flex snap-x snap-mandatory items-start gap-4 overflow-x-auto md:grid md:grid-cols-2 md:overflow-visible"
@@ -116,12 +119,8 @@
               <ul class="flex max-h-[60vh] flex-col overflow-y-auto" data-lineup-move-target="subList"></ul>
             </dialog>
 
-            <div class="mt-4 flex items-center gap-3">
-              <%= submit_tag t('.save'), disabled: true, data: { lineup_move_target: 'save' },
-                             class: 'rounded-md bg-dpc-navy px-4 py-2 text-sm font-bold text-white disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500' %>
-              <%= link_to t('.cancel'), season_matchup_path(@season, team_id: @team.id, match_id: @match.id),
-                          class: 'text-sm font-bold text-gray-600 hover:underline' %>
-            </div>
+            <p class="mt-4 text-sm text-gray-600 empty:hidden" role="status" aria-live="polite"
+               data-lineup-move-target="status"></p>
           <% end %>
         <% end %>
       </div>

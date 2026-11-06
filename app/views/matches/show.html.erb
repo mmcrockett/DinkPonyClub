@@ -41,7 +41,13 @@
                 class: 'btn self-start' %>
   <% end %>
 
-  <% if can_edit_scorecard?(@match) %>
-    <%= link_to (@match.lineups.any? ? 'Edit scorecard' : 'Enter results'), edit_match_path(@match), class: 'btn btn-primary self-start' %>
-  <% end %>
+  <div class="flex items-center justify-between gap-3">
+    <% if can_edit_scorecard?(@match) %>
+      <%= link_to (@match.lineups.any? ? 'Edit scorecard' : 'Enter results'), edit_match_path(@match), class: 'btn btn-primary' %>
+    <% end %>
+
+    <% if admin? && @match.lineups.any? %>
+      <%= link_to 'Fix players', edit_admin_match_players_path(@match), class: 'btn ml-auto' %>
+    <% end %>
+  </div>
 </div>
