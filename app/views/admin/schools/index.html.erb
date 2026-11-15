@@ -12,7 +12,7 @@
       <% persisted.each do |school| %>
         <li class="flex flex-wrap items-center gap-3 rounded-md bg-white px-4 py-3 shadow-sm">
           <% if school.icon.attached? %>
-            <%= image_tag school.icon, alt: '', class: 'h-10 w-10 object-contain' %>
+            <%= image_tag school_icon_path(school), alt: '', class: 'h-10 w-10 object-contain' %>
           <% else %>
             <span class="h-10 w-10 rounded bg-gray-100"></span>
           <% end %>

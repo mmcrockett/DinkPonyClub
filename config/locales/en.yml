@@ -344,6 +344,18 @@ en:
       scheduled: "Scheduled"
       vs: "vs"
       back_to_schedule: "Back to schedule"
+  photos:
+    title: "Photos"
+    empty: "No photos shared yet."
+    choose: "Choose photos"
+    upload: "Upload photos"
+    uploaded: "Photos uploaded."
+    select_files: "Choose at least one photo."
+    invalid_upload: "Photos must be uploaded as files."
+    not_authorized: "You can only remove photos you uploaded."
+    remove: "Remove photo"
+    confirm_remove: "Remove this photo?"
+    removed: "Photo removed."
   players:
     captain: "Captain"
     substitute: "Substitute"
@@ -586,3 +598,8 @@ en:
             icon:
               invalid: "must be a PNG, JPEG or WebP image"
               too_big: "must be under 1 MB"
+        match_night:
+          attributes:
+            photos:
+              invalid: "must be a PNG, JPEG or WebP image"
+              too_big: "must be 10 MB or smaller"

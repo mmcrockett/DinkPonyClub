@@ -23,6 +23,7 @@ class MatchNightsController < ApplicationController
 
   def show
     @match_night = MatchNight.includes(MATCH_NIGHT_INCLUDES).find(params.expect(:id))
+    load_photos
     @season = @match_night.season
     @court_schedule = CourtSchedule.new(@match_night)
     @can_enter_results = captain_or_admin?(@season)
@@ -37,6 +38,10 @@ class MatchNightsController < ApplicationController
   end
 
   private
+
+  def load_photos
+    @photos = @match_night.photos.attachments.includes(:blob)
+  end
 
   def load_match_nights(season)
     return [] unless season

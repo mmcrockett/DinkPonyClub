@@ -28,12 +28,16 @@ Rails.application.routes.draw do
   get   'matches/:match_id/teams/:team_id/odds', to: 'lineup_plans#odds', as: :match_team_odds
   patch 'matches/:match_id/teams/:team_id/lineup', to: 'lineup_plans#update', as: :match_team_lineup
   resources :players, only: %i[index show]
+  get 'schools/:id/icon', to: 'school_icons#show', as: :school_icon
   get 'rules', to: 'rules#show', as: :rules
   get 'standings', to: 'standings#show', as: :standings
   get 'matchup', to: 'matchups#show', as: :matchup
 
   get 'schedule.ics', to: 'calendars#show', as: :schedule_calendar, format: false, defaults: { format: :ics }
   resources :match_nights, only: %i[index show], path: 'schedule' do
+    resources :photos, only: %i[create show destroy] do
+      get :thumbnail, on: :member
+    end
     resource :availability, only: %i[update]
     patch 'availability/:player_id', to: 'availabilities#update_for_player', as: :player_availability
   end

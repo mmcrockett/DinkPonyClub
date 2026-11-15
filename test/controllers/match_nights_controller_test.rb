@@ -19,6 +19,35 @@ class MatchNightsControllerTest < ActionDispatch::IntegrationTest
                     :<, response.body.index(dom_id(match_nights(:fall_playoff)))
   end
 
+  test 'schedule links to each match night photo gallery' do
+    sign_in_as(players(:grace))
+
+    get season_match_nights_path(seasons(:fall))
+
+    [match_nights(:fall_week_one), match_nights(:fall_upcoming), match_nights(:fall_playoff)].each do |night|
+      assert_select "##{dom_id(night)} a[href=?][aria-label=Photos] svg",
+                    match_night_path(night, anchor: 'match-night-photos')
+    end
+  end
+
+  test 'the photo icon appears immediately before the admin edit icon' do
+    sign_in_as(players(:zoe))
+    night = match_nights(:fall_week_one)
+
+    get season_match_nights_path(seasons(:fall))
+
+    assert_select "##{dom_id(night)} a[aria-label=Photos] + a[href=?]", edit_admin_match_night_path(night)
+  end
+
+  test 'match night detail does not link to itself' do
+    sign_in_as
+    night = match_nights(:fall_week_one)
+
+    get match_night_path(night)
+
+    assert_select "##{dom_id(night)} a[href=?]", match_night_path(night, anchor: 'match-night-photos'), count: 0
+  end
+
   test 'show lists the court schedule with the placed line' do
     sign_in_as
 

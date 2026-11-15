@@ -39,6 +39,13 @@
       <span class="rounded-full px-3 py-1 text-xs font-bold uppercase <%= match_night_status_classes(match_night) %>">
         <%= match_night_status_label(match_night) %>
       </span>
+      <% if local_assigns[:show_photos_link] && !canceled %>
+        <%= link_to match_night_path(match_night, anchor: 'match-night-photos'),
+                    class: 'text-dpc-green hover:text-dpc-navy',
+                    title: t('photos.title'), aria: { label: t('photos.title') } do %>
+          <%= render 'shared/icon', name: 'camera', class: 'h-6 w-6' %>
+        <% end %>
+      <% end %>
       <% if admin? %>
         <%= link_to edit_admin_match_night_path(match_night), class: 'text-gray-400 hover:text-dpc-navy',
                     title: t('match_nights.schedule.edit_night'), aria: { label: t('match_nights.schedule.edit_night') } do %>
