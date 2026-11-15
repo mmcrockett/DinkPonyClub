@@ -19,7 +19,8 @@
   <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
     <div class="flex flex-col gap-4">
       <% if @match_nights.any? %>
-        <%= render partial: 'match_night', collection: @match_nights, as: :match_night %>
+        <%= render partial: 'match_night', collection: @match_nights, as: :match_night,
+                   locals: { show_photos_link: true } %>
       <% else %>
         <p class="text-gray-500"><%= t('match_nights.schedule.empty') %></p>
       <% end %>

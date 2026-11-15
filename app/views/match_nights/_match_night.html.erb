@@ -31,6 +31,10 @@
     </div>
 
     <div class="flex flex-wrap items-center justify-end gap-2">
+      <% if local_assigns[:show_photos_link] && !canceled %>
+        <%= link_to t('photos.title'), match_night_path(match_night, anchor: 'match-night-photos'),
+                    class: 'text-sm font-semibold text-dpc-green hover:underline' %>
+      <% end %>
       <% if match_night.playoff? %>
         <span class="rounded-full bg-dpc-navy px-3 py-1 text-xs font-bold uppercase text-white">
           <%= t('match_nights.schedule.playoffs') %>
