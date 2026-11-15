@@ -34,4 +34,20 @@ class PhotoUploadTest < ApplicationSystemTestCase
       assert_text 'Photo removed.'
     end
   end
+
+  test 'uploads HEIC as a viewable JPEG' do
+    night = match_nights(:fall_week_one)
+    sign_in_as players(:ada), return_to: match_night_path(night)
+
+    assert_difference -> { night.photos.attachments.count }, 1 do
+      attach_file 'Choose photos', Rails.root.join('test/fixtures/files/photo.heic')
+
+      assert_text 'Photos uploaded.'
+    end
+    assert_equal 'image/jpeg', night.photos.first.blob.content_type
+    find('img[alt="photo.jpg"]', visible: :all).evaluate_script("this.loading = 'eager'")
+    assert_selector 'img[alt="photo.jpg"]', visible: :all do |image|
+      image.evaluate_script('this.complete && this.naturalWidth > 0')
+    end
+  end
 end

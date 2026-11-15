@@ -19,7 +19,7 @@ WORKDIR /rails
 # shared mysql.mmcrockett.com host, not a Kamal-managed accessory. sqlite3 is
 # still needed for Solid Queue/Cache/Cable's local stores.
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y curl libjemalloc2 libvips sqlite3 default-mysql-client && \
+    apt-get install --no-install-recommends -y curl libjemalloc2 libvips libheif-plugin-libde265 sqlite3 default-mysql-client && \
     ln -s /usr/lib/$(uname -m)-linux-gnu/libjemalloc.so.2 /usr/local/lib/libjemalloc.so && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
