@@ -346,7 +346,6 @@ en:
       back_to_schedule: "Back to schedule"
   photos:
     title: "Photos"
-    description: "Share JPEG, PNG, or WebP photos up to 10 MB each. Photos are visible to signed-in players."
     empty: "No photos shared yet."
     choose: "Choose photos"
     upload: "Upload photos"
