@@ -4,10 +4,10 @@ export default class extends Controller {
   static targets = ["file", "submit"]
 
   connect() {
-    this.update()
+    this.submitTarget.hidden = true
   }
 
-  update() {
-    this.submitTarget.hidden = this.fileTarget.files.length === 0
+  upload() {
+    if (this.fileTarget.files.length > 0) this.element.requestSubmit()
   }
 }

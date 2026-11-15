@@ -42,7 +42,7 @@
       <div class="flex flex-col gap-1">
         <%= form.label :photos, t('photos.choose'), class: 'text-sm font-semibold text-dpc-navy' %>
         <%= form.file_field :photos, multiple: true, accept: MatchNight::PHOTO_TYPES.join(','),
-                            required: true, data: { photo_upload_target: 'file', action: 'change->photo-upload#update' },
+                            required: true, data: { photo_upload_target: 'file', action: 'change->photo-upload#upload' },
                             class: 'block w-full text-sm text-gray-600 file:mr-3 file:cursor-pointer file:rounded-md file:border-0 file:bg-dpc-navy file:px-4 file:py-2 file:font-semibold file:text-white' %>
       </div>
       <div data-photo-upload-target="submit">
