@@ -180,7 +180,7 @@ class PhotosControllerTest < ActionDispatch::IntegrationTest
     blob = night.photos.first.blob
     image = Vips::Image.new_from_buffer(blob.download, '')
 
-    assert_equal [667, 2000], [image.width, image.height]
+    assert_equal [533, 1600], [image.width, image.height]
     assert_empty image.get_fields.grep(/exif|orientation/i)
   end
 
@@ -194,7 +194,7 @@ class PhotosControllerTest < ActionDispatch::IntegrationTest
     image = Vips::Image.new_from_buffer(blob.download, '')
 
     assert_equal 'image/png', blob.content_type
-    assert_equal [2000, 1000], [image.width, image.height]
+    assert_equal [1600, 800], [image.width, image.height]
     assert_equal 0, image.getpoint(0, 0).last
   end
 

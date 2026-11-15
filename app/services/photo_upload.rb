@@ -7,7 +7,7 @@ class PhotoUpload
   class TooLarge < StandardError; end
 
   MAX_PIXELS = 60_000_000
-  MAX_DIMENSION = 2000
+  MAX_DIMENSION = 1600
   FORMATS = {
     'VipsForeignLoadJpegFile' => ['jpg', 'image/jpeg'],
     'VipsForeignLoadPngFile' => ['png', 'image/png'],
