@@ -34,6 +34,42 @@ class PhotosControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_path
   end
 
+  test 'rejects signed blob ids in uploads' do
+    sign_in_as
+    night = match_nights(:fall_week_one)
+    blob = ActiveStorage::Blob.create_and_upload!(io: StringIO.new('photo bytes'), filename: 'photo.jpg',
+                                                  content_type: 'image/jpeg')
+
+    assert_no_difference -> { night.photos.attachments.count } do
+      post match_night_photos_path(night), params: { photos: [blob.signed_id] }
+    end
+
+    assert_redirected_to match_night_path(night)
+    assert_equal 'Photos must be uploaded as files.', flash[:alert]
+  end
+
+  test 'default Active Storage routes cannot bypass photo access' do
+    night = match_nights(:fall_week_one)
+    night.photos.attach(io: StringIO.new('photo bytes'), filename: 'photo.jpg', content_type: 'image/jpeg')
+    signed_id = night.photos.first.blob.signed_id
+
+    get "/rails/active_storage/blobs/redirect/#{signed_id}/photo.jpg"
+
+    assert_response :not_found
+
+    get "/rails/active_storage/blobs/proxy/#{signed_id}/photo.jpg"
+
+    assert_response :not_found
+
+    get "/rails/active_storage/representations/redirect/#{signed_id}/anything/photo.jpg"
+
+    assert_response :not_found
+
+    get '/rails/active_storage/disk/anything/photo.jpg'
+
+    assert_response :not_found
+  end
+
   test 'rejects unsupported photo types' do
     sign_in_as
     night = match_nights(:fall_week_one)

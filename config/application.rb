@@ -13,6 +13,8 @@ module DinkPonyClub
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 8.1
 
+    config.active_storage.draw_routes = false
+
     # Rails 8.1's default variant_processor is :vips, which requires libvips
     # installed system-wide. Nothing in this app uses Active Storage variants,
     # so stick with :mini_magick to avoid that dependency entirely.

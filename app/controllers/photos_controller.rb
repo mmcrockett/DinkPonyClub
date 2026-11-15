@@ -14,10 +14,7 @@ class PhotosController < ApplicationController
 
   def create
     uploads = photo_params
-    if uploads.blank?
-      redirect_to match_night_path(@match_night), alert: t('photos.select_files')
-      return
-    end
+    return redirect_to match_night_path(@match_night), alert: upload_error(uploads) if upload_error(uploads)
 
     @match_night.photos.attach(uploads)
     if @match_night.save
@@ -44,5 +41,10 @@ class PhotosController < ApplicationController
 
   def photo_params
     params.expect(photos: [])
+  end
+
+  def upload_error(uploads)
+    return t('photos.select_files') if uploads.blank?
+    t('photos.invalid_upload') unless uploads.all?(ActionDispatch::Http::UploadedFile)
   end
 end
