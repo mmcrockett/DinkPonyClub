@@ -24,7 +24,7 @@
               <%= image_tag thumbnail_match_night_photo_path(@match_night, photo), alt: photo.filename.to_s,
                             loading: 'lazy', class: 'aspect-square w-full object-cover' %>
             <% end %>
-            <% if admin? %>
+            <% if can_remove_photo?(photo) %>
               <figcaption class="p-2">
                 <%= button_to t('photos.remove'), match_night_photo_path(@match_night, photo), method: :delete,
                               class: 'btn btn-secondary', form: { data: { turbo_confirm: t('photos.confirm_remove') } } %>

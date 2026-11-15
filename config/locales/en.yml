@@ -352,6 +352,7 @@ en:
     uploaded: "Photos uploaded."
     select_files: "Choose at least one photo."
     invalid_upload: "Photos must be uploaded as files."
+    not_authorized: "You can only remove photos you uploaded."
     remove: "Remove photo"
     confirm_remove: "Remove this photo?"
     removed: "Photo removed."

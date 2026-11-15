@@ -35,6 +35,16 @@ class PhotosControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_path
   end
 
+  test 'records the uploader for every photo in a batch' do
+    sign_in_as(players(:ada))
+    night = match_nights(:fall_week_one)
+    post match_night_photos_path(night), params: { photos: [photo_upload('one.jpg'), photo_upload('two.jpg')] }
+
+    uploader_ids = night.photos.blobs.map { |blob| blob.metadata['uploaded_by_player_id'] }
+
+    assert_equal [players(:ada).id, players(:ada).id], uploader_ids
+  end
+
   test 'uploads a photo when the form includes an empty hidden field' do
     sign_in_as
     night = match_nights(:fall_week_one)
@@ -105,7 +115,58 @@ class PhotosControllerTest < ActionDispatch::IntegrationTest
     assert_match 'must be a PNG, JPEG or WebP image', flash[:alert]
   end
 
-  test 'only admins can remove photos' do
+  test 'players can remove photos they uploaded' do
+    sign_in_as(players(:ada))
+    night = match_nights(:fall_week_one)
+    post match_night_photos_path(night), params: { photos: [photo_upload('one.jpg')] }
+    photo = night.photos.attachments.first
+
+    get match_night_path(night)
+
+    assert_select 'form[action=?][method=post]', match_night_photo_path(night, photo)
+
+    delete match_night_photo_path(night, photo)
+
+    assert_redirected_to match_night_path(night)
+    assert_not ActiveStorage::Attachment.exists?(photo.id)
+  end
+
+  test 'players cannot remove someone else photo' do
+    sign_in_as(players(:ada))
+    night = match_nights(:fall_week_one)
+    post match_night_photos_path(night), params: { photos: [photo_upload('one.jpg')] }
+    photo = night.photos.attachments.first
+    sign_in_as(players(:grace))
+
+    get match_night_path(night)
+
+    assert_select 'form[action=?][method=post]', match_night_photo_path(night, photo), count: 0
+
+    delete match_night_photo_path(night, photo)
+
+    assert_redirected_to root_path
+    assert_equal 'You can only remove photos you uploaded.', flash[:alert]
+    assert ActiveStorage::Attachment.exists?(photo.id)
+  end
+
+  test 'admins can remove someone else photo' do
+    sign_in_as(players(:ada))
+    night = match_nights(:fall_week_one)
+    post match_night_photos_path(night), params: { photos: [photo_upload('one.jpg')] }
+    photo = night.photos.attachments.first
+    sign_in_as(players(:zoe))
+
+    get match_night_path(night)
+
+    assert_select 'form[action=?][method=post]', match_night_photo_path(night, photo)
+
+    delete match_night_photo_path(night, photo)
+
+    assert_redirected_to match_night_path(night)
+    assert_not ActiveStorage::Attachment.exists?(photo.id)
+  end
+
+  test 'only admins can remove photos without an uploader' do
     sign_in_as
     night = match_nights(:fall_week_one)
     night.photos.attach(io: StringIO.new('photo bytes'), filename: 'photo.jpg', content_type: 'image/jpeg')

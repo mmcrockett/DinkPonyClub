@@ -23,6 +23,15 @@ class PhotoUploadTest < ApplicationSystemTestCase
 
       assert_text 'Photos uploaded.'
     end
-    assert_no_button 'Upload photos'
+    find('img[alt="icon.png"]', visible: :all).evaluate_script("this.loading = 'eager'")
+    assert_selector 'img[alt="icon.png"]', visible: :all do |image|
+      image.evaluate_script('this.complete && this.naturalWidth > 0')
+    end
+
+    assert_difference -> { night.photos.attachments.count }, -1 do
+      accept_confirm { click_button 'Remove photo' }
+
+      assert_text 'Photo removed.'
+    end
   end
 end

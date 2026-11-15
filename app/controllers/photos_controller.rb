@@ -4,7 +4,7 @@ class PhotosController < ApplicationController
   before_action :require_sign_in
   before_action :set_match_night
   before_action :set_photo, only: %i[show thumbnail destroy]
-  before_action :require_admin, only: :destroy
+  before_action :require_photo_removal_access, only: :destroy
 
   def show
     send_photo @photo.blob
@@ -18,7 +18,7 @@ class PhotosController < ApplicationController
     uploads = photo_params
     return redirect_to match_night_path(@match_night), alert: upload_error(uploads) if upload_error(uploads)
 
-    @match_night.photos.attach(uploads)
+    attach_photos(uploads)
     if @match_night.save
       redirect_to match_night_path(@match_night), notice: t('photos.uploaded')
     else
@@ -49,6 +49,21 @@ class PhotosController < ApplicationController
 
   def photo_params
     params.expect(photos: []).compact_blank
+  end
+
+  def photo_attachable(upload)
+    { io: upload.open, filename: upload.original_filename, content_type: upload.content_type,
+      metadata: { uploaded_by_player_id: current_player.id } }
+  end
+
+  def attach_photos(uploads)
+    @match_night.photos.attach(uploads.map { |upload| photo_attachable(upload) })
+  end
+
+  def require_photo_removal_access
+    return if can_remove_photo?(@photo)
+
+    redirect_to root_path, alert: t('photos.not_authorized')
   end
 
   def upload_error(uploads)
