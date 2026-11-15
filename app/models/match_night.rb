@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 class MatchNight < ApplicationRecord
+  PHOTO_TYPES = %w[image/jpeg image/png image/webp].freeze
+  MAX_PHOTO_BYTES = 10.megabytes
+
   belongs_to :season
   has_many :matches, dependent: :destroy
   has_many :match_availabilities, dependent: :destroy
@@ -8,9 +11,11 @@ class MatchNight < ApplicationRecord
   has_many :slot_availabilities, through: :match_slots
   has_many :games, through: :matches
   has_many :court_assignments, through: :matches
+  has_many_attached :photos
 
   validates :played_on, presence: true
   validates :label, presence: true, length: { maximum: 60 }
+  validate :photos_are_supported_images
   validate :played_on_unchanged_once_played, on: :update
   before_validation :clear_default_lines_count
   validate :lines_count_within_season, if: -> { lines_count && lines_count_changed? }
@@ -66,6 +71,13 @@ class MatchNight < ApplicationRecord
   end
 
   private
+
+  def photos_are_supported_images
+    photos.attachments.each do |photo|
+      errors.add(:photos, :invalid) unless PHOTO_TYPES.include?(photo.blob.content_type)
+      errors.add(:photos, :too_big) if photo.blob.byte_size > MAX_PHOTO_BYTES
+    end
+  end
 
   def played_on_unchanged_once_played
     return unless played_on_changed? && played?

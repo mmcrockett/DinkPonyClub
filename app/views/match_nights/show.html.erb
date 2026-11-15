@@ -12,4 +12,41 @@
   <% if @court_schedule&.any? && !@match_night.canceled? %>
     <%= render 'court_schedule', schedule: @court_schedule %>
   <% end %>
+
+  <section class="flex flex-col gap-4" aria-labelledby="match-night-photos">
+    <div>
+      <h2 id="match-night-photos" class="text-xl font-bold text-dpc-navy"><%= t('photos.title') %></h2>
+      <p class="text-sm text-gray-600"><%= t('photos.description') %></p>
+    </div>
+
+    <% if @photos.any? %>
+      <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <% @photos.each do |photo| %>
+          <figure class="overflow-hidden rounded-lg bg-white shadow-sm">
+            <%= image_tag match_night_photo_path(@match_night, photo), alt: photo.filename.to_s,
+                          loading: 'lazy', class: 'aspect-square w-full object-cover' %>
+            <% if admin? %>
+              <figcaption class="p-2">
+                <%= button_to t('photos.remove'), match_night_photo_path(@match_night, photo), method: :delete,
+                              class: 'btn btn-secondary', form: { data: { turbo_confirm: t('photos.confirm_remove') } } %>
+              </figcaption>
+            <% end %>
+          </figure>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="text-sm text-gray-500"><%= t('photos.empty') %></p>
+    <% end %>
+
+    <%= form_with url: match_night_photos_path(@match_night), class: 'flex flex-col gap-3 rounded-lg bg-white p-4 shadow-sm' do |form| %>
+      <div class="flex flex-col gap-1">
+        <%= form.label :photos, t('photos.choose'), class: 'text-sm font-semibold text-dpc-navy' %>
+        <%= form.file_field :photos, multiple: true, accept: MatchNight::PHOTO_TYPES.join(','),
+                            required: true, class: 'text-sm' %>
+      </div>
+      <div>
+        <%= form.submit t('photos.upload'), class: 'btn btn-primary' %>
+      </div>
+    <% end %>
+  </section>
 </div>

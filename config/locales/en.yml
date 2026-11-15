@@ -344,6 +344,17 @@ en:
       scheduled: "Scheduled"
       vs: "vs"
       back_to_schedule: "Back to schedule"
+  photos:
+    title: "Photos"
+    description: "Share JPEG, PNG, or WebP photos up to 10 MB each. Photos are visible to signed-in players."
+    empty: "No photos shared yet."
+    choose: "Choose photos"
+    upload: "Upload photos"
+    uploaded: "Photos uploaded."
+    select_files: "Choose at least one photo."
+    remove: "Remove photo"
+    confirm_remove: "Remove this photo?"
+    removed: "Photo removed."
   players:
     captain: "Captain"
     substitute: "Substitute"
@@ -586,3 +597,8 @@ en:
             icon:
               invalid: "must be a PNG, JPEG or WebP image"
               too_big: "must be under 1 MB"
+        match_night:
+          attributes:
+            photos:
+              invalid: "must be a PNG, JPEG or WebP image"
+              too_big: "must be 10 MB or smaller"

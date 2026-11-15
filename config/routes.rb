@@ -34,6 +34,7 @@ Rails.application.routes.draw do
 
   get 'schedule.ics', to: 'calendars#show', as: :schedule_calendar, format: false, defaults: { format: :ics }
   resources :match_nights, only: %i[index show], path: 'schedule' do
+    resources :photos, only: %i[create show destroy]
     resource :availability, only: %i[update]
     patch 'availability/:player_id', to: 'availabilities#update_for_player', as: :player_availability
   end

@@ -5,6 +5,21 @@ class MatchNightTest < ActiveSupport::TestCase
     assert_predicate match_nights(:fall_week_one), :valid?
   end
 
+  test 'rejects unsupported and oversized photos' do
+    night = MatchNight.new(season: seasons(:fall), played_on: Date.current, label: 'Test')
+    night.photos.attach(io: StringIO.new('<svg/>'), filename: 'photo.svg', content_type: 'image/svg+xml')
+
+    assert_not night.valid?
+    assert_includes night.errors.full_messages_for(:photos), 'Photos must be a PNG, JPEG or WebP image'
+
+    night = MatchNight.new(season: seasons(:fall), played_on: Date.current, label: 'Test')
+    night.photos.attach(io: StringIO.new('x' * (MatchNight::MAX_PHOTO_BYTES + 1)), filename: 'photo.jpg',
+                        content_type: 'image/jpeg')
+
+    assert_not night.valid?
+    assert_includes night.errors.full_messages_for(:photos), 'Photos must be 10 MB or smaller'
+  end
+
   test 'played? is true only for nights with games' do
     assert_predicate match_nights(:fall_week_one), :played?
     assert_not match_nights(:fall_upcoming).played?
