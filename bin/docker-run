@@ -1,0 +1,45 @@
+#!/usr/bin/env sh
+set -eu
+
+root="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd -P)"
+mode="$1"
+shift
+
+image="$(docker build --quiet \
+  --build-arg "RUBY_VERSION=$(cat "$root/.ruby-version")" \
+  -f "$root/Dockerfile-development" "$root")"
+
+case "$mode" in
+  dev)
+    set -- --publish 127.0.0.1:3312:3312 \
+      --env PORT=3312 --env BINDING=0.0.0.0 --env PROCFILE=Procfile.docker \
+      "$image" sh -c 'bin/rails db:prepare && exec bin/dev "$@"' sh "$@"
+    ;;
+  rubocop)
+    set -- "$image" bin/rubocop "$@"
+    ;;
+  test)
+    set -- --env RAILS_ENV=test "$image" bin/rails test "$@"
+    ;;
+  system-test)
+    if [ "$#" -eq 0 ]; then
+      set -- test:system
+    else
+      set -- test "$@"
+    fi
+    set -- --env RAILS_ENV=test --env CHROME_BIN=/usr/bin/chromium \
+      --env SYSTEM_TEST_DOCKER=1 "$image" bin/rails "$@"
+    ;;
+  *)
+    echo "Unknown Docker command: $mode" >&2
+    exit 1
+    ;;
+esac
+
+exec docker run --rm --init --interactive \
+  --user "$(id -u):$(id -g)" \
+  --env HOME=/tmp \
+  --env BUNDLE_APP_CONFIG=/tmp/bundle-config \
+  --volume "$root:/rails" \
+  --workdir /rails \
+  "$@"

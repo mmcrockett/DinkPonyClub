@@ -4,15 +4,19 @@ Dink Pony Club: Rails 8.1 app (Ruby 3.4.12) for running a pickleball league - se
 
 ## Commands
 
-- Setup: `bin/setup --skip-server`
-- Run: `bin/dev` (Rails server + Tailwind watcher, see `Procfile.dev`)
-- Tests: `bin/rails test`; one file: `bin/rails test test/models/game_test.rb`; one test: `bin/rails test test/models/game_test.rb:12`
-- System tests (Capybara/Selenium): `bin/rails test:system`
-- Lint: `bin/rubocop` (add `-a` to autocorrect)
+Docker is preferred for development, tests, and linting. Install Docker and start its daemon first. Each command builds or reuses the development image and runs a separate container; tests and lint do not require the server to be running.
+
+- Run: `bin/dev-docker`, then open http://localhost:3312. Stop with Ctrl-C.
+- Tests: `bin/test-docker`; one file: `bin/test-docker test/models/game_test.rb`; one test: `bin/test-docker test/models/game_test.rb:12`
+- Lint: `bin/rubocop-docker` (add `-a` to autocorrect)
+- System tests (Capybara/Selenium): `bin/system-test-docker`; one file: `bin/system-test-docker test/system/photo_gallery_test.rb`. The development image includes Chromium and its driver.
+- Native fallback: `bin/setup --skip-server`, `bin/dev`, `bin/rails test`, `bin/rails test:system`, and `bin/rubocop`. Native system tests require Chrome and libvips on the host.
 - Security: `bin/brakeman`, `bin/bundler-audit`, `bin/importmap audit`
 - Everything CI runs locally: `bin/ci` (see `config/ci.rb`)
 
-Run `bin/rubocop` and `bin/rails test` before declaring work done; CI fails on either.
+Docker mounts the current checkout, including its `storage/` databases and optional `config/master.key`; Google sign-in requires valid local credentials. Starting the app runs `db:prepare`, which may load seeds for a new database. Concurrent test runs in the same checkout share the test database and can interfere.
+
+Run `bin/rubocop-docker` and `bin/test-docker` before declaring work done; CI fails on either.
 
 ## Layout
 

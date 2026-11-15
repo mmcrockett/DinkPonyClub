@@ -2,9 +2,16 @@
 
 class PhotosController < ApplicationController
   before_action :require_sign_in
-  before_action :set_match_night
+  before_action :set_match_night, only: %i[create show thumbnail destroy]
   before_action :set_photo, only: %i[show thumbnail destroy]
   before_action :require_photo_removal_access, only: :destroy
+
+  def index
+    @season = Season.find(params.expect(:season)) if params[:season].present?
+    @seasons = Season.chronological
+    @gallery = PhotoGallery.new(season: @season, page: gallery_page)
+    @photos = @gallery.photos
+  end
 
   def show
     send_photo @photo.blob
@@ -32,6 +39,15 @@ class PhotosController < ApplicationController
   end
 
   private
+
+  def gallery_page
+    return 1 unless params.key?(:page)
+
+    value = params[:page].to_s
+    raise ActionController::BadRequest, 'Page must be a positive integer.' unless value.match?(/\A[1-9]\d*\z/)
+
+    value.to_i
+  end
 
   def send_photo(image)
     response.headers['Cache-Control'] = 'private, no-store'

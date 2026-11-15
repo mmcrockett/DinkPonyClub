@@ -30,6 +30,7 @@ Rails.application.routes.draw do
   resources :players, only: %i[index show]
   get 'schools/:id/icon', to: 'school_icons#show', as: :school_icon
   get 'rules', to: 'rules#show', as: :rules
+  resources :photos, only: :index
   get 'standings', to: 'standings#show', as: :standings
   get 'matchup', to: 'matchups#show', as: :matchup
 

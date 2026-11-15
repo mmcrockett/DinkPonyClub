@@ -2,6 +2,134 @@ require 'test_helper'
 require 'vips'
 
 class PhotosControllerTest < ActionDispatch::IntegrationTest
+  test 'gallery requires sign-in and rejects inactive players' do
+    get photos_path
+
+    assert_redirected_to root_path
+    sign_in_as
+    players(:ada).inactive!
+    get photos_path
+
+    assert_redirected_to root_path
+  end
+
+  test 'gallery shows photos across all seasons with authenticated image links and source captions' do
+    sign_in_as
+    night = match_nights(:fall_week_one)
+    fall = attach_gallery_photos(night).first
+    attach_gallery_photos(match_nights(:scorecard_week_one))
+
+    get photos_path
+
+    assert_response :success
+    assert_select 'figure', count: 2
+    assert_select 'a[href=?] img[src=?][alt=?][loading=lazy]', match_night_photo_path(night, fall),
+                  thumbnail_match_night_photo_path(night, fall), fall.filename.to_s
+    assert_select 'figcaption a[href=?]', match_night_path(night, anchor: 'match-night-photos'), text: night.label
+    assert_select 'select[name=season] option[selected]', text: 'All seasons'
+  end
+
+  test 'gallery filters to the selected season' do
+    sign_in_as
+    attach_gallery_photos(match_nights(:fall_week_one))
+    attach_gallery_photos(match_nights(:scorecard_week_one))
+
+    get photos_path(season: seasons(:scorecard))
+
+    assert_select 'figure', count: 1
+    assert_select 'figcaption span', text: seasons(:scorecard).name
+    assert_select 'select[name=season] option[selected]', text: seasons(:scorecard).name
+  end
+
+  test 'gallery pagination retains season' do
+    sign_in_as
+    attach_gallery_photos(match_nights(:fall_week_one), 25)
+    season = seasons(:fall)
+
+    get photos_path(season: season)
+
+    assert_select 'figure', count: 24
+    assert_select 'a[rel=next][href=?]', photos_path(season: season, page: 2)
+    get photos_path(season: season, page: 2)
+
+    assert_select 'figure', count: 1
+    assert_select 'a[rel=prev][href=?]', photos_path(season: season, page: 1)
+  end
+
+  test 'gallery filter form resets the page' do
+    sign_in_as
+
+    get photos_path(season: seasons(:fall), page: 2)
+
+    assert_select 'form[action=?][method=get]', photos_path do
+      assert_select '[name=page]', count: 0
+    end
+  end
+
+  test 'gallery is read-only even for admins and hides single-page pagination' do
+    sign_in_as(players(:zoe))
+    attach_gallery_photos(match_nights(:fall_week_one))
+
+    get photos_path
+
+    assert_select 'input[type=file]', count: 0
+    assert_select 'figure form', count: 0
+    assert_select 'nav[aria-label=?]', 'Photo pages', count: 0
+  end
+
+  test 'gallery distinguishes empty library and empty season' do
+    sign_in_as
+
+    get photos_path
+
+    assert_select 'p', text: 'No photos shared yet.'
+    attach_gallery_photos(match_nights(:fall_week_one))
+    get photos_path(season: seasons(:scorecard))
+
+    assert_select 'p', text: 'No photos shared for this season yet.'
+    assert_select 'select[name=season] option', count: Season.count + 1
+  end
+
+  test 'gallery offers a filtered first-page link beyond the end' do
+    sign_in_as
+    attach_gallery_photos(match_nights(:fall_week_one))
+
+    get photos_path(season: seasons(:fall), page: 10**30)
+
+    assert_response :success
+    assert_select 'p', text: 'No photos on this page.'
+    assert_select 'a[href=?]', photos_path(season: seasons(:fall)), text: 'Back to the first page'
+  end
+
+  test 'gallery rejects missing seasons rather than falling back to the default' do
+    sign_in_as
+
+    get photos_path(season: Season.maximum(:id) + 1)
+
+    assert_response :not_found
+  end
+
+  test 'gallery rejects malformed and nonpositive pages' do
+    sign_in_as
+    %w[0 -1 abc 1.5 2x].each do |page|
+      get photos_path(page: page)
+
+      assert_response :bad_request
+    end
+  end
+
+  test 'clearing the season returns to all seasons on page one' do
+    sign_in_as
+    attach_gallery_photos(match_nights(:fall_week_one))
+    attach_gallery_photos(match_nights(:scorecard_week_one))
+
+    get photos_path(season: '')
+
+    assert_response :success
+    assert_select 'figure', count: 2
+    assert_select 'select[name=season] option[selected]', text: 'All seasons'
+  end
+
   test 'uploads multiple photos and serves them only to signed-in players' do
     sign_in_as
     night = match_nights(:fall_week_one)
@@ -226,6 +354,13 @@ class PhotosControllerTest < ActionDispatch::IntegrationTest
   end
 
   private
+
+  def attach_gallery_photos(night, count = 1)
+    night.photos.attach(Array.new(count) do |index|
+      { io: StringIO.new('photo bytes'), filename: "#{index}.jpg", content_type: 'image/jpeg' }
+    end)
+    night.photos.attachments.order(:id).to_a
+  end
 
   def photo_upload(filename)
     Rack::Test::UploadedFile.new(StringIO.new('photo bytes'), 'image/jpeg', original_filename: filename)

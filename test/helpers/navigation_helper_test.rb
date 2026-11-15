@@ -35,6 +35,19 @@ class NavigationHelperTest < ActionView::TestCase
     assert_equal 'Matchup', labels[labels.index('Standings') + 1]
   end
 
+  test 'Photos sits right after Schedule and links to all seasons' do
+    labels = sidebar_labels(nav_season: seasons(:fall), admin?: false)
+
+    assert_equal 'Photos', labels[labels.index('Schedule') + 1]
+    assert_equal photos_path, sidebar_items.find { |item| item[:label] == 'Photos' }[:path]
+  end
+
+  test 'Photos remains available without a navigation season' do
+    sidebar_labels(nav_season: nil, admin?: false)
+
+    assert_equal photos_path, sidebar_items.find { |item| item[:label] == 'Photos' }[:path]
+  end
+
   private
 
   def sidebar_labels(stubs)
