@@ -362,6 +362,8 @@ en:
     uploaded: "Photos uploaded."
     select_files: "Choose at least one photo."
     invalid_upload: "Photos must be uploaded as files."
+    invalid_image: "Photos must be valid JPEG, PNG, WebP or HEIC images."
+    image_too_large: "Photos must be 10 MB or smaller and no more than 60 megapixels."
     not_authorized: "You can only remove photos you uploaded."
     remove: "Remove photo"
     confirm_remove: "Remove this photo?"

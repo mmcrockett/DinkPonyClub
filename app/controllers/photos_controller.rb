@@ -25,12 +25,7 @@ class PhotosController < ApplicationController
     uploads = photo_params
     return redirect_to match_night_path(@match_night), alert: upload_error(uploads) if upload_error(uploads)
 
-    attach_photos(uploads)
-    if @match_night.save
-      redirect_to match_night_path(@match_night), notice: t('photos.uploaded')
-    else
-      redirect_to match_night_path(@match_night), alert: @match_night.errors.full_messages.to_sentence
-    end
+    upload_photos(uploads)
   end
 
   def destroy
@@ -67,13 +62,14 @@ class PhotosController < ApplicationController
     params.expect(photos: []).compact_blank
   end
 
-  def photo_attachable(upload)
-    { io: upload.open, filename: upload.original_filename, content_type: upload.content_type,
-      metadata: { uploaded_by_player_id: current_player.id } }
-  end
-
-  def attach_photos(uploads)
-    @match_night.photos.attach(uploads.map { |upload| photo_attachable(upload) })
+  def upload_photos(uploads)
+    PhotoUpload.new(match_night: @match_night, uploads: uploads, player: current_player).call
+    redirect_to match_night_path(@match_night), notice: t('photos.uploaded')
+  rescue PhotoUpload::InvalidImage, PhotoUpload::TooLarge => e
+    key = e.is_a?(PhotoUpload::TooLarge) ? 'photos.image_too_large' : 'photos.invalid_image'
+    redirect_to match_night_path(@match_night), alert: t(key)
+  rescue ActiveRecord::RecordInvalid => e
+    redirect_to match_night_path(@match_night), alert: e.record.errors.full_messages.to_sentence
   end
 
   def require_photo_removal_access

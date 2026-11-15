@@ -153,6 +153,114 @@ class PhotosControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_path
   end
 
+  test 'converts HEIC to JPEG without storing the original' do
+    sign_in_as
+    night = match_nights(:fall_week_one)
+    upload = Rack::Test::UploadedFile.new(Rails.root.join('test/fixtures/files/photo.heic'), 'image/heic')
+
+    assert_difference('ActiveStorage::Blob.count', 1) do
+      post match_night_photos_path(night), params: { photos: [upload] }
+    end
+    blob = night.photos.first.blob
+
+    assert_equal 'image/jpeg', blob.content_type
+    assert_equal 'photo.jpg', blob.filename.to_s
+    assert_equal [40, 24], image_dimensions(blob)
+    assert_equal players(:ada).id, blob.metadata['uploaded_by_player_id']
+  end
+
+  test 'resizes JPEG photos without enlarging and removes orientation metadata' do
+    sign_in_as
+    night = match_nights(:fall_week_one)
+    bytes = Vips::Image.black(3000, 1000).write_to_buffer('.jpg')
+    exif = "Exif\0\0II".b + [42, 8, 1, 274, 3, 1, 6, 0, 0].pack('vVvvvVvvV')
+    bytes = bytes.byteslice(0, 2) + "\xFF\xE1".b + [exif.bytesize + 2].pack('n') + exif + bytes.byteslice(2..)
+
+    post match_night_photos_path(night), params: { photos: [upload_bytes(bytes, 'rotated.jpg', 'image/jpeg')] }
+    blob = night.photos.first.blob
+    image = Vips::Image.new_from_buffer(blob.download, '')
+
+    assert_equal [533, 1600], [image.width, image.height]
+    assert_empty image.get_fields.grep(/exif|orientation/i)
+  end
+
+  test 'preserves PNG transparency and format when resizing' do
+    sign_in_as
+    night = match_nights(:fall_week_one)
+    bytes = Vips::Image.black(2400, 1200, bands: 4).write_to_buffer('.png')
+
+    post match_night_photos_path(night), params: { photos: [upload_bytes(bytes, 'transparent.png', 'image/png')] }
+    blob = night.photos.first.blob
+    image = Vips::Image.new_from_buffer(blob.download, '')
+
+    assert_equal 'image/png', blob.content_type
+    assert_equal [1600, 800], [image.width, image.height]
+    assert_equal 0, image.getpoint(0, 0).last
+  end
+
+  test 'retains WebP format and transparency' do
+    sign_in_as
+    night = match_nights(:fall_week_one)
+    bytes = Vips::Image.black(20, 10, bands: 4).write_to_buffer('.webp')
+
+    post match_night_photos_path(night), params: { photos: [upload_bytes(bytes, 'transparent.webp', 'image/webp')] }
+    blob = night.photos.first.blob
+    image = Vips::Image.new_from_buffer(blob.download, '')
+
+    assert_equal 'image/webp', blob.content_type
+    assert_equal [20, 10], [image.width, image.height]
+    assert_equal 0, image.getpoint(0, 0).last
+  end
+
+  test 'rejects a mixed batch without leaving new attachments or blobs' do
+    sign_in_as
+    night = match_nights(:fall_week_one)
+    night.photos.attach(io: StringIO.new('existing'), filename: 'existing.jpg', content_type: 'image/jpeg')
+    invalid = upload_bytes('<svg/>', 'fake.jpg', 'image/jpeg')
+
+    assert_no_difference ['night.photos.attachments.count', 'ActiveStorage::Blob.count'] do
+      post match_night_photos_path(night), params: { photos: [photo_upload('valid.jpg'), invalid] }
+    end
+
+    assert_equal 'Photos must be valid JPEG, PNG, WebP or HEIC images.', flash[:alert]
+  end
+
+  test 'rejects oversized original files' do
+    sign_in_as
+    night = match_nights(:fall_week_one)
+    oversized = upload_bytes('x' * (MatchNight::MAX_PHOTO_BYTES + 1), 'large.jpg', 'image/jpeg')
+
+    assert_no_difference 'ActiveStorage::Blob.count' do
+      post match_night_photos_path(night), params: { photos: [oversized] }
+    end
+
+    assert_match '10 MB or smaller', flash[:alert]
+  end
+
+  test 'rejects excessively large image dimensions before decoding' do
+    sign_in_as
+    night = match_nights(:fall_week_one)
+    bytes = Vips::Image.black(8000, 8000).write_to_buffer('.png')
+
+    assert_no_difference 'ActiveStorage::Blob.count' do
+      post match_night_photos_path(night), params: { photos: [upload_bytes(bytes, 'large.png', 'image/png')] }
+    end
+
+    assert_match '60 megapixels', flash[:alert]
+  end
+
+  test 'rejects corrupt images' do
+    sign_in_as
+    night = match_nights(:fall_week_one)
+    bytes = Vips::Image.black(10, 10).write_to_buffer('.jpg').byteslice(0, 25)
+
+    assert_no_difference 'ActiveStorage::Blob.count' do
+      post match_night_photos_path(night), params: { photos: [upload_bytes(bytes, 'broken.jpg', 'image/jpeg')] }
+    end
+
+    assert_equal 'Photos must be valid JPEG, PNG, WebP or HEIC images.', flash[:alert]
+  end
+
   test 'requires sign-in to upload photos' do
     night = match_nights(:fall_week_one)
 
@@ -240,7 +348,7 @@ class PhotosControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_redirected_to match_night_path(night)
-    assert_match 'must be a PNG, JPEG or WebP image', flash[:alert]
+    assert_match 'must be valid JPEG, PNG, WebP or HEIC images', flash[:alert]
   end
 
   test 'players can remove photos they uploaded' do
@@ -363,6 +471,16 @@ class PhotosControllerTest < ActionDispatch::IntegrationTest
   end
 
   def photo_upload(filename)
-    Rack::Test::UploadedFile.new(StringIO.new('photo bytes'), 'image/jpeg', original_filename: filename)
+    bytes = Vips::Image.black(10, 10).write_to_buffer('.jpg')
+    upload_bytes(bytes, filename, 'image/jpeg')
+  end
+
+  def upload_bytes(bytes, filename, content_type)
+    Rack::Test::UploadedFile.new(StringIO.new(bytes), content_type, original_filename: filename)
+  end
+
+  def image_dimensions(blob)
+    image = Vips::Image.new_from_buffer(blob.download, '')
+    [image.width, image.height]
   end
 end

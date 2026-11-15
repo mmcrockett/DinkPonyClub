@@ -10,7 +10,7 @@ Docker is preferred for development, tests, and linting. Install Docker and star
 - Tests: `bin/test-docker`; one file: `bin/test-docker test/models/game_test.rb`; one test: `bin/test-docker test/models/game_test.rb:12`
 - Lint: `bin/rubocop-docker` (add `-a` to autocorrect)
 - System tests (Capybara/Selenium): `bin/system-test-docker`; one file: `bin/system-test-docker test/system/photo_gallery_test.rb`. The development image includes Chromium and its driver.
-- Native fallback: `bin/setup --skip-server`, `bin/dev`, `bin/rails test`, `bin/rails test:system`, and `bin/rubocop`. Native system tests require Chrome and libvips on the host.
+- Native fallback: `bin/setup --skip-server`, `bin/dev`, `bin/rails test`, `bin/rails test:system`, and `bin/rubocop`. Native photo processing requires libvips with HEIC/HEVC decoder support; system tests also require Chrome.
 - Security: `bin/brakeman`, `bin/bundler-audit`, `bin/importmap audit`
 - Everything CI runs locally: `bin/ci` (see `config/ci.rb`)
 
