@@ -4,13 +4,13 @@ Dink Pony Club: Rails 8.1 app (Ruby 3.4.12) for running a pickleball league - se
 
 ## Commands
 
-Docker is preferred for development, regular tests, and linting. Install Docker and start its daemon first. Each command builds or reuses the development image and runs a separate container; tests and lint do not require the server to be running.
+Docker is preferred for development, tests, and linting. Install Docker and start its daemon first. Each command builds or reuses the development image and runs a separate container; tests and lint do not require the server to be running.
 
 - Run: `bin/dev-docker`, then open http://localhost:3312. Stop with Ctrl-C.
 - Tests: `bin/test-docker`; one file: `bin/test-docker test/models/game_test.rb`; one test: `bin/test-docker test/models/game_test.rb:12`
 - Lint: `bin/rubocop-docker` (add `-a` to autocorrect)
-- System tests (Capybara/Selenium): `bin/rails test:system` on the host; the Docker image does not include a browser.
-- Native fallback: `bin/setup --skip-server`, `bin/dev`, `bin/rails test`, and `bin/rubocop`.
+- System tests (Capybara/Selenium): `bin/system-test-docker`; one file: `bin/system-test-docker test/system/photo_gallery_test.rb`. The development image includes Chromium and its driver.
+- Native fallback: `bin/setup --skip-server`, `bin/dev`, `bin/rails test`, `bin/rails test:system`, and `bin/rubocop`. Native system tests require Chrome and libvips on the host.
 - Security: `bin/brakeman`, `bin/bundler-audit`, `bin/importmap audit`
 - Everything CI runs locally: `bin/ci` (see `config/ci.rb`)
 

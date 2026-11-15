@@ -7,9 +7,10 @@ module NavigationHelper
       { label: 'Seasons', icon: 'layers', path: seasons_path },
       { label: 'Teams', icon: 'users', path: (season_teams_path(nav_season) if nav_season) },
       { label: 'Schedule', icon: 'calendar', path: season_nav_path(:match_nights) },
+      photos_item,
       { label: 'Players', icon: 'user', path: season_nav_path(:players) },
       { label: 'Standings', icon: 'trophy', path: season_nav_path(:standings) },
-      (matchup_item if nav_season),
+      matchup_item,
       { label: 'Rules & Format', icon: 'book-open', path: rules_path }
     ].compact
     items << { label: 'Admin', icon: 'cog', path: admin_root_path(season: nav_season) } if admin?
@@ -38,7 +39,13 @@ module NavigationHelper
 
   private
 
+  def photos_item
+    { label: t('photos.title'), icon: 'camera', path: photos_path }
+  end
+
   def matchup_item
+    return unless nav_season
+
     { label: 'Matchup', icon: 'clipboard-document-list', path: season_nav_path(:matchup) }
   end
 

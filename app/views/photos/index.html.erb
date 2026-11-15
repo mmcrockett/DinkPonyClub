@@ -1,0 +1,50 @@
+<% content_for :title, t('photos.title') %>
+
+<div class="flex flex-col gap-4">
+  <h1 class="text-2xl font-bold text-dpc-navy"><%= t('photos.title') %></h1>
+
+  <%= form_with url: photos_path, method: :get, class: 'flex flex-wrap items-end gap-3' do |form| %>
+    <div class="flex flex-col gap-1">
+      <%= form.label :season, t('photos.season'), class: 'text-sm font-semibold text-dpc-navy' %>
+      <%= form.select :season, options_for_select([[t('photos.all_seasons'), '']] + @seasons.map { |season| [season.name, season.to_param] }, @season&.to_param || ''),
+                      {}, class: 'rounded-md border border-gray-300 bg-white px-3 py-2' %>
+    </div>
+    <%= form.submit t('photos.apply'), name: nil, class: 'btn btn-primary' %>
+  <% end %>
+
+  <% if @photos.any? %>
+    <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+      <% @photos.each do |photo| %>
+        <% night = photo.record %>
+        <figure class="overflow-hidden rounded-lg bg-white shadow-sm">
+          <%= link_to match_night_photo_path(night, photo) do %>
+            <%= image_tag thumbnail_match_night_photo_path(night, photo), alt: photo.filename.to_s,
+                          loading: 'lazy', class: 'aspect-square w-full object-cover' %>
+          <% end %>
+          <figcaption class="flex flex-col gap-1 p-3 text-sm">
+            <span class="text-gray-500"><%= night.season.name %></span>
+            <%= link_to night.label, match_night_path(night, anchor: 'match-night-photos'), class: 'font-semibold hover:underline' %>
+            <time datetime="<%= night.played_on.iso8601 %>" class="text-gray-500"><%= l(night.played_on, format: :long) %></time>
+          </figcaption>
+        </figure>
+      <% end %>
+    </div>
+
+    <% if @gallery.total_pages > 1 %>
+      <nav aria-label="<%= t('photos.pagination') %>" class="flex flex-wrap items-center justify-center gap-3">
+        <% if @gallery.page > 1 %>
+          <%= link_to t('photos.previous'), photos_path(season: @season&.to_param, page: @gallery.page - 1), class: 'btn btn-secondary', rel: 'prev' %>
+        <% end %>
+        <span class="text-sm text-gray-500"><%= t('photos.page', page: @gallery.page, pages: @gallery.total_pages) %></span>
+        <% if @gallery.page < @gallery.total_pages %>
+          <%= link_to t('photos.next'), photos_path(season: @season&.to_param, page: @gallery.page + 1), class: 'btn btn-secondary', rel: 'next' %>
+        <% end %>
+      </nav>
+    <% end %>
+  <% elsif @gallery.total_count.positive? %>
+    <p class="text-sm text-gray-500"><%= t('photos.empty_page') %></p>
+    <%= link_to t('photos.first_page'), photos_path(season: @season&.to_param), class: 'font-semibold hover:underline' %>
+  <% else %>
+    <p class="text-sm text-gray-500"><%= t(@season ? 'photos.empty_season' : 'photos.empty') %></p>
+  <% end %>
+</div>

@@ -21,6 +21,15 @@ case "$mode" in
   test)
     set -- --env RAILS_ENV=test "$image" bin/rails test "$@"
     ;;
+  system-test)
+    if [ "$#" -eq 0 ]; then
+      set -- test:system
+    else
+      set -- test "$@"
+    fi
+    set -- --env RAILS_ENV=test --env CHROME_BIN=/usr/bin/chromium \
+      --env SYSTEM_TEST_DOCKER=1 "$image" bin/rails "$@"
+    ;;
   *)
     echo "Unknown Docker command: $mode" >&2
     exit 1
