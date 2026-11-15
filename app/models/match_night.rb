@@ -11,7 +11,9 @@ class MatchNight < ApplicationRecord
   has_many :slot_availabilities, through: :match_slots
   has_many :games, through: :matches
   has_many :court_assignments, through: :matches
-  has_many_attached :photos
+  has_many_attached :photos do |attachable|
+    attachable.variant :thumbnail, resize_to_limit: [600, 600]
+  end
 
   validates :played_on, presence: true
   validates :label, presence: true, length: { maximum: 60 }

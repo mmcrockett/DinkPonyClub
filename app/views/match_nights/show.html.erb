@@ -23,8 +23,10 @@
       <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <% @photos.each do |photo| %>
           <figure class="overflow-hidden rounded-lg bg-white shadow-sm">
-            <%= image_tag match_night_photo_path(@match_night, photo), alt: photo.filename.to_s,
-                          loading: 'lazy', class: 'aspect-square w-full object-cover' %>
+            <%= link_to match_night_photo_path(@match_night, photo) do %>
+              <%= image_tag thumbnail_match_night_photo_path(@match_night, photo), alt: photo.filename.to_s,
+                            loading: 'lazy', class: 'aspect-square w-full object-cover' %>
+            <% end %>
             <% if admin? %>
               <figcaption class="p-2">
                 <%= button_to t('photos.remove'), match_night_photo_path(@match_night, photo), method: :delete,

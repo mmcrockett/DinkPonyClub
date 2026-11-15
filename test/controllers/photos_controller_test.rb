@@ -1,4 +1,5 @@
 require 'test_helper'
+require 'vips'
 
 class PhotosControllerTest < ActionDispatch::IntegrationTest
   test 'uploads multiple photos and serves them only to signed-in players' do
@@ -110,7 +111,36 @@ class PhotosControllerTest < ActionDispatch::IntegrationTest
     get match_night_path(night)
 
     assert_response :success
-    assert_select 'img[src=?][alt=?]', match_night_photo_path(night, photo), 'final.jpg'
+    assert_select 'a[href=?] img[src=?][alt=?]', match_night_photo_path(night, photo),
+                  thumbnail_match_night_photo_path(night, photo), 'final.jpg'
+  end
+
+  test 'serves a bounded thumbnail to signed-in players' do
+    sign_in_as
+    night = match_nights(:fall_week_one)
+    image = Vips::Image.black(1200, 900).write_to_buffer('.png')
+    night.photos.attach(io: StringIO.new(image), filename: 'photo.png', content_type: 'image/png')
+    photo = night.photos.attachments.first
+
+    get thumbnail_match_night_photo_path(night, photo)
+
+    assert_response :success
+    assert_equal 'private, no-store', response.headers['Cache-Control']
+    thumbnail = Vips::Image.new_from_buffer(response.body, '')
+
+    assert_equal [600, 450], [thumbnail.width, thumbnail.height]
+  end
+
+  test 'thumbnail access requires an active player' do
+    sign_in_as
+    night = match_nights(:fall_week_one)
+    night.photos.attach(io: StringIO.new('photo bytes'), filename: 'photo.jpg', content_type: 'image/jpeg')
+    photo = night.photos.attachments.first
+    players(:ada).inactive!
+
+    get thumbnail_match_night_photo_path(night, photo)
+
+    assert_redirected_to root_path
   end
 
   private
