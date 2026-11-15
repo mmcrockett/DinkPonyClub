@@ -48,7 +48,7 @@ class PhotosController < ApplicationController
   end
 
   def photo_params
-    params.expect(photos: [])
+    params.expect(photos: []).compact_blank
   end
 
   def upload_error(uploads)

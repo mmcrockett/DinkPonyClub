@@ -35,6 +35,27 @@ class PhotosControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_path
   end
 
+  test 'uploads a photo when the form includes an empty hidden field' do
+    sign_in_as
+    night = match_nights(:fall_week_one)
+
+    assert_difference -> { night.photos.attachments.count }, 1 do
+      post match_night_photos_path(night), params: { photos: ['', photo_upload('one.jpg')] }
+    end
+
+    assert_redirected_to match_night_path(night)
+  end
+
+  test 'asks for a photo when the form contains only its empty hidden field' do
+    sign_in_as
+    night = match_nights(:fall_week_one)
+
+    post match_night_photos_path(night), params: { photos: [''] }
+
+    assert_redirected_to match_night_path(night)
+    assert_equal 'Choose at least one photo.', flash[:alert]
+  end
+
   test 'rejects signed blob ids in uploads' do
     sign_in_as
     night = match_nights(:fall_week_one)
@@ -42,7 +63,7 @@ class PhotosControllerTest < ActionDispatch::IntegrationTest
                                                   content_type: 'image/jpeg')
 
     assert_no_difference -> { night.photos.attachments.count } do
-      post match_night_photos_path(night), params: { photos: [blob.signed_id] }
+      post match_night_photos_path(night), params: { photos: ['', blob.signed_id] }
     end
 
     assert_redirected_to match_night_path(night)
